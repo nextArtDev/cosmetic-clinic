@@ -1,0 +1,647 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Prisma 7: connection URL lives in prisma.config.ts, not here
+}
+
+enum Role {
+  user
+  admin
+  doctor
+}
+
+enum PatientType {
+  MYSELF
+  SOMEONE_ELSE
+}
+
+enum AppointmentStatus {
+  PAYMENT_PENDING
+  BOOKING_CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  CASH
+}
+
+enum PaymentStatus {
+  Pending
+  Paid
+  Failed
+  Declined
+  Cancelled
+  Refunded
+  PartiallyRefunded
+  Chargeback
+}
+
+// =========================================================
+// AUTH (better-auth) — identical to medical404
+// =========================================================
+
+model User {
+  id            String   @id
+  name          String   @db.Text
+  codeNumber    String?
+  email         String
+  emailVerified Boolean  @default(false)
+  image         String?  @db.Text
+  isRootAdmin   Boolean? @default(false)
+
+  dateOfBirth DateTime?
+  role        Role      @default(user)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  phoneNumber         String   @db.Text
+  phoneNumberVerified Boolean?
+  address             String?  @db.Text
+  isActive            Boolean  @default(true)
+
+  sessions   Session[]
+  accounts   Account[]
+  banned     Boolean?  @default(false)
+  banReason  String?   @db.Text
+  banExpires DateTime?
+
+  doctorProfile DoctorProfile?
+  doctorLeaves  DoctorLeave[]
+
+  doctorAppointments   Appointment[]         @relation("DoctorAppointments")
+  userAppointments     Appointment[]         @relation("UserAppointments")
+  doctorTestimonials   DoctorTestimonial[]   @relation("DoctorTestimonials")
+  patientTestimonials  DoctorTestimonial[]   @relation("PatientTestimonials")
+  paymentDetails       PaymentDetails[]
+  orders               Order[]
+  images               Image[]
+  doctorScheduleBlocks DoctorScheduleBlock[]
+  doctorDateOverrides  DoctorDateOverride[]
+
+  personnel Personnel[]
+
+  // ---- Patient-dentistry record (from the `dentistry` project) ----
+  // Profile / before / after photos used by the doctor's dashboard timeline.
+  profileImage   Image?  @relation("profileImage", fields: [profileImageId], references: [id])
+  profileImageId String? @unique
+  beforeImage    Image?  @relation("beforeImage", fields: [beforeImageId], references: [id])
+  beforeImageId  String? @unique
+  afterImage     Image?  @relation("afterImage", fields: [afterImageId], references: [id])
+  afterImageId   String? @unique
+
+  gender String?
+  bio    String? @db.Text
+
+  timeLines       TimeLine[]
+  reviewsWritten  Review[]   @relation("ReviewAuthor")
+  reviewsReceived Review[]   @relation("ReviewDoctor")
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?  @db.Text
+  userAgent String?  @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String? @db.Text
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String    @db.Text
+  providerId            String    @db.Text
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?   @db.Text
+  password              String?   @db.Text
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String   @db.Text
+  value      String   @db.Text
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model OtpRateLimit {
+  id          String   @id @default(uuid())
+  phoneNumber String   @unique
+  lastSentAt  DateTime
+
+  @@index([phoneNumber])
+}
+
+// =========================================================
+// DOCTOR — single dentist. The clinic *is* the doctor.
+// =========================================================
+
+/// Single-dentist practice. There is exactly one DoctorProfile row,
+/// linked 1:1 to the doctor's User account (role `admin` so they can
+/// access the dashboard). All scheduling/booking models key off the
+/// doctor's userId — exactly the medical404 engine, one doctor.
+model DoctorProfile {
+  profileId       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String   @unique
+  slug            String   @unique
+  title           String? // e.g. "جراح و دندانپزشک"
+  brief           String   @db.Text
+  bio             String?  @db.Text
+  credentials     String
+  rating          Float    @default(0) // denormalized aggregate from approved reviews
+  reviewCount     Int      @default(0)
+  yearsExperience Int      @default(0)
+  languages       String[] @default([])
+  consultFee      Int      @default(0) // in Toman
+  isActive        Boolean  @default(true)
+
+  slotDurationMinutes Int @default(30)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specializations DoctorSpecialization[]
+  illnesses       Illness[]              @relation("DoctorIllnesses")
+
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  departmentId String?     @db.Uuid
+
+  @@index([departmentId])
+  @@map("doctor_profiles")
+}
+
+// =========================================================
+// DENTAL CATALOG — specializations (treatments) & illnesses
+// =========================================================
+
+/// Dental specialization / treatment catalog (e.g. ایمپلنت, ارتودنسی, زیبایی).
+model Specialization {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String  @unique
+  slug        String  @unique
+  description String? @db.Text
+  iconName    String?
+  order       Int     @default(0)
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctors   DoctorSpecialization[]
+  illnesses Illness[]              @relation("IllnessSpecializations")
+  images    Image[]
+  timeLines TimeLine[]
+
+  @@map("specializations")
+}
+
+/// Join table: which specializations the dentist holds.
+model DoctorSpecialization {
+  doctorProfileId  String  @db.Uuid
+  specializationId String  @db.Uuid
+  isPrimary        Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  doctorProfile  DoctorProfile  @relation(fields: [doctorProfileId], references: [profileId], onDelete: Cascade)
+  specialization Specialization @relation(fields: [specializationId], references: [id], onDelete: Cascade)
+
+  @@id([doctorProfileId, specializationId])
+  @@index([specializationId])
+  @@map("doctor_specializations")
+}
+
+/// Dental condition catalog (e.g. پوسیدگی, دندان عقل نهفته).
+model Illness {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String  @unique
+  slug        String  @unique
+  description String? @db.Text
+  symptoms    String? @db.Text
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  specializations Specialization[] @relation("IllnessSpecializations")
+  doctors         DoctorProfile[]  @relation("DoctorIllnesses")
+  images          Image[]
+
+  @@map("illnesses")
+}
+
+/// General reviews — broader than DoctorTestimonial (which stays
+/// appointment-verified, 1:1 with a completed visit).
+model Review {
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  authorId String
+  doctorId String? // null => review of the practice itself
+
+  rating  Int // 1..5 — validate in the server action / zod
+  title   String?
+  comment String  @db.Text
+
+  isApproved Boolean @default(false)
+  isFeatured Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author User  @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  doctor User? @relation("ReviewDoctor", fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([authorId, doctorId])
+  @@index([doctorId, isApproved])
+  @@map("reviews")
+}
+
+// =========================================================
+// SCHEDULING — the medical404 flexible core, single doctor
+// =========================================================
+
+/// The heart of flexible availability. The single dentist has MULTIPLE
+/// blocks per weekday. Slots are COMPUTED at read time — never materialized.
+model DoctorScheduleBlock {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  doctorId  String
+  dayOfWeek Int // Sunday=0 ... Saturday=6
+
+  startTime String // "HH:MM" 24h, clinic timezone
+  endTime   String // "HH:MM", exclusive end
+
+  slotDurationMinutes Int?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor User @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, dayOfWeek, startTime])
+  @@index([doctorId, dayOfWeek, isActive])
+  @@map("doctor_schedule_blocks")
+}
+
+/// One-off exception for a SPECIFIC date (not weekly):
+/// extra day, shortened day, different hours.
+model DoctorDateOverride {
+  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  doctorId String
+  date     DateTime @db.Date
+
+  startTime String // "HH:MM"
+  endTime   String // "HH:MM"
+
+  slotDurationMinutes Int?
+  reason              String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor User @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, date, startTime])
+  @@index([doctorId, date])
+  @@map("doctor_date_overrides")
+}
+
+/// Time-ranged leave. startTime/endTime NULL => full-day leave.
+model DoctorLeave {
+  leaveId   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  doctorId  String
+  leaveDate DateTime @db.Date
+
+  startTime String?
+  endTime   String?
+
+  reason    String?  @db.Text
+  createdAt DateTime @default(now())
+
+  doctor User @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId, leaveDate])
+  @@map("doctor_leaves")
+}
+
+/// Practice-wide closures (public holidays etc.) — applies to the dentist.
+model ClinicClosure {
+  id     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date   DateTime @db.Date
+  reason String?  @db.Text
+
+  createdAt DateTime @default(now())
+
+  @@unique([date])
+  @@map("clinic_closures")
+}
+
+/// Which weekdays the practice is open at all (gate above schedule).
+model WorkingDay {
+  dayId        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dayOfWeek    Int     @unique // Sunday=0 ...
+  isWorkingDay Boolean @default(true)
+
+  @@map("working_days")
+}
+
+/// Global booking policy.
+model AppSettings {
+  id                      String @id @default("global")
+  timezone                String @default("Asia/Tehran")
+  defaultSlotDuration     Int    @default(30)
+  slotReservationDuration Int    @default(10)
+  maxAdvanceBookingDays   Int    @default(60)
+  minLeadTimeMinutes      Int    @default(15)
+
+  @@map("app_settings")
+}
+
+// =========================================================
+// BOOKING
+// =========================================================
+
+model Appointment {
+  appointmentId        String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  doctorId             String
+  userId               String?
+  guestIdentifier      String?
+  patientType          PatientType
+  patientRelation      String?
+  patientName          String
+  paymentMethod        String?
+  paymentResult        Json?
+  paidAt               DateTime?
+  appointmentStartUTC  DateTime
+  appointmentEndUTC    DateTime
+  phoneNumber          String?
+  reasonForVisit       String?           @db.Text
+  additionalNotes      String?           @db.Text
+  patientDateOfBirth   DateTime?
+  reservationExpiresAt DateTime?
+  status               AppointmentStatus @default(PAYMENT_PENDING)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  doctor User  @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  user   User? @relation("UserAppointments", fields: [userId], references: [id])
+
+  testimonial DoctorTestimonial?
+  Order       Order[]
+
+  // NOTE: double-booking is prevented by a PARTIAL unique index added
+  // in a raw SQL migration (Prisma can't express it):
+  //
+  // CREATE UNIQUE INDEX appointments_doctor_slot_active_key
+  //   ON appointments ("doctorId", "appointmentStartUTC")
+  //   WHERE status NOT IN ('CANCELLED', 'NO_SHOW');
+  @@index([doctorId, appointmentStartUTC])
+  @@index([userId, status])
+  @@index([status, reservationExpiresAt])
+  @@map("appointments")
+}
+
+// =========================================================
+// PATIENT DENTAL RECORD — timeline of treatments/tasks per user
+// =========================================================
+
+/// A treatment-visit record on a patient's timeline (from the `dentistry`
+/// project). The doctor creates entries in the dashboard; the patient can
+/// view their own timeline on the public site.
+model TimeLine {
+  id             String           @id @default(uuid())
+  date           String           @db.Text
+  description    String           @db.Text
+  images         Image[]
+  isEspecial     Boolean          @default(false)
+  specialization Specialization[]
+  user           User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([userId])
+  @@map("time_lines")
+}
+
+// =========================================================
+// CONTENT & PAYMENTS — unchanged from medical404
+// =========================================================
+
+model Image {
+  id         String   @id @default(cuid())
+  url        String   @db.Text
+  key        String   @db.Text
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  userProfile   User? @relation("profileImage")
+  userBeforePic User? @relation("beforeImage")
+  userAfterPic  User? @relation("afterImage")
+
+  bannerImage   BannerImage? @relation(name: "BannerImageToImage")
+  bannerImageId String?
+
+  specialization   Specialization? @relation(fields: [specializationId], references: [id])
+  specializationId String?         @db.Uuid
+
+  illness   Illness? @relation(fields: [illnessId], references: [id])
+  illnessId String?  @db.Uuid
+
+  timeLine   TimeLine? @relation(fields: [timeLineId], references: [id])
+  timeLineId String?
+
+  personnel   Personnel? @relation(fields: [personnelId], references: [id])
+  personnelId String?    @db.Uuid
+
+  @@unique([userId, bannerImageId])
+}
+
+model Personnel {
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   String? @unique
+  fullName String
+  position String // e.g. "تکنسین", "منشی", "دستیار"
+
+  bio         String? @db.Text
+  images      Image[]
+  phoneNumber String?
+  email       String?
+  order       Int     @default(0)
+  isActive    Boolean @default(true)
+
+  hiredAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([isActive])
+  @@map("personnel")
+}
+
+model DoctorTestimonial {
+  testimonialId   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  appointmentId   String @unique @db.Uuid
+  doctorId        String
+  patientId       String
+  testimonialText String @db.Text
+
+  rating    Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isFeatured Boolean @default(false)
+  isPending  Boolean @default(true)
+
+  appointment Appointment @relation(fields: [appointmentId], references: [appointmentId], onDelete: Cascade)
+  doctor      User        @relation("DoctorTestimonials", fields: [doctorId], references: [id])
+  patient     User        @relation("PatientTestimonials", fields: [patientId], references: [id])
+
+  @@map("doctor_testimonials")
+}
+
+model BannerImage {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  image     Image    @relation(name: "BannerImageToImage", fields: [imageId], references: [id], onDelete: Cascade)
+  imageId   String   @unique @db.Text
+  fileKey   String   @unique
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("banner_images")
+}
+
+model FAQ {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  question  String   @db.Text
+  answer    String   @db.Text
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+model Department {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique
+  iconName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctors DoctorProfile[]
+
+  @@map("departments")
+}
+
+model Order {
+  id String @id @default(uuid())
+
+  appointmentId String    @db.Uuid
+  doctorId      String
+  amount        Float
+  currency      String?
+  paidAt        DateTime? @db.Timestamp(6)
+  notes         String?
+
+  paymentStatus  PaymentStatus   @default(Pending)
+  authority      String?
+  paymentDetails PaymentDetails? @relation("PaymentDetailsToOrder")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointment Appointment @relation(fields: [appointmentId], references: [appointmentId], onDelete: Cascade)
+  doctor      User        @relation(fields: [doctorId], references: [id])
+
+  @@map("transactions")
+}
+
+model PaymentDetails {
+  id String @id @default(uuid())
+
+  status        String?
+  amount        Float?
+  Authority     String? @db.Text
+  transactionId String?
+  orderId       String  @unique
+  order         Order   @relation("PaymentDetailsToOrder", fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+  userId    String
+
+  @@index([orderId])
+  @@index([userId])
+}
+
+model PaymentLock {
+  id        String   @id @default(uuid())
+  orderId   String   @unique
+  authority String
+  lockedAt  DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([orderId])
+  @@index([expiresAt])
+}
+
+model PaymentAttempt {
+  id        String   @id @default(uuid())
+  orderId   String
+  authority String
+  status    String // 'PENDING', 'SUCCESS', 'FAILED', 'USED'
+  amount    Float
+  createdAt DateTime @default(now())
+
+  @@unique([orderId, authority])
+  @@index([orderId])
+  @@index([authority])
+}
+
+model PaymentRateLimit {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}

@@ -1,0 +1,918 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-vazir:
+    ui-sans-serif, system-ui, 'Segoe UI', Tahoma, 'Noto Sans Arabic', sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Home landing "stage" system — ONE warm dark palette shared by every
+     home section (hero ambient, body carousel, before/after, testimonials,
+     footer). Foreground/reverse pairs live here too, so sections stop
+     mixing pure black, zinc, green-ink and warm-oklch surfaces. */
+  --color-canvas: var(--home-canvas);
+  --color-canvas-deep: var(--home-canvas-deep);
+  --color-canvas-raised: var(--home-canvas-raised);
+  --color-cream: var(--home-cream);
+  --color-cream-dim: var(--home-cream-dim);
+  --color-gilded: var(--home-gilded);
+  --color-gild-bright: var(--home-gild-bright);
+  --color-gild-deep: var(--home-gild-deep);
+  --font-sans: var(--font-vazir), var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-vazir), var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Meridian (public site) tokens */
+  --font-display: var(--font-vazir), var(--font-sans);
+  --font-body: var(--font-vazir), var(--font-sans);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-elevated: var(--ink-elevated);
+  --color-ivory: var(--ivory);
+  --color-ivory-dim: var(--ivory-dim);
+  --color-sage: var(--sage);
+  --color-sage-bright: var(--sage-bright);
+  --color-sage-mist: var(--sage-mist);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-bg-strong: var(--glass-bg-strong);
+  --color-glass-border: var(--glass-border);
+  --color-glass-highlight: var(--glass-highlight);
+
+  --animate-shimmer: shimmer 2.8s ease-in-out infinite;
+  --animate-skeleton-shimmer: skeleton-shimmer 1.6s ease-in-out infinite alternate;
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-marquee: marquee 34s linear infinite;
+
+  /* Home (dentestry-15) hero animations */
+  --animate-carousel-move: carousel-move var(--duration, 50s) linear infinite;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Meridian (public site) design tokens */
+  --ink: #0b1310;
+  --ink-soft: #101c17;
+  --ink-elevated: #16231d;
+  --ivory: #f6f1e7;
+  --ivory-dim: #cfc9bb;
+  --sage: #2f5d50;
+  --sage-bright: #5a9683;
+  --sage-mist: #b9d2c8;
+  --gold: #c9a667;
+  --gold-soft: #e4cda0;
+
+  --glass-bg: rgba(246, 241, 231, 0.06);
+  --glass-bg-strong: rgba(246, 241, 231, 0.1);
+  --glass-border: rgba(246, 241, 231, 0.14);
+  --glass-highlight: rgba(255, 255, 255, 0.35);
+
+  /* Home stage palette (matches AmbientBackground / AdvancedBodyCarousel) */
+  --home-canvas: oklch(13% 0.014 46);
+  --home-canvas-deep: oklch(12% 0.012 44);
+  --home-canvas-raised: oklch(21% 0.03 50);
+  --home-cream: oklch(95% 0.015 85);
+  --home-cream-dim: oklch(76% 0.02 82);
+  --home-gilded: #c5a059;
+  --home-gild-bright: #e3c98f;
+  --home-gild-deep: #8f6f35;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Public-site (Meridian) utilities: liquid glass, gold gradient,
+   hairline, and animation keyframes.
+--------------------------------------------------------------------- */
+* {
+  border-color: var(--glass-border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Lenis smooth-scroll integration (Lenis-recommended snippet). These rules
+   only apply while Lenis is active (html.lenis classes), so non-Lenis routes
+   keep the native smooth behavior above. Without the scroll-behavior override
+   the CSS smooth adds a second easing layer on top of Lenis's per-frame
+   writes, causing jank. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.glass-panel {
+  position: relative;
+  background: linear-gradient(155deg, var(--glass-bg-strong), var(--glass-bg));
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 30px 60px -30px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    var(--glass-highlight) 46%,
+    transparent 72%
+  );
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.glass-sheen {
+  position: absolute;
+  inset: -40% -20%;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.16) 45%,
+    rgba(255, 255, 255, 0.02) 55%,
+    transparent 70%
+  );
+  transform: translateX(-60%);
+  pointer-events: none;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(
+    120deg,
+    var(--gold-soft),
+    var(--gold) 55%,
+    var(--sage-mist)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hairline {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--glass-border),
+    transparent
+  );
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateX(-60%);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateX(60%);
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes carousel-move {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+  }
+}
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateY(calc(var(--radius) * 1px)) rotate(-360deg);
+  }
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================================================
+   /v1 — Kosar Clinic frontend theme
+   Scoped to `.v1` so the root 404 (Meridian dark) theme is untouched.
+   Palette mirrors kosar-localized: cyan→sage→mist gradient, cream & pink
+   glass accents, Farsi fonts.
+   ========================================================================= */
+
+.v1 {
+  /* shadcn token overrides (light, teal-forward) */
+  --background: oklch(0.965 0.022 195);
+  --foreground: oklch(0.24 0.04 220);
+  --card: oklch(0.985 0.018 195);
+  --card-foreground: oklch(0.24 0.04 220);
+  --popover: oklch(0.985 0.018 195);
+  --popover-foreground: oklch(0.24 0.04 220);
+  --primary: oklch(0.62 0.115 198);
+  --primary-foreground: oklch(0.99 0.005 195);
+  --secondary: oklch(0.9 0.055 160);
+  --secondary-foreground: oklch(0.32 0.05 190);
+  --muted: oklch(0.925 0.03 195);
+  --muted-foreground: oklch(0.5 0.045 210);
+  --accent: oklch(0.9 0.055 160);
+  --accent-foreground: oklch(0.3 0.05 190);
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(0.98 0.005 25);
+  --border: oklch(0.86 0.035 195);
+  --input: oklch(0.86 0.035 195);
+  --ring: oklch(0.62 0.115 198);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.985 0.018 195);
+  --sidebar-foreground: oklch(0.24 0.04 220);
+  --sidebar-primary: oklch(0.62 0.115 198);
+  --sidebar-primary-foreground: oklch(0.99 0.005 195);
+  --sidebar-accent: oklch(0.9 0.055 160);
+  --sidebar-accent-foreground: oklch(0.3 0.05 190);
+  --sidebar-border: oklch(0.86 0.035 195);
+  --sidebar-ring: oklch(0.62 0.115 198);
+
+  /* Kosar brand tokens */
+  --kosar-cyan: #56c2d8;
+  --kosar-sage: #cee59e;
+  --kosar-mist: #9adae8;
+  --kosar-cream: #fff8dc;
+  --kosar-pink: #ffb6c1;
+  --kosar-teal: #2e8da0;
+  --kosar-green: #729432;
+  --kosar-teal-bright: #2fdce2;
+
+  font-family:
+    var(--font-v1-sans), ui-sans-serif, system-ui, Tahoma, 'Noto Sans Arabic',
+    sans-serif;
+}
+
+.v1 .font-numeric {
+  font-family: var(--font-v1-numeric), var(--font-v1-sans), sans-serif;
+}
+
+/* ---- Kosar gradient surfaces ---- */
+.v1-gradient {
+  background: linear-gradient(to top, #56c2d8, #cee59e, #9adae8);
+}
+.v1-gradient-r {
+  background: linear-gradient(to top, #9adae8, #cee59e, #56c2d8);
+}
+.v1-gradient-hero {
+  background: linear-gradient(to top, #56c2d8 0%, #cee59e 55%, #9adae8 100%);
+}
+
+/* ---- Kosar glass ---- */
+.v1-glass {
+  background: rgba(255, 255, 255, 0.32);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow:
+    1px 1px var(--kosar-cream),
+    -1px -1px var(--kosar-pink);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.v1-glass-soft {
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* ---- Kosar gradient titles ---- */
+.v1-title-gradient {
+  font-weight: 700;
+  background: linear-gradient(to right, #2e8da0, #729432, #2fdce2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1.6px 1.6px rgba(0, 0, 0, 0.35));
+}
+
+.v1-title-gradient-sage {
+  font-weight: 700;
+  background: linear-gradient(to right, #729432, #2e8da0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---- Kosar grainy texture (from original globals) ---- */
+.v1-grainy {
+  background-color: hsla(0, 0%, 100%, 0.68);
+  background-image:
+    radial-gradient(at 17% 27%, hsla(145, 0%, 100%, 0.8) 0px, transparent 50%),
+    radial-gradient(at 47% 51%, hsla(28, 100%, 74%, 0.54) 0px, transparent 50%),
+    radial-gradient(at 65% 44%, hsla(189, 24%, 41%, 1) 0px, transparent 50%),
+    radial-gradient(at 88% 81%, hsla(355, 100%, 93%, 1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(22, 100%, 77%, 0.71) 0px, transparent 50%);
+}
+
+/* ---- Kosar card shadow ---- */
+.v1-shadow {
+  box-shadow:
+    1px 1px var(--kosar-cream),
+    -1px -1px var(--kosar-pink);
+}
+
+/* ---- v1 marquee animation ---- */
+@keyframes v1-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.v1-marquee {
+  animation: v1-marquee var(--duration, 20s) linear infinite;
+}
+
+.v1-marquee-reverse {
+  animation: v1-marquee var(--duration, 20s) linear infinite reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v1-marquee,
+  .v1-marquee-reverse {
+    animation: none;
+  }
+}
+
+/* ---- v1 fade-in helper ---- */
+@keyframes v1-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.v1-fade-in {
+  opacity: 0;
+  animation: v1-fade-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--v1-delay, 0ms);
+}
+
+/* ---- v1 scrollbar polish (light) ---- */
+.v1 *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.v1 *::-webkit-scrollbar-thumb {
+  background: rgba(46, 141, 160, 0.35);
+  border-radius: 999px;
+}
+.v1 *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* =========================================================================
+   /v1 — kosar-localized component helpers (faithful port of its globals.css)
+   ========================================================================= */
+
+.v1 .gradient-base {
+  background-image: linear-gradient(to top, #56c2d8, #cee59e, #9adae8);
+}
+.v1 .gradient-kossar {
+  background-image: linear-gradient(to top, #56c2d8, #cee59e, #9adae8);
+}
+.v1 .gradient-kossar-r {
+  background-image: linear-gradient(to top, #9adae8, #cee59e, #56c2d8);
+}
+.v1 .gradient-base-r {
+  background-image: linear-gradient(to top, #9adae8, #cee59e, #56c2d8);
+}
+.v1 .title-color-kossar {
+  font-weight: 700;
+  background-image: linear-gradient(
+    to right,
+    #2e8da0,
+    #729432,
+    #2fdce2
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1.6px 1.6px rgba(0, 0, 0, 0.8));
+}
+.v1 .title-color {
+  font-weight: 700;
+  background-image: linear-gradient(
+    to right,
+    #30e8bf,
+    #e96f18,
+    #30e8bf
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1.6px 1.6px rgba(0, 0, 0, 0.8));
+}
+.v1 .sub-title-color {
+  font-weight: 700;
+  background-image: linear-gradient(
+    to right,
+    #fff8dc,
+    #e96f18,
+    #30e8bf
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1.2px 1.2px rgba(0, 0, 0, 0.8));
+}
+.v1 .number-color {
+  font-weight: 700;
+  background-image: linear-gradient(
+    to right,
+    #fff8dc,
+    rgba(0, 0, 0, 0.8),
+    #30e8bf
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1.6px 1.6px rgba(0, 0, 0, 0.8));
+}
+.v1 .glass {
+  box-shadow: 1px 1px #fff8dc, -1px -1px #ffb6c1;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+.v1 .custom-box-shadow {
+  box-shadow: 1px 1px #fff8dc, -1px -1px #ffb6c1;
+}
+.v1 .custom-text-shadow {
+  text-shadow: 1px 1px #ffb6c188, -1px -1px #fff8dc88;
+}
+.v1 .custom-number-shadow {
+  text-shadow: 0.7px 0.7px #000000, -0.7px -0.7px #fff8dc;
+}
+.v1 .grainy {
+  background-color: hsla(0, 0%, 100%, 0.68);
+  background-image:
+    radial-gradient(
+      at 17% 27%,
+      hsla(145, 0%, 100%, 0.8) 0px,
+      transparent 50%
+    ),
+    radial-gradient(
+      at 47% 51%,
+      hsla(28, 100%, 74%, 0.54) 0px,
+      transparent 50%
+    ),
+    radial-gradient(
+      at 65% 44%,
+      hsla(189, 24%, 41%, 1) 0px,
+      transparent 50%
+    ),
+    radial-gradient(
+      at 88% 81%,
+      hsla(355, 100%, 93%, 1) 0px,
+      transparent 50%
+    ),
+    radial-gradient(
+      at 0% 100%,
+      hsla(22, 100%, 77%, 0.71) 0px,
+      transparent 50%
+    ),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='4.59' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* ---- v1 hero vertical embla (kosar globals port) ---- */
+.v1 .embla {
+  max-width: 100%;
+  margin: auto;
+  --slide-height: 100vh;
+  --slide-spacing: 1px;
+  --slide-size: 100vh;
+}
+.v1 .embla__viewport {
+  overflow: hidden;
+}
+.v1 .embla__container {
+  backface-visibility: hidden;
+  display: flex;
+  touch-action: pan-x pinch-zoom;
+  margin-top: calc(var(--slide-spacing) * -1);
+  height: calc(var(--slide-spacing) + var(--slide-height));
+  flex-direction: column;
+}
+.v1 .embla__slide {
+  flex: 0 0 var(--slide-size);
+  min-height: 0;
+  padding-top: var(--slide-spacing);
+}
+.v1 .embla__slide__number {
+  box-shadow: inset 0 0 0 0.2rem var(--detail-medium-contrast);
+  font-size: 4rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* ---- v1 marquee (magicui-style) ---- */
+@keyframes v1-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes v1-marquee-vertical-scroll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+.v1 .animate-marquee {
+  animation: v1-marquee-scroll var(--duration, 40s) linear infinite;
+}
+.v1 .animate-marquee-vertical {
+  animation: v1-marquee-vertical-scroll var(--duration, 40s) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .v1 .animate-marquee,
+  .v1 .animate-marquee-vertical {
+    animation: none;
+  }
+}
+
+/* ---- v1 fade-in (animata-style, kosar Hero) ---- */
+@keyframes v1-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.v1 .animate-fade-in {
+  animation: v1-fade-in-up 1000ms var(--animation-delay, 0ms) ease forwards;
+}
+
+/* ---- v1 skew scroll (kosar doctor reviews) ---- */
+@keyframes v1-skew-scroll {
+  0% {
+    transform: rotateX(20deg) rotateZ(-20deg) skewX(20deg) translateZ(0)
+      translateY(0);
+  }
+  100% {
+    transform: rotateX(20deg) rotateZ(-20deg) skewX(20deg) translateZ(0)
+      translateY(-100%);
+  }
+}
+.v1 .animate-skew-scroll {
+  animation: v1-skew-scroll 10s linear infinite;
+}
+
+/* ---- Route transitions (React <ViewTransition> + page.tsx wrappers) ---- */
+/* The named "page" pair carries the "page-wipe" class; old/new snapshots are
+   animated here with a soft editorial fade+slide (old page drifts up and out,
+   new page rises in from below). React suppresses the default root snapshot,
+   so these class-based rules are the only thing that animates. Browsers
+   without View Transitions just navigate instantly. */
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(.page-wipe) {
+  animation-duration: 0s;
+}
+
+::view-transition-old(.page-wipe) {
+  animation: 0.5s cubic-bezier(0.33, 1, 0.68, 1) both vt-page-out;
+}
+
+::view-transition-new(.page-wipe) {
+  animation: 0.8s cubic-bezier(0.22, 1, 0.36, 1) both vt-page-in;
+}
+
+@keyframes vt-page-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.98);
+  }
+}
+
+@keyframes vt-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* While the intro preloader is mounted, route-transition snapshots swap
+   instantly — the streamed content reveal must not fight the curtain-lift. */
+html[data-preloader-active]::view-transition-old(*),
+html[data-preloader-active]::view-transition-new(*),
+html[data-preloader-active]::view-transition-group(*) {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
+/* Anchor the intro preloader through the loading.tsx→page.tsx swap.
+   React's <ViewTransition name="page"> suppresses the default root
+   snapshot, so a layout-level overlay with no view-transition-name would
+   vanish mid-transition and let the hero flash over it. The preloader's
+   container carries viewTransitionName: 'preloader' (see Preloader.tsx);
+   as a named group it exists in BOTH snapshots, so we freeze it in place
+   above the animating "page" group. When it later unmounts (a plain state
+   change, no transition) the group disappears cleanly. */
+::view-transition-group(preloader) {
+  animation: none;
+  z-index: 200;
+}
+::view-transition-old(preloader) {
+  display: none;
+}
+::view-transition-new(preloader) {
+  animation: none;
+}
+
+/* Match the body background to the preloader's dark stage so the very first
+   paint (before React hydrates) is solid dark, preventing any white/hero
+   flash behind the preloader overlay. */
+html[data-preloader-active] {
+  background-color: oklch(13% 0.014 46);
+}
+html[data-preloader-active] body {
+  background-color: oklch(13% 0.014 46) !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero copy entrance — CSS-driven (not framer-motion) so the text is
+   guaranteed visible on mobile even if JS mount animations stall. Base
+   state is visible. While the preloader covers the screen the animation
+   is paused at its start frame (from-frame via `both` fill); when the
+   preloader finishes (its `visible` state flips false and the attribute
+   is removed — see Preloader.tsx) the pause lifts and the text animates
+   in as the curtain lifts. */
+.hero-copy {
+  animation: hero-copy-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+html[data-preloader-active] .hero-copy {
+  animation-play-state: paused;
+}
+@keyframes hero-copy-rise {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading-shimmer keyframe — used by loading.tsx for a subtle progress
+   pulse that replaces the spinner during route transitions. */
+@keyframes loading-shimmer {
+  0%   { transform: scaleX(0); transform-origin: left center; }
+  50%  { transform: scaleX(1); transform-origin: left center; }
+  100% { transform: scaleX(0); transform-origin: right center; }
+}
+

@@ -1,0 +1,43 @@
+.card {
+}
+
+.card:before,
+.card:after {
+  z-index: -1;
+  position: absolute;
+  content: '';
+  bottom: 15px;
+  left: 10px;
+  width: 50%;
+  top: 90%;
+  max-width: 300px;
+  background: transparent;
+  box-shadow: 0 15px 10px #111;
+  transform: rotate(-3deg);
+}
+
+.card:after {
+  transform: rotate(3deg);
+  right: 10px;
+  left: auto;
+}
+
+/****/
+.cardContainer {
+  overflow: hidden;
+}
+
+.eight {
+  position: relative;
+  color: #add8e6;
+  text-shadow: 1px 1px #ffb6c1, -1px -1px #fff8dc;
+  box-shadow: 1px 1px #fff8dc, -1px -1px #ffb6c1;
+  outline-color: #add8e6;
+  background: rgba(0, 0, 0, 0.1);
+  cursor: default;
+  mix-blend-mode: darken;
+}
+
+.title {
+  text-shadow: 1px 1px #fff8dc, -1px -1px #ffb6c1;
+}

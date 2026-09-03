@@ -1,0 +1,20 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": ".v1-title-gradient-sage",
+        "createdAt": "2026-08-28T17:37:13.213Z",
+        "reason": "Pre-existing luxury-brand gradient text utility for the clinic design system (Kosar variant) — intentional decorative accent, not an AI tell"
+      },
+      {
+        "rule": "gradient-text",
+        "value": ".v1-title-gradient",
+        "createdAt": "2026-08-28T17:37:49.648Z",
+        "reason": "Pre-existing luxury-brand gradient text utility for the clinic design system (Kosar variant) — intentional decorative accent, not an AI tell"
+      }
+    ]
+  }
+}
