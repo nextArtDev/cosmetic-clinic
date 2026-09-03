@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Required for the Docker deploy: produces .next/standalone/server.js
+  // which the runner stage executes with `node server.js`.
+  output: 'standalone',
   allowedDevOrigins: ['192.168.1.159'],
   images: {
     remotePatterns: [
