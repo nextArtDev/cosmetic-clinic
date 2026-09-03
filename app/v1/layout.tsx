@@ -2,6 +2,10 @@ import type { Metadata } from 'next'
 import { Navbar } from './components/layout/navbar'
 import { Footer } from './components/layout/footer'
 
+// All /v1 pages read live database data (prisma) at request time. Skip
+// static prerendering — the database only exists at runtime on the server.
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: {
     default: 'کلینیک ۴۰۴ — نوبت‌دهی آنلاین تخصصی',

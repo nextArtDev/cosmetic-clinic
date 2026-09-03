@@ -38,8 +38,15 @@ const DAYS = [
 ]
 
 export async function generateStaticParams() {
-  const doctors = await getDoctors()
-  return doctors.map((d) => ({ slug: d.slug }))
+  // The database doesn't exist at build time (placeholder DATABASE_URL),
+  // so never fail the build here — with force-dynamic on the layout,
+  // all slugs render on demand at runtime anyway.
+  try {
+    const doctors = await getDoctors()
+    return doctors.map((d) => ({ slug: d.slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({
