@@ -54,7 +54,7 @@ COPY . .
 # can trace it correctly. Placeholder envs only exist so the build completes;
 # real runtime values come from the VPS .env when containers start.
 RUN DATABASE_URL="postgresql://placeholder:placeholder@postgres:5432/placeholder?schema=public" \
-    npx prisma generate
+    ./node_modules/.bin/prisma generate
 
 RUN export NODE_ENV=production \
     DATABASE_URL="postgresql://placeholder:placeholder@postgres:5432/placeholder?schema=public" \
@@ -65,7 +65,7 @@ RUN export NODE_ENV=production \
     ZARINPAL_KEY="placeholder" \
     CRON_SECRET="placeholder" \
     DEPLOYMENT_VERSION="${DEPLOYMENT_VERSION}" \
-    && npx next build
+    && ./node_modules/.bin/next build
 
 # ============================================
 # Stage 3: Migration image
@@ -77,7 +77,7 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY package.json prisma.config.ts ./
 COPY prisma ./prisma
 
-CMD ["npx", "prisma", "migrate", "deploy"]
+CMD ["./node_modules/.bin/prisma", "migrate", "deploy"]
 
 # ============================================
 # Stage 4: Run Next.js application
