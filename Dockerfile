@@ -38,6 +38,15 @@ FROM base AS builder
 ARG DEPLOYMENT_VERSION=local-build
 ARG PUBLIC_BASE_URL=http://94.183.176.101
 
+# Next.js 16 Turbopack builds crash under Bun's runtime shim
+# ("Expected CommonJS module to have a function wrapper" in
+# next-server app-page-turbo.runtime.prod.js). Install deps with Bun,
+# but run prisma generate + next build with real Node.
+RUN for i in 1 2 3 4 5; do \
+        apt-get update && break || sleep 10; done \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
@@ -45,7 +54,7 @@ COPY . .
 # can trace it correctly. Placeholder envs only exist so the build completes;
 # real runtime values come from the VPS .env when containers start.
 RUN DATABASE_URL="postgresql://placeholder:placeholder@postgres:5432/placeholder?schema=public" \
-    bunx prisma generate
+    npx prisma generate
 
 RUN export NODE_ENV=production \
     DATABASE_URL="postgresql://placeholder:placeholder@postgres:5432/placeholder?schema=public" \
@@ -56,7 +65,7 @@ RUN export NODE_ENV=production \
     ZARINPAL_KEY="placeholder" \
     CRON_SECRET="placeholder" \
     DEPLOYMENT_VERSION="${DEPLOYMENT_VERSION}" \
-    && bun run build
+    && npx next build
 
 # ============================================
 # Stage 3: Migration image
@@ -68,7 +77,7 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY package.json prisma.config.ts ./
 COPY prisma ./prisma
 
-CMD ["bunx", "prisma", "migrate", "deploy"]
+CMD ["npx", "prisma", "migrate", "deploy"]
 
 # ============================================
 # Stage 4: Run Next.js application
