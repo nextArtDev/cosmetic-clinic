@@ -40,12 +40,11 @@ ARG PUBLIC_BASE_URL=http://94.183.176.101
 
 # Next.js 16 Turbopack builds crash under Bun's runtime shim
 # ("Expected CommonJS module to have a function wrapper" in
-# next-server app-page-turbo.runtime.prod.js). Install deps with Bun,
-# but run prisma generate + next build with real Node.
-RUN for i in 1 2 3 4 5; do \
-        apt-get update && break || sleep 10; done \
-    && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/*
+# next-server app-page-turbo.runtime.prod.js), and Debian's nodejs is
+# too old for Prisma 7 (ERR_REQUIRE_ESM on Node 18). Borrow a modern
+# node binary from the official image — no network needed.
+COPY --from=node:22-bookworm-slim /usr/local/bin/node /usr/local/bin/node
+ENV PATH="/usr/local/bin:${PATH}"
 
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
@@ -77,7 +76,7 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY package.json prisma.config.ts ./
 COPY prisma ./prisma
 
-CMD ["./node_modules/.bin/prisma", "migrate", "deploy"]
+CMD ["node", "./node_modules/.bin/prisma", "migrate", "deploy"]
 
 # ============================================
 # Stage 4: Run Next.js application
@@ -91,12 +90,9 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-# node binary is needed to run the Next.js standalone server.js.
-# Retry loop because Debian mirrors are flaky on Iranian networks.
-RUN for i in 1 2 3 4 5; do \
-        apt-get update && break || sleep 10; done \
-    && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/*
+# node binary is needed to run the Next.js standalone server.js. Borrow
+# it from the official Node image — zero network, no flaky apt.
+COPY --from=node:22-bookworm-slim /usr/local/bin/node /usr/local/bin/node
 
 COPY --from=builder --chown=bun:bun /app/public ./public
 
