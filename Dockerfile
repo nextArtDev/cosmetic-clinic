@@ -101,8 +101,10 @@ RUN mkdir -p public/uploads && chown -R bun:bun public/uploads
 COPY --from=builder --chown=bun:bun /app/.next/standalone ./
 COPY --from=builder --chown=bun:bun /app/.next/static ./.next/static
 
-# Custom generated Prisma client (Prisma 7 output = ./generated, NOT node_modules/.prisma)
-COPY --from=builder --chown=bun:bun /app/generated ./generated
+# Custom generated Prisma client (Prisma 7 output = ./lib/generated/prisma,
+# NOT node_modules/.prisma). Tracing alone doesn't reliably include it, so
+# copy it explicitly — proven necessary on this stack.
+COPY --from=builder --chown=bun:bun /app/lib/generated/prisma ./lib/generated/prisma
 
 USER bun
 
