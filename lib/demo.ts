@@ -10,7 +10,8 @@
  *     booking flow works on a public IP without a whitelisted merchant domain.
  */
 
-export const DEMO_MODE = process.env.DEMO_MODE === 'true'
+// export const DEMO_MODE = process.env.DEMO_MODE === 'true'
+export const DEMO_MODE = 'true'
 
 /** The only OTP accepted while DEMO_MODE is on. */
 export const DEMO_OTP_CODE = '123456'

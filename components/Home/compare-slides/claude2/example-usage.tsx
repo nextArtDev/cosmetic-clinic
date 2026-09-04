@@ -14,6 +14,9 @@ import before4 from '@/public/images/b-a/ebro1-b.webp'
 import before5 from '@/public/images/b-a/face-lift1-b.webp'
 import before6 from '@/public/images/b-a/rhinoplasti-before.webp'
 import before7 from '@/public/images/b-a/Submental-before-r.webp'
+import before8 from '@/public/images/b-a/abdomino-b.webp'
+import before9 from '@/public/images/b-a/lipo-b.webp'
+
 import after1 from '@/public/images/b-a/belfa1-a.webp'
 import after2 from '@/public/images/b-a/chins-a-r.webp'
 import after3 from '@/public/images/b-a/chins1-a.webp'
@@ -21,9 +24,8 @@ import after4 from '@/public/images/b-a/ebro1-a.webp'
 import after5 from '@/public/images/b-a/face-lift1-a.webp'
 import after6 from '@/public/images/b-a/rhinoplasti-after.webp'
 import after7 from '@/public/images/b-a/Submental-after.webp'
-import after8 from '@/public/images/b-a/8.webp'
-import after9 from '@/public/images/b-a/9.webp'
-import after10 from '@/public/images/b-a/10.webp'
+import after8 from '@/public/images/b-a/abdomino-a.webp'
+import after9 from '@/public/images/b-a/lipo-a.webp'
 
 import { ComparisonItem } from './types'
 
@@ -180,16 +182,16 @@ const CASES: ComparisonItem[] = [
   {
     id: '7',
     effect: 'tear',
-    procedureLabel: 'رینوپلاستی',
+    procedureLabel: 'آبدمینوپلاستی',
     effectLabel: 'tear',
     focusY: 0.84,
     seed: 7.3,
     before: {
-      src: before1,
-      alt: 'بیمار قبل از رینوپلاستی، نمای روبه‌رو',
+      src: before8,
+      alt: 'بیمار قبل از آبدمینوپلاستی، نمای روبه‌رو',
     },
     after: {
-      src: after1,
+      src: after8,
       alt: 'بیمار بعد از رینوپلاستی، نمای روبه‌رو',
     },
   },
@@ -225,12 +227,12 @@ const CASES: ComparisonItem[] = [
   {
     id: '9',
     effect: 'blinds',
-    procedureLabel: 'ترمیم',
+    procedureLabel: 'لیپوساکشن',
     effectLabel: 'blinds',
     focusY: 0.55,
     seed: 1.7,
-    before: { src: before1, alt: 'بیمار قبل از ترمیم' },
-    after: { src: after1, alt: 'بیمار بعد از ترمیم' },
+    before: { src: before9, alt: 'بیمار قبل از ترمیم' },
+    after: { src: after9, alt: 'بیمار بعد از ترمیم' },
   },
   // {
   //   id: '10',
@@ -255,7 +257,7 @@ const CASES: ComparisonItem[] = [
   {
     id: '12',
     effect: 'wave',
-    procedureLabel: 'جراحی بینی',
+    procedureLabel: 'لیفت ابرو',
     effectLabel: 'wave',
     focusY: 0.55,
     seed: 2.4,
@@ -265,12 +267,12 @@ const CASES: ComparisonItem[] = [
   {
     id: '13',
     effect: 'ripple',
-    procedureLabel: 'جراحی بینی',
+    procedureLabel: 'تزریق چانه',
     effectLabel: 'ripple',
     focusY: 0.55,
     seed: 8.2,
-    before: { src: before5, alt: 'بیمار قبل از جراحی بینی' },
-    after: { src: after5, alt: 'بیمار بعد از جراحی بینی' },
+    before: { src: before2, alt: 'بیمار قبل از جراحی بینی' },
+    after: { src: after2, alt: 'بیمار بعد از جراحی بینی' },
   },
   // {
   //   id: '14',

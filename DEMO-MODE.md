@@ -7,6 +7,7 @@ work for a customer demo without real SMS or a real payment gateway.
 > VPS `.env`, restart the app (`pm2 restart ...` / redeploy). Everything below
 > then runs the real code paths again — no code changes are required.
 
+Commit Haash: **5a26fec98ee5330e0646da87617483e36d3493ca**
 ---
 
 ## 1. What demo mode changes
