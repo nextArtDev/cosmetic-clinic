@@ -296,10 +296,38 @@ filter lines from `.gitattributes`.
 
 ### 3.8 Workflow (`.github/workflows/deploy.yml`)
 
-Same as old manual (build `runner` → `:latest`+`:sha`, build `migrator` →
-`:migrate-latest`, lowercase image path, `packages: write`), plus the
-commented-out `deploy:` job for full auto-CD (needs repo secrets
-`VPS_HOST`/`VPS_USER`/`VPS_SSH_KEY`).
+Build `runner` → `:latest`+`:sha`, build `migrator` → `:migrate-latest`
+(lowercase image path, `packages: write`), plus an active `deploy:` job
+(`needs: build`) that SSHes into the VPS and releases (rollback tag → pull
+with retries → tag → `run --rm migrate` → `up -d` → smoke `curl`).
+Full CI/CD: every push to `main` goes live with zero terminal work.
+
+### 3.9 Auto-deploy secrets debugging (read when the deploy job fails)
+
+Secrets live at repo → **Settings → Secrets and variables → Actions**:
+`VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (a dedicated automation private key
+whose public half is in the VPS `authorized_keys`).
+
+Hard-won lessons:
+
+1. **Secret values are write-only.** GitHub never shows them again — opening
+   a secret for edit shows an empty box. That proves NOTHING about whether
+   the value is correct. Verify by behavior (re-run), never by looking.
+2. **`attempted methods [none]` = the key arrived EMPTY.** The SSH action never
+   even tried auth. Cause is always on the GitHub side: secret name mismatch
+   (exact, case-sensitive, no trailing spaces) or an empty/whitespace value.
+   Fix: delete + recreate the secret, then **Re-run failed jobs** (no push needed).
+3. **`VPS_SSH_KEY` must be the ENTIRE key file**, from
+   `-----BEGIN OPENSSH PRIVATE KEY-----` through `-----END OPENSSH PRIVATE KEY-----`
+   inclusive, no extra lines. Pasting only the middle gibberish = invalid key.
+   Print it with `Get-Content $HOME\.ssh\id_ed25519_deploy` (PowerShell) or
+   `type "%USERPROFILE%\.ssh\id_ed25519_deploy"` (CMD — `$HOME`/`Get-Content`
+   don't exist in CMD).
+4. **Re-run, don't re-push:** Actions tab → failed run → Re-run jobs →
+   Re-run failed jobs. Green `build` is reused; only `deploy` re-runs.
+5. **Read runs like this:** repo → Actions tab → run row per push → `build` +
+   `deploy` jobs → per-step logs. `workflow_dispatch` on the workflow page
+   triggers a manual run (handy for testing secrets without a code change).
 
 ## 4. ghcr.io Authentication (do this FIRST, before release day)
 
