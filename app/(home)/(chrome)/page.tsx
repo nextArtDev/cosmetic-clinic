@@ -165,10 +165,6 @@ export default async function Home() {
           brandText="ADERTI ADLAB"
         />
       </section> */}
-        {/* One AmbientBackground lives inside HeroZoom's sticky viewport
-            (fixed variant below) — extra per-section copies were three
-            full-viewport blurred rasters being composited at once. */}
-        {/* <ParallaxCards items={items} /> */}
 
         {/* <section className="relative">
           <ServicesIndex items={items} />
@@ -177,7 +173,7 @@ export default async function Home() {
         {/* <div className="relative w-full h-full">
           <GlassSlider items={items} />
         </div> */}
-        {/* <ParallaxBento items={items} /> */}
+        <MovingBento items={items} />
         <section className="flex min-h-screen items-center justify-center px-4 py-10">
           <GlassShieldShowcase
             imageSrc={'/images/lips.webp'}
@@ -309,9 +305,9 @@ export default async function Home() {
         {/* <CreativeCompare /> */}
         {/* <DCompareSlides /> */}
         {/* <ZShaderCompareSlides /> */}
-        {/* <section id="services" className="relative scroll-mt-24">
+        <section id="services" className="relative scroll-mt-24">
           <AdvancedBodyCarousel />
-        </section> */}
+        </section>
         <div
           id="testimonials"
           dir="ltr"
@@ -323,25 +319,25 @@ export default async function Home() {
         <MarqueeDemoVertical />
       </section> */}
         {/* Floating actions — connect the landing page to the live booking flow */}
-        {/* <div className="fixed bottom-4 left-4 z-50 flex flex-col items-start gap-3 sm:bottom-6 sm:left-6">
+        <div className="fixed bottom-4 left-4 z-50 flex flex-col items-start gap-3 sm:bottom-6 sm:left-6">
           <Link
             href="/booking"
-            className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-gild-bright via-gilded to-gild-deep px-6 py-3.5 text-sm font-bold text-canvas-deep shadow-xl shadow-gilded/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-gilded/40 active:scale-95"
+            className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-gild-bright via-gilded to-gild-deep px-4.5 py-4.5 text-sm font-bold text-canvas-deep shadow-xl shadow-gilded/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-gilded/40 active:scale-95"
           >
             <CalendarCheck
               size={18}
               className="transition-transform duration-300 group-hover:rotate-6"
             />
-            رزرو نوبت آنلاین
+            {/* رزرو نوبت آنلاین */}
           </Link>
-          <Link
+          {/* <Link
             href="/user"
             className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-cream/40 bg-cream/85 px-5 py-2 text-[13px] font-semibold text-canvas-deep backdrop-blur-md transition-all duration-300 hover:bg-cream hover:scale-105 active:scale-95"
           >
             <UserRound size={14} />
             ویزیت‌های من
-          </Link>
-        </div> */}
+          </Link> */}
+        </div>
       </section>
     </ViewTransition>
   )

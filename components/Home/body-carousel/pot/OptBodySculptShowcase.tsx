@@ -763,7 +763,9 @@ export function BodySculptShowcase({
                     <span className="mx-1.5 text-[color:var(--bs-ink-4)] ">
                       ·
                     </span>
-                    <span className="text-4xl font-bold">{slide.title}</span>
+                    <span className="text-2xl md:text-3xl font-bold">
+                      {slide.title}
+                    </span>
                   </span>
                 </motion.div>
               </AnimatePresence>
@@ -818,13 +820,13 @@ export function BodySculptShowcase({
               onClick={() => select(i)}
               aria-label={s.title}
               aria-current={i === index ? 'true' : undefined}
-              className="grid h-11 w-4 place-items-center outline-none focus-visible:ring-1 focus-visible:ring-[color:var(--bs-accent)]"
+              className="grid h-11 w-5 place-items-center outline-none focus-visible:ring-1 focus-visible:ring-[color:var(--bs-accent)]"
             >
               <span
                 className={`rounded-full transition-all duration-300 ${
                   i === index
-                    ? 'h-1.5 w-1.5 bg-[color:var(--bs-ink)]'
-                    : 'h-1 w-1 bg-[color:var(--bs-ink-4)]'
+                    ? 'h-3.5 w-6 bg-[color:var(--bs-ink)]'
+                    : 'h-3 w-3 bg-[color:var(--bs-ink-4)]'
                 }`}
               />
             </button>

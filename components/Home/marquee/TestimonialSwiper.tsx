@@ -236,7 +236,10 @@ const TestimonialsSwiper: React.FC<TestimonialsSwiperProps> = ({
   return (
     <section className="w-full min-h-screen flex flex-col lg:flex-row items-center bg-canvas-deep overflow-hidden py-14 lg:py-0">
       {/* Left — refined typography */}
-      <div className="w-full lg:w-[36%] flex flex-col items-start px-6 lg:px-[4vw] justify-center shrink-0">
+      <div
+        dir="rtl"
+        className="w-full lg:w-[36%] flex flex-col items-start px-6 lg:px-[4vw] justify-center shrink-0"
+      >
         <span className="text-gilded text-xs tracking-[0.35em] uppercase mb-4 font-medium">
           دیدگاه مراجعین
         </span>
@@ -296,7 +299,7 @@ const TestimonialsSwiper: React.FC<TestimonialsSwiperProps> = ({
           ))}
         </div>
 
-        <div className="absolute bottom-5 left-6 flex items-center gap-2 text-cream-dim/60 text-xs pointer-events-none select-none">
+        <div className="absolute bottom-28 left-6 flex items-center gap-2 text-cream-dim/60 text-xs pointer-events-none select-none animate-ping ">
           <svg
             width="14"
             height="14"
@@ -310,10 +313,10 @@ const TestimonialsSwiper: React.FC<TestimonialsSwiperProps> = ({
             <path d="M5 12h14" />
             <path d="m5 12 4-4" />
             <path d="m5 12 4 4" />
-            <path d="m19 12-4-4" />
-            <path d="m19 12-4 4" />
+            {/* <path d="m19 12-4-4" /> */}
+            {/* <path d="m19 12-4 4" /> */}
           </svg>
-          برای کاوش بکشید
+          {/* برای کاوش بکشید */}
         </div>
       </div>
     </section>
@@ -343,7 +346,11 @@ const ReviewCard: React.FC<{ review: Review; isLast: boolean }> = ({
       <div className="flex items-center justify-between">
         <div className="flex gap-0.5">
           {Array.from({ length: review.rating }).map((_, i) => (
-            <Star key={i} className="fill-gild-bright text-gild-bright" size={13} />
+            <Star
+              key={i}
+              className="fill-gild-bright text-gild-bright"
+              size={13}
+            />
           ))}
         </div>
         <Quote className="text-gilded/20" size={26} strokeWidth={1.5} />
