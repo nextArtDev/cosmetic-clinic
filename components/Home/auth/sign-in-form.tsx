@@ -88,10 +88,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
     }
     setVerifying(true)
     try {
-      const res = await verifyOtp(
-        normalizePhone(phoneNumber),
-        code.trim(),
-      )
+      const res = await verifyOtp(normalizePhone(phoneNumber), code.trim())
       if (res.error) {
         const message =
           typeof res.error === 'string' ? res.error : res.error?.message
@@ -114,7 +111,9 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#30e8bf] to-[#e96f18] text-white shadow-lg shadow-black/20">
           <ShieldCheck size={26} />
         </span>
-        <h1 className="mt-6 text-3xl font-bold">ورود به کلینیک دکتر نگین فضلی</h1>
+        <h1 className="mt-6 text-3xl font-bold">
+          ورود به کلینیک دکتر شبنم فضلی
+        </h1>
         <p className="mt-3 text-sm leading-relaxed text-neutral-500">
           بدون رمز عبور؛ با شمارهٔ موبایل و کد تأیید پیامکی وارد شوید.
         </p>
@@ -123,7 +122,9 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
       <div className="mt-8 space-y-5">
         {step === 'phone' ? (
           <label className="block">
-            <span className="mb-2 block text-xs text-neutral-500">شماره موبایل</span>
+            <span className="mb-2 block text-xs text-neutral-500">
+              شماره موبایل
+            </span>
             <MobileNumberInput
               value={phoneNumber}
               onValueChange={setPhoneNumber}
@@ -158,10 +159,15 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
         )}
 
         {step === 'phone' ? (
-          <button onClick={sendOtp} disabled={sending} className={cn(GRADIENT_PILL)}>
+          <button
+            onClick={sendOtp}
+            disabled={sending}
+            className={cn(GRADIENT_PILL)}
+          >
             {sending ? (
               <>
-                <Loader2 size={16} className="animate-spin" /> در حال ارسال کد...
+                <Loader2 size={16} className="animate-spin" /> در حال ارسال
+                کد...
               </>
             ) : (
               'ارسال کد تأیید'
@@ -169,7 +175,11 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
           </button>
         ) : (
           <>
-            <button onClick={verify} disabled={verifying} className={cn(GRADIENT_PILL)}>
+            <button
+              onClick={verify}
+              disabled={verifying}
+              className={cn(GRADIENT_PILL)}
+            >
               {verifying ? (
                 <>
                   <Loader2 size={16} className="animate-spin" /> در حال ورود...
@@ -194,7 +204,9 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
       </div>
 
       <p className="mt-8 text-center text-xs leading-relaxed text-neutral-500">
-        با ورود به سایت، <span className="font-semibold text-neutral-900">قوانین و مقررات</span> کلینیک را می‌پذیرید.
+        با ورود به سایت،{' '}
+        <span className="font-semibold text-neutral-900">قوانین و مقررات</span>{' '}
+        کلینیک را می‌پذیرید.
       </p>
     </div>
   )

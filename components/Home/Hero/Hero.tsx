@@ -160,7 +160,7 @@ const Hero = ({ progress: progressProp, ratingStats }: HeroProps) => {
             <div className="hero-copy flex flex-col items-center md:items-start text-center md:text-left space-y-8 max-w-lg z-20">
               <div className="space-y-4">
                 <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-balance text-[#2C3E50] dark:text-white">
-                  دکتر نگین فضلی
+                  دکتر شبنم فضلی
                 </h1>
                 <p className="text-lg md:text-xl text-neutral-600 dark:text-neutral-300 font-normal leading-relaxed text-pretty">
                   فوق تخصص جراحی پلاستیک، زیبایی و ترمیمی
@@ -215,7 +215,7 @@ const Hero = ({ progress: progressProp, ratingStats }: HeroProps) => {
               >
                 <Image
                   src={HeroImage.src}
-                  alt="دکتر نگین فضلی"
+                  alt="دکتر شبنم فضلی"
                   fill
                   priority
                   className="h-auto absolute bottom-0 w-auto object-contain drop-shadow-[0_25px_45px_rgba(80,50,20,0.25)] origin-bottom object-bottom  "

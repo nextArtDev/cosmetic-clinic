@@ -115,7 +115,7 @@ export async function zarinpalPayment(
     const payment = (await zarinpal.PaymentRequest({
       Amount: Math.round(amount),
       CallbackURL: callbackURL(appointmentId, orderId, flow),
-      Description: `نوبت کلینیک دکتر نگین فضلی — ${appointmentId}`,
+      Description: `نوبت کلینیک دکتر شبنم فضلی — ${appointmentId}`,
       Mobile: user.phoneNumber ?? undefined,
     })) as PaymentRequestResult
 

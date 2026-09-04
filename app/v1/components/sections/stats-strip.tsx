@@ -17,7 +17,7 @@ export function StatsStrip({
     { value: doctorCount, label: 'پزشک متخصص', suffix: '', decimals: 0 },
     { value: personnelCount, label: 'عضو تیم مراقبت', suffix: '', decimals: 0 },
     { value: illnessCount, label: 'بیماری درمان‌شده', suffix: '', decimals: 0 },
-    { value: avgRating, label: 'میانگین رضایت', suffix: '', decimals: 1 },
+    { value: avgRating, label: 'میاشبنم رضایت', suffix: '', decimals: 1 },
   ]
 
   return (

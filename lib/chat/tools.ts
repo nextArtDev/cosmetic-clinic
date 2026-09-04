@@ -161,7 +161,9 @@ export function getChatTools() {
           weekly,
           upcomingLeaves: leaves.map((l) => ({
             date: formatInTimeZone(l.leaveDate, tz, 'yyyy-MM-dd'),
-            partial: l.startTime ? `${l.startTime} تا ${l.endTime}` : 'تمام روز',
+            partial: l.startTime
+              ? `${l.startTime} تا ${l.endTime}`
+              : 'تمام روز',
           })),
           upcomingClosures: closures.map((c) => ({
             date: formatInTimeZone(c.date, tz, 'yyyy-MM-dd'),
@@ -177,7 +179,10 @@ export function getChatTools() {
       inputSchema: z.object({
         dateISO: z
           .string()
-          .regex(/^\d{4}-\d{2}-\d{2}$/, 'تاریخ باید میلادی و به فرمت YYYY-MM-DD باشد.'),
+          .regex(
+            /^\d{4}-\d{2}-\d{2}$/,
+            'تاریخ باید میلادی و به فرمت YYYY-MM-DD باشد.',
+          ),
       }),
       execute: async ({ dateISO }) => {
         const doctorId = await getDoctorUserId()
@@ -189,9 +194,7 @@ export function getChatTools() {
             slotCount: slots.length,
             slots: slots.slice(0, 20).map((s) => s.label),
             note:
-              slots.length > 20
-                ? 'فقط ۲۰ اسلات اول نمایش داده شد.'
-                : undefined,
+              slots.length > 20 ? 'فقط ۲۰ اسلات اول نمایش داده شد.' : undefined,
           }
         } catch {
           return { error: 'خطا در محاسبهٔ اسلاتها برای این تاریخ.' }
@@ -201,7 +204,7 @@ export function getChatTools() {
 
     getReviewsSummary: tool({
       description:
-        'خلاصهٔ نظرات تأییدشدهٔ مراجعان (میانگین امتیاز، تعداد و چند نظر منتخب) را برمیگرداند.',
+        'خلاصهٔ نظرات تأییدشدهٔ مراجعان (میاشبنم امتیاز، تعداد و چند نظر منتخب) را برمیگرداند.',
       inputSchema: z.object({}),
       execute: async () => {
         const [agg, featured] = await Promise.all([

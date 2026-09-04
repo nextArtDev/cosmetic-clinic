@@ -510,7 +510,7 @@ export function CinematicFooter({
               <div className="flex flex-wrap justify-center gap-2.5 w-full mt-1">
                 <span className="footer-glass-pill px-5 md:px-6 py-2.5 rounded-full flex items-center gap-2 text-muted-foreground text-xs sm:text-sm cursor-default">
                   <MapPin size={14} className="shrink-0 text-gilded/70" />
-                  آدرس مطب: اصفهان، خیابان رودکی — کلینیک دکتر نگین فضلی
+                  آدرس مطب: اصفهان، خیابان رودکی — کلینیک دکتر شبنم فضلی
                 </span>
               </div>
 
@@ -523,7 +523,7 @@ export function CinematicFooter({
           <div className="relative z-20 w-full pb-[max(1.25rem,env(safe-area-inset-bottom))] md:pb-8 px-5 sm:px-6 md:px-12 flex flex-col md:flex-row items-center justify-center md:justify-between gap-4 md:gap-6">
             {/* Copyright */}
             <div className="text-muted-foreground text-xs md:text-sm font-semibold tracking-widest text-center order-2 md:order-1">
-              © {new Date().getFullYear()} کلینیک دکتر نگین فضلی — تمامی حقوق
+              © {new Date().getFullYear()} کلینیک دکتر شبنم فضلی — تمامی حقوق
               محفوظ است.
             </div>
 

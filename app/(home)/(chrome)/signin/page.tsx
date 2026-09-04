@@ -4,9 +4,9 @@ import { SignInForm } from '@/components/Home/auth/sign-in-form'
 import { FlowShell } from '@/components/Home/booking/flow-shell'
 
 export const metadata: Metadata = {
-  title: 'ورود | کلینیک دکتر نگین فضلی',
+  title: 'ورود | کلینیک دکتر شبنم فضلی',
   description:
-    'ورود به حساب کاربری کلینیک دکتر نگین فضلی؛ بدون رمز عبور و فقط با کد تأیید پیامکی.',
+    'ورود به حساب کاربری کلینیک دکتر شبنم فضلی؛ بدون رمز عبور و فقط با کد تأیید پیامکی.',
 }
 
 export default async function SignInPage({

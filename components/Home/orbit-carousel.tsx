@@ -18,7 +18,7 @@ const people = [
   { id: '2', name: 'محسن احمدی', role: 'منشی', profile: doctor3 },
   { id: '3', name: 'زهره محمدی', role: 'دستیار', profile: doctor2 },
   { id: '4', name: 'یوسف خوشنام', role: 'دستیار', profile: doctor5 },
-  { id: '5', name: 'نگین رمضانی', role: 'دستیار', profile: doctor4 },
+  { id: '5', name: 'شبنم رمضانی', role: 'دستیار', profile: doctor4 },
 ]
 // const people = [
 //   {
@@ -122,7 +122,7 @@ export default function PersonnelCarousel() {
   // Calculate rotation for each profile
   const getRotation = React.useCallback(
     (index: number): number => (index - activeIndex) * (360 / people.length),
-    [activeIndex]
+    [activeIndex],
   )
 
   // Navigation
@@ -135,7 +135,7 @@ export default function PersonnelCarousel() {
       if (index === activeIndex) return
       setActiveIndex(index)
     },
-    [activeIndex]
+    [activeIndex],
   )
 
   // Keyboard navigation

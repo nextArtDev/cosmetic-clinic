@@ -7,7 +7,7 @@ import { BookingWizard } from '@/components/Home/booking/booking-wizard'
 import { FlowShell } from '@/components/Home/booking/flow-shell'
 
 export const metadata: Metadata = {
-  title: 'رزرو نوبت | کلینیک دکتر نگین فضلی',
+  title: 'رزرو نوبت | کلینیک دکتر شبنم فضلی',
   description:
     'نوبت خود را از پزشکان متخصص کلینیک رزرو کنید؛ انتخاب پزشک، زمان و پرداخت آنلاین در چند دقیقه.',
 }

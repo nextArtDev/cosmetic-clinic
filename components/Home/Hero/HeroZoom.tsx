@@ -79,7 +79,7 @@ const TEAM: TeamMember[] = [
   { id: '2', name: 'محسن احمدی', role: 'منشی', profile: doctor3 },
   { id: '3', name: 'زهره محمدی', role: 'دستیار', profile: doctor2 },
   { id: '4', name: 'یوسف خوشنام', role: 'دستیار', profile: doctor5 },
-  { id: '5', name: 'نگین رمضانی', role: 'دستیار', profile: doctor4 },
+  { id: '5', name: 'شبنم رمضانی', role: 'دستیار', profile: doctor4 },
 ]
 
 const VIDEOS: VideoConfig[] = [

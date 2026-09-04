@@ -57,9 +57,9 @@ export function Hero({ featured, doctorCount, avgRating }: HeroProps) {
             transition={{ duration: 0.8, delay: 0.25 }}
             className="mt-8 max-w-lg text-lg leading-relaxed text-ivory-dim"
           >
-            کلینیک ۴۰۴ پنج پزشک متخصص و تیمی دوازده‌نفره را با سامانهٔ
-            نوبت‌دهی آنلاین کنار هم آورده است؛ بدون صف و بدون انتظار. پزشک،
-            بیماری یا حتی نزدیک‌ترین ساعت خالی را خودتان انتخاب کنید.
+            کلینیک ۴۰۴ پنج پزشک متخصص و تیمی دوازده‌نفره را با سامانهٔ نوبت‌دهی
+            آنلاین کنار هم آورده است؛ بدون صف و بدون انتظار. پزشک، بیماری یا حتی
+            نزدیک‌ترین ساعت خالی را خودتان انتخاب کنید.
           </motion.p>
 
           <motion.div
@@ -126,13 +126,7 @@ export function Hero({ featured, doctorCount, avgRating }: HeroProps) {
             </div>
 
             <Button asChild className="relative mt-6 w-full">
-              <Link
-                href={
-                  featured
-                    ? `/doctors/${featured.slug}`
-                    : '/booking'
-                }
-              >
+              <Link href={featured ? `/doctors/${featured.slug}` : '/booking'}>
                 رزرو این نوبت
               </Link>
             </Button>
@@ -149,7 +143,7 @@ export function Hero({ featured, doctorCount, avgRating }: HeroProps) {
               <span className="text-gold">★</span>
             </p>
             <p className="text-[0.7rem] text-ivory-dim">
-              میانگین رضایت بیماران
+              میاشبنم رضایت بیماران
             </p>
           </motion.div>
         </motion.div>

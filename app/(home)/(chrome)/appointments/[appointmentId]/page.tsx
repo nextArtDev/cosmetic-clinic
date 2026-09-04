@@ -22,7 +22,7 @@ import { FlowShell } from '@/components/Home/booking/flow-shell'
 import { TomanIcon } from '@/components/ui/toman-icon'
 
 export const metadata: Metadata = {
-  title: 'نتیجهٔ نوبت | کلینیک دکتر نگین فضلی',
+  title: 'نتیجهٔ نوبت | کلینیک دکتر شبنم فضلی',
 }
 
 const JALALI_WEEKDAY = [

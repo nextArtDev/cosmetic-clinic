@@ -81,7 +81,7 @@ export default async function UserVisitsPage() {
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-sage to-gold text-sm text-ink">
                 ف
               </span>
-              کلینیک دکتر نگین فضلی
+              کلینیک دکتر شبنم فضلی
             </Link>
             <div className="flex items-center gap-2">
               <Link

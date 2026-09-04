@@ -41,9 +41,9 @@ import { ScrollShowcase } from '@/components/Home/Carousel'
 // import ResultsPage from '@/components/Home/compare-slides/opt/results-page'
 
 export const metadata: Metadata = {
-  title: 'کلینیک جراحی پلاستیک و زیبایی — دکتر نگین فضلی',
+  title: 'کلینیک جراحی پلاستیک و زیبایی — دکتر شبنم فضلی',
   description:
-    'کلینیک تخصصی جراحی پلاستیک، زیبایی و ترمیمی دکتر نگین فضلی؛ جراحی بینی، فیس‌لیفت، لیپوساکشن و پروتز. رزرو نوبت آنلاین در چند دقیقه.',
+    'کلینیک تخصصی جراحی پلاستیک، زیبایی و ترمیمی دکتر شبنم فضلی؛ جراحی بینی، فیس‌لیفت، لیپوساکشن و پروتز. رزرو نوبت آنلاین در چند دقیقه.',
 }
 
 const items = [

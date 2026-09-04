@@ -15,7 +15,7 @@ const cards = [
   { id: '2', name: 'محسن احمدی', title: 'منشی', imgSrc: doctor3 },
   { id: '3', name: 'زهره محمدی', title: 'دستیار', imgSrc: doctor2 },
   { id: '4', name: 'یوسف خوشنام', title: 'دستیار', imgSrc: doctor5 },
-  { id: '5', name: 'نگین رمضانی', title: 'دستیار', imgSrc: doctor4 },
+  { id: '5', name: 'شبنم رمضانی', title: 'دستیار', imgSrc: doctor4 },
 ]
 
 interface HorizontalScrollCarouselProps {
@@ -52,7 +52,7 @@ const HorizontalScrollCarousel = ({
               className={cn(
                 'bg-transparent flex flex-col gap-0.5 items-center justify-center   p-5  ',
 
-                className
+                className,
               )}
             >
               <figure className="relative size-24 md:size-24">

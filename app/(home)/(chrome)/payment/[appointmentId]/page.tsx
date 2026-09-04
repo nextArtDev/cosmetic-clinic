@@ -19,7 +19,7 @@ import { PayButton } from '@/components/Home/booking/pay-button'
 import { TomanIcon } from '@/components/ui/toman-icon'
 
 export const metadata: Metadata = {
-  title: 'پرداخت نوبت | کلینیک دکتر نگین فضلی',
+  title: 'پرداخت نوبت | کلینیک دکتر شبنم فضلی',
 }
 
 const JALALI_WEEKDAY = [

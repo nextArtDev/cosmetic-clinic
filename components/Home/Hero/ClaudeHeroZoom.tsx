@@ -100,7 +100,7 @@ function HeroPanel() {
                 className="pt-8 text-3xl font-bold"
                 variants={textVariants}
               >
-                دکتر نگین فضلی
+                دکتر شبنم فضلی
               </motion.h2>
               <motion.h1
                 variants={textVariants}
