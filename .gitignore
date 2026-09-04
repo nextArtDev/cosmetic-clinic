@@ -52,3 +52,5 @@ docker-engines/schema-engine
 *.tar
 *.tgz
 release.tar*
+
+/seed-parts/
