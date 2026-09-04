@@ -48,8 +48,8 @@ float vnoise(vec2 p){
 float fbm(vec2 p){
   float v = 0.0; float a = 0.5;
   for (int i = 0; i < 4; i++){
-    if (i >= int(uOctaves)) break;
-    v += a * vnoise(p); p *= 2.03; a *= 0.5;
+    if (float(i) < uOctaves) { v += a * vnoise(p); }
+    p *= 2.03; a *= 0.5;
   }
   return v;
 }
@@ -60,14 +60,17 @@ vec2 coverUv(vec2 uv){
   return uv * s + (1.0 - s) * 0.5;
 }
 vec3 fetchBefore(vec2 buv, vec3 afterCol){
-  if (uRealBefore > 0.5) return texture2D(uBefore, buv).rgb;
-  float l = dot(afterCol, vec3(0.299, 0.587, 0.114));
-  l = pow(l, 1.2);
-  l = mix(l, l * l * 1.35 + 0.03, 0.35);
-  l *= 0.90 + 0.10 * fbm(buv * 60.0);
-  float wr = smoothstep(0.52, 0.78, fbm(buv * vec2(16.0, 26.0) + 7.3));
-  l *= 1.0 - wr * 0.14;
-  return vec3(l) * vec3(0.99, 0.98, 0.96);
+  vec3 result = texture2D(uBefore, buv).rgb;
+  if (uRealBefore < 0.5) {
+    float l = dot(afterCol, vec3(0.299, 0.587, 0.114));
+    l = pow(l, 1.2);
+    l = mix(l, l * l * 1.35 + 0.03, 0.35);
+    l *= 0.90 + 0.10 * fbm(buv * 60.0);
+    float wr = smoothstep(0.52, 0.78, fbm(buv * vec2(16.0, 26.0) + 7.3));
+    l *= 1.0 - wr * 0.14;
+    result = vec3(l) * vec3(0.99, 0.98, 0.96);
+  }
+  return result;
 }
 `
 

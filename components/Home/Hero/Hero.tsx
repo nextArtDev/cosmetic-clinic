@@ -255,28 +255,23 @@ const Hero = ({ progress: progressProp, ratingStats }: HeroProps) => {
 
 export default Hero
 
-export function AmbientBackground() {
+export function AmbientBackground({ fixed = false }: { fixed?: boolean }) {
+  // Blobs are intentionally static: animating 110–130px blur layers forces a
+  // full re-rasterization every frame (worst in Chrome/Skia) for a drift so
+  // slow it reads as stillness anyway. One cached raster, zero per-frame cost.
   return (
-    <div className="absolute inset-0 -z-20 overflow-hidden bg-[#FBF7F1] dark:bg-[#0B0A09]">
+    <div
+      className={`${
+        fixed ? 'fixed' : 'absolute'
+      } inset-0 -z-20 overflow-hidden bg-[#FBF7F1] dark:bg-[#0B0A09]`}
+    >
       {/* warm champagne base wash */}
       <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_0%,#FDFBF7_0%,#F6EDE2_45%,#EFE1D3_100%)] dark:bg-[radial-gradient(120%_120%_at_50%_0%,#171310_0%,#0B0A09_60%)]" />
 
-      {/* slow drifting soft-focus blobs */}
-      <motion.div
-        animate={{ x: ['0%', '5%', '0%'], y: ['0%', '4%', '0%'] }}
-        transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -left-[10%] -top-[10%] h-[55%] w-[55%] rounded-full bg-[#E8CFC4]/60 blur-[120px] dark:bg-[#C5A059]/15"
-      />
-      <motion.div
-        animate={{ x: ['0%', '-5%', '0%'], y: ['0%', '-4%', '0%'] }}
-        transition={{ duration: 32, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -bottom-[12%] -right-[10%] h-[60%] w-[60%] rounded-full bg-[#F0DDC6]/70 blur-[130px] dark:bg-[#C5A059]/12"
-      />
-      <motion.div
-        animate={{ x: ['0%', '6%', '0%'], y: ['0%', '-5%', '0%'] }}
-        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute left-[35%] top-[35%] h-[45%] w-[45%] rounded-full bg-[#E4E1DA]/50 blur-[110px] dark:bg-[#E4E1DA]/5"
-      />
+      {/* slow soft-focus blobs (static — see note above) */}
+      <div className="absolute -left-[10%] -top-[10%] h-[55%] w-[55%] rounded-full bg-[#E8CFC4]/60 blur-[120px] dark:bg-[#C5A059]/15" />
+      <div className="absolute -bottom-[12%] -right-[10%] h-[60%] w-[60%] rounded-full bg-[#F0DDC6]/70 blur-[130px] dark:bg-[#C5A059]/12" />
+      <div className="absolute left-[35%] top-[35%] h-[45%] w-[45%] rounded-full bg-[#E4E1DA]/50 blur-[110px] dark:bg-[#E4E1DA]/5" />
     </div>
   )
 }

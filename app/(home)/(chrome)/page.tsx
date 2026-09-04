@@ -135,6 +135,9 @@ export default async function Home() {
       default="none"
     >
       <section className="relative max-w-screen h-full min-h-screen">
+        {/* Single page-wide backdrop for every section below (the hero keeps
+            its own copy inside the sticky viewport for stacking safety). */}
+        <AmbientBackground fixed />
         <HeroZoom
           ratingStats={
             stats.count > 0
@@ -162,11 +165,9 @@ export default async function Home() {
           brandText="ADERTI ADLAB"
         />
       </section> */}
-        <div dir="ltr" className="w-full h-full overflow-hidden ">
-          <AmbientBackground />
-          {/* <MovingBento items={items} forceDesktop={true} fillHeight /> */}
-          {/* <ScrollShowcase /> */}
-        </div>
+        {/* One AmbientBackground lives inside HeroZoom's sticky viewport
+            (fixed variant below) — extra per-section copies were three
+            full-viewport blurred rasters being composited at once. */}
         {/* <ParallaxCards items={items} /> */}
 
         {/* <section className="relative">
@@ -178,7 +179,6 @@ export default async function Home() {
         </div> */}
         {/* <ParallaxBento items={items} /> */}
         <section className="flex min-h-screen items-center justify-center px-4 py-10">
-          <AmbientBackground />
           <GlassShieldShowcase
             imageSrc={'/images/lips.webp'}
             imageAlt="فیلر لب — نتیجه‌ای طبیعی"
@@ -245,7 +245,6 @@ export default async function Home() {
           <BeforeAfterSlider />
         </div>
         <section className="flex min-h-screen items-center justify-center px-4 py-10">
-          <AmbientBackground />
           <GlassShieldShowcase
             imageSrc={'/images/lips.webp'}
             imageAlt="فیلر لب — نتیجه‌ای طبیعی"

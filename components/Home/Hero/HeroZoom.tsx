@@ -20,31 +20,17 @@ import {
   useTransform,
   type MotionValue,
 } from 'framer-motion'
-import ReactLenis, { useLenis } from 'lenis/react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Image, { type StaticImageData } from 'next/image'
-import Hero, { AmbientBackground } from './Hero'
-
-gsap.registerPlugin(ScrollTrigger)
+import Hero from './Hero'
 
 /**
- * awwwards-animations Lenis <-> ScrollTrigger integration: Lenis animates
- * scroll position every frame, so ScrollTrigger must be told to re-read it
- * (native scroll events alone can lag one frame behind the smoothed value).
- * Lives inside <ReactLenis> because useLenis() needs the provider context.
+ * Lenis was removed: its rAF loop re-read scroll every frame and the
+ * ScrollTrigger.update sync forced main-thread scroll handling page-wide,
+ * which made scrolling noticeably heavy. All scroll effects here are
+ * framer-motion useScroll/useTransform driven and track native scroll
+ * events fine without a smooth-scroll library. (If Lenis returns, the
+ * GSAP ScrollTrigger sync from awwwards-animations must come back with it.)
  */
-function LenisScrollSync() {
-  const lenis = useLenis()
-  useEffect(() => {
-    if (!lenis) return
-    lenis.on('scroll', ScrollTrigger.update)
-    return () => {
-      lenis.off('scroll', ScrollTrigger.update)
-    }
-  }, [lenis])
-  return null
-}
 
 import doctor1 from '@/public/images/doctors/1.jpeg'
 import doctor2 from '@/public/images/doctors/2.jpeg'
@@ -426,7 +412,8 @@ function TeamComposition({
                 style={{ fontSize: geo.title }}
                 className=" mb-3 text-center font-semibold tracking-tight text-balance text-[#1b1916] sm:mb-4 dark:text-[#D4B872]"
               >
-                تیمی که همراه شماست
+                تیمی <br />
+                که <br /> همراه شماست
               </h2>
               {/* <p
                 style={{ fontSize: geo.body }}
@@ -530,8 +517,7 @@ const HeroZoom = ({
   })
 
   return (
-    <ReactLenis root>
-      <LenisScrollSync />
+    <>
       <div
         ref={scrollRef}
         className="relative "
@@ -541,8 +527,10 @@ const HeroZoom = ({
           className="sticky top-0 h-svh w-full overflow-hidden"
           style={{ perspective: zooming ? '1200px' : undefined }}
         >
-          {/* Layer 0: Ambient Luxury Mesh Background */}
-          <AmbientBackground />
+          {/* Backdrop comes from the page-level <AmbientBackground fixed />
+              (it shows straight through this transparent sticky viewport —
+              the zooming hero has always been a sibling layer, never a child
+              of the background). */}
 
           {/* Layer 1: Team + Videos */}
           <motion.div
@@ -552,7 +540,7 @@ const HeroZoom = ({
             <motion.div
               ref={trackRef}
               style={{ y: trackY }}
-              className="pointer-events-none absolute left-0 top-0 h-[280svh] w-full"
+              className="pointer-events-none absolute left-0 top-0 h-[300svh] md:h-[280svh] w-full"
             >
               <div className="mx-auto grid h-full max-w-[80rem] grid-rows-3 px-5 md:px-10">
                 {VIDEOS.map((video, idx) => (
@@ -617,7 +605,7 @@ const HeroZoom = ({
           </motion.div>
         </div>
       </div>
-    </ReactLenis>
+    </>
   )
 }
 
