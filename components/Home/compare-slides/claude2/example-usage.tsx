@@ -36,17 +36,17 @@ const CASES: ComparisonItem[] = [
   {
     id: '1',
     effect: 'ripple',
-    procedureLabel: 'رینوپلاستی',
+    procedureLabel: 'بلفاپلاستی',
     effectLabel: 'ripple',
     focusY: 0.84,
     seed: 7.3,
     before: {
       src: before1,
-      alt: 'بیمار قبل از رینوپلاستی، نمای روبه‌رو',
+      alt: 'بیمار قبل از بلفاپلاستی، نمای روبه‌رو',
     },
     after: {
       src: after1,
-      alt: 'بیمار بعد از رینوپلاستی، نمای روبه‌رو',
+      alt: 'بیمار بعد از بلفاپلاستی، نمای روبه‌رو',
     },
   },
   // {
@@ -67,7 +67,7 @@ const CASES: ComparisonItem[] = [
   {
     id: '2',
     effect: 'iris',
-    procedureLabel: 'بلفاروپلاستی',
+    procedureLabel: 'تزریق چانه و فک',
     effectLabel: 'iris',
     focusY: 0.55,
     seed: 4.4,
@@ -84,7 +84,7 @@ const CASES: ComparisonItem[] = [
   {
     id: '3',
     effect: 'laser',
-    procedureLabel: 'بلفاروپلاستی',
+    procedureLabel: 'لیفت ابرو',
     effectLabel: 'laser',
     focusY: 0.55,
     seed: 4.4,
@@ -100,7 +100,7 @@ const CASES: ComparisonItem[] = [
   {
     id: '4',
     effect: 'peel',
-    procedureLabel: 'بلفاروپلاستی',
+    procedureLabel: 'لیفت صورت',
     effectLabel: 'peel',
     focusY: 0.55,
     seed: 4.4,
@@ -116,7 +116,7 @@ const CASES: ComparisonItem[] = [
   {
     id: '5',
     effect: 'silk',
-    procedureLabel: 'بلفاروپلاستی',
+    procedureLabel: 'عمل بینی',
     effectLabel: 'silk',
     focusY: 0.55,
     seed: 4.4,
@@ -164,7 +164,7 @@ const CASES: ComparisonItem[] = [
   {
     id: '6',
     effect: 'ink',
-    procedureLabel: 'بلفاروپلاستی',
+    procedureLabel: 'عمل غبغب',
     effectLabel: 'ink',
     focusY: 0.55,
     seed: 4.4,
@@ -194,22 +194,22 @@ const CASES: ComparisonItem[] = [
     },
   },
 
-  {
-    id: '8',
-    effect: 'mosaic',
-    procedureLabel: 'بلفاروپلاستی',
-    effectLabel: 'mosaic',
-    focusY: 0.55,
-    seed: 4.4,
-    before: {
-      src: before2,
-      alt: 'بیمار قبل از جراحی پلک، نمای نزدیک',
-    },
-    after: {
-      src: after2,
-      alt: 'بیمار بعد از جراحی پلک، نمای نزدیک',
-    },
-  },
+  // {
+  //   id: '8',
+  //   effect: 'mosaic',
+  //   procedureLabel: 'بلفاروپلاستی',
+  //   effectLabel: 'mosaic',
+  //   focusY: 0.55,
+  //   seed: 4.4,
+  //   before: {
+  //     src: before2,
+  //     alt: 'بیمار قبل از جراحی پلک، نمای نزدیک',
+  //   },
+  //   after: {
+  //     src: after2,
+  //     alt: 'بیمار بعد از جراحی پلک، نمای نزدیک',
+  //   },
+  // },
   // {
   //   id: 'thread-lift-04',
   //   effect: 'thread',
@@ -232,26 +232,26 @@ const CASES: ComparisonItem[] = [
     before: { src: before1, alt: 'بیمار قبل از ترمیم' },
     after: { src: after1, alt: 'بیمار بعد از ترمیم' },
   },
-  {
-    id: '10',
-    effect: 'diagonal',
-    procedureLabel: 'بوتاکس',
-    effectLabel: 'diagonal',
-    focusY: 0.55,
-    seed: 3.1,
-    before: { src: before2, alt: 'بیمار قبل از بوتاکس' },
-    after: { src: after2, alt: 'بیمار بعد از بوتاکس' },
-  },
-  {
-    id: '11',
-    effect: 'liquid',
-    procedureLabel: 'فیس‌لیفت',
-    effectLabel: 'liquid',
-    focusY: 0.55,
-    seed: 5.9,
-    before: { src: before3, alt: 'بیمار قبل از فیس‌لیفت' },
-    after: { src: after3, alt: 'بیمار بعد از فیس‌لیفت' },
-  },
+  // {
+  //   id: '10',
+  //   effect: 'diagonal',
+  //   procedureLabel: 'بوتاکس',
+  //   effectLabel: 'diagonal',
+  //   focusY: 0.55,
+  //   seed: 3.1,
+  //   before: { src: before2, alt: 'بیمار قبل از بوتاکس' },
+  //   after: { src: after2, alt: 'بیمار بعد از بوتاکس' },
+  // },
+  // {
+  //   id: '11',
+  //   effect: 'liquid',
+  //   procedureLabel: 'فیس‌لیفت',
+  //   effectLabel: 'liquid',
+  //   focusY: 0.55,
+  //   seed: 5.9,
+  //   before: { src: before3, alt: 'بیمار قبل از فیس‌لیفت' },
+  //   after: { src: after3, alt: 'بیمار بعد از فیس‌لیفت' },
+  // },
   {
     id: '12',
     effect: 'wave',
@@ -272,16 +272,16 @@ const CASES: ComparisonItem[] = [
     before: { src: before5, alt: 'بیمار قبل از جراحی بینی' },
     after: { src: after5, alt: 'بیمار بعد از جراحی بینی' },
   },
-  {
-    id: '14',
-    effect: 'crystalline',
-    procedureLabel: 'جراحی بینی',
-    effectLabel: 'crystalline',
-    focusY: 0.55,
-    seed: 6.6,
-    before: { src: before6, alt: 'بیمار قبل از جراحی بینی' },
-    after: { src: after6, alt: 'بیمار بعد از جراحی بینی' },
-  },
+  // {
+  //   id: '14',
+  //   effect: 'crystalline',
+  //   procedureLabel: 'جراحی بینی',
+  //   effectLabel: 'crystalline',
+  //   focusY: 0.55,
+  //   seed: 6.6,
+  //   before: { src: before6, alt: 'بیمار قبل از جراحی بینی' },
+  //   after: { src: after6, alt: 'بیمار بعد از جراحی بینی' },
+  // },
 ]
 
 export default function ResultsPage() {

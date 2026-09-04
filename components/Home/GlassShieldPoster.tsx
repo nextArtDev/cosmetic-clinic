@@ -171,13 +171,10 @@ export function GlassShieldShowcase({
   className = '',
 }: GlassShieldShowcaseProps) {
   const s: ShieldGeometry = { ...DEFAULT_SHIELD, ...shield }
-  const shieldClip = `inset(${s.top}% ${100 - s.left - s.width}% ${
-    100 - s.top - s.height
-  }% ${s.left}% round ${s.radius}px)`
 
   return (
     <div
-      className={`relative w-full max-w-[640px] select-none overflow-hidden rounded-[22px] bg-[#160c07] shadow-[0_40px_90px_-25px_rgba(0,0,0,0.9)] ${className}`}
+      className={`relative isolate w-full max-w-[640px] select-none overflow-hidden rounded-[22px] bg-[#160c07] shadow-[0_40px_90px_-25px_rgba(0,0,0,0.9)] ${className}`}
       style={{
         aspectRatio: '3 / 4',
         fontFamily: "'Cormorant Garamond', 'Times New Roman', serif",
@@ -198,18 +195,35 @@ export function GlassShieldShowcase({
       {/* warm vignette over the blurred zone only */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_42%,transparent_38%,rgba(12,5,2,0.5)_75%,rgba(4,1,0,0.85)_100%)]" />
 
-      {/* 2 — sharp layer, clipped to the shield window */}
-      <motion.img
-        src={imageSrc}
-        alt={imageAlt}
+      {/* 2 — sharp layer inside an overflow-hidden window (Chrome-safe clip) */}
+      <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={VIEWPORT}
         transition={{ duration: 1.1, ease: 'easeOut', delay: 0.15 }}
-        className="absolute inset-0 h-full w-full object-cover brightness-[1.02]"
-        style={{ clipPath: shieldClip }}
-        draggable={false}
-      />
+        className="absolute z-[1] overflow-hidden"
+        style={{
+          left: `${s.left}%`,
+          top: `${s.top}%`,
+          width: `${s.width}%`,
+          height: `${s.height}%`,
+          borderRadius: s.radius,
+        }}
+      >
+        <img
+          src={imageSrc}
+          alt=""
+          aria-hidden
+          className="absolute max-w-none object-cover brightness-[1.02] [transform:translateZ(0)]"
+          style={{
+            width: `${(100 / s.width) * 100}%`,
+            height: `${(100 / s.height) * 100}%`,
+            left: `${(-s.left / s.width) * 100}%`,
+            top: `${(-s.top / s.height) * 100}%`,
+          }}
+          draggable={false}
+        />
+      </motion.div>
 
       {/* constant thin outline of the shield */}
       <div

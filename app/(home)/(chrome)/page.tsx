@@ -165,7 +165,7 @@ export default async function Home() {
         <div dir="ltr" className="w-full h-full overflow-hidden ">
           <AmbientBackground />
           {/* <MovingBento items={items} forceDesktop={true} fillHeight /> */}
-          <ScrollShowcase />
+          {/* <ScrollShowcase /> */}
         </div>
         {/* <ParallaxCards items={items} /> */}
 
@@ -310,9 +310,9 @@ export default async function Home() {
         {/* <CreativeCompare /> */}
         {/* <DCompareSlides /> */}
         {/* <ZShaderCompareSlides /> */}
-        <section id="services" className="relative scroll-mt-24">
+        {/* <section id="services" className="relative scroll-mt-24">
           <AdvancedBodyCarousel />
-        </section>
+        </section> */}
         <div
           id="testimonials"
           dir="ltr"
