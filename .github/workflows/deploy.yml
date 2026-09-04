@@ -46,3 +46,29 @@ jobs:
           push: true
           tags: |
             ${{ env.IMAGE }}:migrate-latest
+
+  # ---- Continuous Deployment: runs ONLY after build succeeds (needs:) ----
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release on VPS over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e   # fail fast: a failed migrate must NOT be followed by `up`
+            cd /srv/cosmetic-clinic
+            APP_TAG=$(grep APP_IMAGE .deploy.env | cut -d= -f2)
+            MIG_TAG=$(grep MIGRATION_IMAGE .deploy.env | cut -d= -f2)
+            docker tag "$APP_TAG" cosmetic-clinic:rollback || true
+            for i in 1 2 3 4 5; do docker pull ${{ env.IMAGE }}:latest && break; sleep 60; done
+            for i in 1 2 3 4 5; do docker pull ${{ env.IMAGE }}:migrate-latest && break; sleep 60; done
+            docker tag ${{ env.IMAGE }}:latest "$APP_TAG"
+            docker tag ${{ env.IMAGE }}:migrate-latest "$MIG_TAG"
+            docker compose --env-file .env --env-file .deploy.env -f docker-compose.prod.yml run --rm migrate
+            docker compose --env-file .env --env-file .deploy.env -f docker-compose.prod.yml up -d
+            sleep 15 && curl -so /dev/null -w "smoke: %{http_code}\n" http://127.0.0.1/
+            docker image prune -f
