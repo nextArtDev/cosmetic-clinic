@@ -285,17 +285,7 @@ export default async function Home() {
             ]}
           />
         </section> */}
-        {/* <section className="relative bg-white">
-        <HorizontalScrollCarousel rtl className="overflow-x-hidden" />
-      </section> */}
-        {/* <PersonnelCarousel /> */}
-        {/* <section className="relative min-h-[70vh] overflow-hidden flex items-center justify-center">
-        <Rotating />
-      </section>
-      <Highlights />
-      <section dir="ltr" className="relative">
-        <ImageCarousel />
-      </section> */}
+
         {/* <StickyScrollVideo /> */}
         <section id="results" className="scroll-mt-24">
           <ResultsPage />
@@ -319,7 +309,7 @@ export default async function Home() {
         <MarqueeDemoVertical />
       </section> */}
         {/* Floating actions — connect the landing page to the live booking flow */}
-        <div className="fixed bottom-4 left-4 z-50 flex flex-col items-start gap-3 sm:bottom-6 sm:left-6">
+        <div className="fixed md:hidden bottom-4 left-4 z-50 flex flex-col items-start gap-3 sm:bottom-6 sm:left-6">
           <Link
             href="/booking"
             className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-gild-bright via-gilded to-gild-deep px-4.5 py-4.5 text-sm font-bold text-canvas-deep shadow-xl shadow-gilded/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-gilded/40 active:scale-95"
