@@ -3,6 +3,14 @@ import { getCurrentUser } from '@/lib/auth-helpers'
 import { zarinpalPaymentApproval } from '@/lib/actions/payment'
 
 export async function GET(request: NextRequest) {
+  // Canonical public base URL. Server-side process.env is read at RUNTIME
+  // (build-time inlining only affects client bundles), so the VPS .env value
+  // wins in production. Never derive user-facing URLs from request.url's
+  // host: behind proxies/tunnels/local dev it can be 0.0.0.0, localhost, or
+  // an internal container name, which then leaks into redirects (and into
+  // the CallbackURL registered with Zarinpal).
+  const configuredBase = process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/+$/, '')
+  const baseOrigin = configuredBase || new URL(request.url).origin
   const { searchParams } = new URL(request.url)
   const Authority = searchParams.get('Authority')
   const Status = searchParams.get('Status')
@@ -17,7 +25,7 @@ export async function GET(request: NextRequest) {
       flow === 'home'
         ? `/appointments/${appointmentId}`
         : `/v1/appointments/${appointmentId}`
-    const url = new URL(base, request.url)
+    const url = new URL(base, baseOrigin)
     for (const [k, v] of Object.entries(query)) {
       if (v) url.searchParams.set(k, v)
     }
@@ -33,7 +41,7 @@ export async function GET(request: NextRequest) {
 
     const user = await getCurrentUser()
     if (!user?.id) {
-      return NextResponse.redirect(new URL('/signin', request.url).toString())
+      return NextResponse.redirect(new URL('/signin', baseOrigin).toString())
     }
 
     const result = await zarinpalPaymentApproval({
