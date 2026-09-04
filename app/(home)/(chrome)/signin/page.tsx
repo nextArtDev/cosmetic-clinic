@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { ViewTransition } from 'react'
 import { SignInForm } from '@/components/Home/auth/sign-in-form'
 import { FlowShell } from '@/components/Home/booking/flow-shell'
+import { DEMO_MODE } from '@/lib/demo'
 
 export const metadata: Metadata = {
   title: 'ورود | کلینیک دکتر شبنم فضلی',
@@ -30,6 +31,7 @@ export default async function SignInPage({
       >
         <SignInForm
           callbackUrl={typeof callbackUrl === 'string' ? callbackUrl : '/'}
+          demoHint={DEMO_MODE}
         />
       </FlowShell>
     </ViewTransition>

@@ -30,7 +30,13 @@ const verifyOtp = async (
   return fn({ phoneNumber, code })
 }
 
-export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
+export function SignInForm({
+  callbackUrl,
+  demoHint = false,
+}: {
+  callbackUrl: string
+  demoHint?: boolean
+}) {
   const router = useRouter()
   const [phoneNumber, setPhoneNumber] = useState('')
   const [code, setCode] = useState('')
@@ -164,6 +170,15 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
               />
             </div>
           </label>
+        )}
+
+        {demoHint && step === 'code' && (
+          <p
+            dir="ltr"
+            className="rounded-xl border border-gold/40 bg-gold/10 px-4 py-2 text-center text-xs font-medium text-gold"
+          >
+            Demo mode — OTP is always 123456
+          </p>
         )}
 
         {step === 'phone' ? (

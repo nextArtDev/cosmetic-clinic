@@ -6,6 +6,7 @@ import { nextCookies } from 'better-auth/next-js'
 import { headers } from 'next/headers'
 import { cache } from 'react'
 import { sendOtpSms } from './sms'
+import { DEMO_MODE, DEMO_OTP_CODE } from './demo'
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -64,6 +65,19 @@ export const auth = betterAuth({
           throw new Error(
             'ارسال پیامک با مشکل مواجه شد. لطفاً دوباره تلاش کنید.',
           )
+        }
+
+        // Demo mode: replace the randomly generated OTP better-auth already
+        // stored (value = "<code>:0", identifier = phoneNumber) with the
+        // fixed demo code, so customers can always log in with 123456.
+        if (DEMO_MODE) {
+          await prisma.verification.updateMany({
+            where: { identifier: phoneNumber },
+            data: {
+              value: `${DEMO_OTP_CODE}:0`,
+              expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+            },
+          })
         }
 
         await prisma.otpRateLimit.upsert({

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { SignInForm } from './sign-in-form'
+import { DEMO_MODE } from '@/lib/demo'
 
 export const metadata: Metadata = {
   title: 'ورود | کلینیک ۴۰۴',
@@ -17,6 +18,7 @@ export default async function SignInPage({
         callbackUrl={
           typeof callbackUrl === 'string' ? callbackUrl : '/booking'
         }
+        demoHint={DEMO_MODE}
       />
     </section>
   )

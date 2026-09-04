@@ -1,5 +1,7 @@
 import 'server-only'
 
+import { DEMO_MODE } from './demo'
+
 const MELI_PAYAMAK_ENDPOINT =
   'https://rest.payamak-panel.com/api/SendSMS/SendOtp'
 
@@ -10,6 +12,7 @@ interface SendResult {
 
 /**
  * Sends an OTP verification code via Meli Payamak.
+ * In demo mode no SMS is sent at all (the OTP is forced to 123456 in auth).
  * In development the code is only logged to the server console (no credit used).
  * In production it calls the Meli Payamak SendOtp REST endpoint.
  */
@@ -17,6 +20,11 @@ export async function sendOtpSms(
   phoneNumber: string,
   code: string,
 ): Promise<SendResult> {
+  if (DEMO_MODE) {
+    console.log(`[otp-demo] code for ${phoneNumber}: ${code} (not sent)`)
+    return { ok: true }
+  }
+
   console.log(`[otp-dev] code for ${phoneNumber}: ${code}`)
 
   if (!phoneNumber) return { ok: false, error: 'NO_PHONE' }

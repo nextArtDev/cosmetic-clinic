@@ -1,12 +1,14 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { randomUUID } from 'crypto'
 import ZarinPalCheckout from 'zarinpal-checkout'
 import prisma from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth-helpers'
 import { AppointmentStatus } from '@/lib/generated/prisma'
 import { smsBookingConfirmed } from './sms'
 import { toClinicHHMM, getAppTimeZone } from '@/lib/scheduling/tz'
+import { DEMO_MODE } from '@/lib/demo'
 
 // ---------------------------------------------------------------------------
 // Zarinpal payment flow for clinic-404.
@@ -111,6 +113,25 @@ export async function zarinpalPayment(
 
     const { orderId, amount } = await getOrCreateOrder(appointmentId, prisma)
 
+    // Demo mode: skip ZarinPal entirely (sandbox does not work on a bare
+    // public IP). Issue a fake authority and point the client straight at the
+    // real callback route with Status=OK, so the booking flow (lock, attempt,
+    // order → Paid, confirmation SMS) still runs exactly like production.
+    if (DEMO_MODE) {
+      const authority = `DEMO${randomUUID().replace(/-/g, '').toUpperCase()}`
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { authority },
+      })
+      return {
+        payment: {
+          status: PAYMENT_STATUS.SUCCESS,
+          authority,
+          url: `${callbackURL(appointmentId, orderId, flow)}&Authority=${authority}&Status=OK`,
+        },
+      }
+    }
+
     const zarinpal = createZarinpalInstance()
     const payment = (await zarinpal.PaymentRequest({
       Amount: Math.round(amount),
@@ -206,6 +227,21 @@ export async function zarinpalPaymentApproval({
     }
 
     if (Status === 'OK' && Authority) {
+      // Demo mode: no remote verification against Zarinpal.
+      if (DEMO_MODE) {
+        await updateOrderToPaid({
+          orderId,
+          appointmentId,
+          paymentResult: {
+            id: `DEMO-${Date.now()}`,
+            status: 'OK',
+            authority: Authority,
+            fee: order.amount.toString(),
+          },
+        })
+        return { success: true }
+      }
+
       const zarinpal = createZarinpalInstance()
       const verification = (await zarinpal.PaymentVerification({
         Amount: Math.round(order.amount),
@@ -279,6 +315,21 @@ export async function reconcilePendingZarinpalPayment(
       order.amount,
     )
     if (!attemptOk) return { reconciled: false }
+
+    // Demo mode: no remote verification against Zarinpal.
+    if (DEMO_MODE) {
+      await updateOrderToPaid({
+        orderId: order.id,
+        appointmentId,
+        paymentResult: {
+          id: `DEMO-${Date.now()}`,
+          status: 'OK',
+          authority,
+          fee: order.amount.toString(),
+        },
+      })
+      return { reconciled: true }
+    }
 
     const zarinpal = createZarinpalInstance()
     const verification = (await zarinpal.PaymentVerification({

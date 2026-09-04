@@ -244,14 +244,14 @@ export default async function Home() {
           {/* <ScrollSlider /> */}
           <BeforeAfterSlider />
         </div>
-        <section className="flex min-h-screen items-center justify-center px-4 py-10">
+        {/* <section className="flex min-h-screen items-center justify-center px-4 py-10">
           <GlassShieldShowcase
             imageSrc={'/images/lips.webp'}
             imageAlt="فیلر لب — نتیجه‌ای طبیعی"
             handle=""
             badge="تزریق ژل"
             title="فیلر لب"
-            /* optional — override any part of the shield geometry */
+       
             shield={{
               left: 25,
               top: 23,
@@ -288,7 +288,7 @@ export default async function Home() {
               },
             ]}
           />
-        </section>
+        </section> */}
         {/* <section className="relative bg-white">
         <HorizontalScrollCarousel rtl className="overflow-x-hidden" />
       </section> */}

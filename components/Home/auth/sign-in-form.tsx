@@ -40,7 +40,13 @@ const normalizePhone = (raw: string) => {
   return `+${digits}`
 }
 
-export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
+export function SignInForm({
+  callbackUrl,
+  demoHint = false,
+}: {
+  callbackUrl: string
+  demoHint?: boolean
+}) {
   const router = useRouter()
   const [phoneNumber, setPhoneNumber] = useState('')
   const [code, setCode] = useState('')
@@ -156,6 +162,15 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
               />
             </div>
           </label>
+        )}
+
+        {demoHint && step === 'code' && (
+          <p
+            dir="ltr"
+            className="rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-2 text-center text-xs font-medium text-amber-700"
+          >
+            Demo mode — OTP is always 123456
+          </p>
         )}
 
         {step === 'phone' ? (
