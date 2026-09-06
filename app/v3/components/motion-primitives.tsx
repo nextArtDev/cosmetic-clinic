@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, type ReactNode, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type ReactNode, type MouseEvent } from 'react'
 import Link from 'next/link'
 import { motion, useScroll, useTransform, useReducedMotion, useMotionValue, useSpring } from 'framer-motion'
 
@@ -26,11 +26,32 @@ export function Reveal({ children, className = '', delay = 0, id }: { children: 
 export function MaskImage({ src, alt, className = '', parallax = true, priority = false }: { src: string; alt: string; className?: string; parallax?: boolean; priority?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
   const reduce = useReducedMotion()
+  const [inView, setInView] = useState(false)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
   const y = useTransform(scrollYProgress, [0, 1], ['-4%', '4%'])
+
+  // whileInView(amount) deadlocks here: the element's own initial
+  // clip-path (inset 0 0 0 100%) zeroes Chrome's intersectionRatio, so a
+  // 0.12 threshold can never be crossed by the animation meant to open it.
+  // A threshold-0 observer still fires on the isIntersecting flip, so the
+  // reveal is driven from that instead.
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (reduce) { setInView(true); return }
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        setInView(true)
+        observer.disconnect()
+      }
+    }, { threshold: 0 })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [reduce])
+
   return (
-    <motion.div ref={ref} className={`mask-image ${className}`} initial={{ clipPath: reduce ? 'inset(0 0 0 0%)' : 'inset(0 0 0 100%)' }} whileInView={{ clipPath: 'inset(0 0 0 0%)' }} viewport={{ once: true, amount: 0.12 }} transition={{ duration: reduce ? 0.01 : 1.4, ease }}>
-      <motion.img src={src} alt={alt} loading={priority ? 'eager' : 'lazy'} decoding="async" width="1500" height="1800" style={{ y: parallax && !reduce ? y : 0 }} initial={{ scale: reduce ? 1 : 1.12 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 1.7, ease }} />
+    <motion.div ref={ref} className={`mask-image ${className}`} initial={{ clipPath: reduce ? 'inset(0 0 0 0%)' : 'inset(0 0 0 100%)' }} animate={inView ? { clipPath: 'inset(0 0 0 0%)' } : undefined} transition={{ duration: reduce ? 0.01 : 1.4, ease }}>
+      <motion.img src={src} alt={alt} loading={priority ? 'eager' : 'lazy'} decoding="async" width="1500" height="1800" style={{ y: parallax && !reduce ? y : 0 }} initial={{ scale: reduce ? 1 : 1.12 }} animate={inView ? { scale: 1 } : undefined} transition={{ duration: 1.7, ease }} />
     </motion.div>
   )
 }

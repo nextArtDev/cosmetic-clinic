@@ -114,6 +114,7 @@ html[data-v4-active] body { margin: 0; color: var(--ink); background: #eef4f9; f
 .v4 .scroll-orbit-position { position: absolute; bottom: 26px; right: -44px; z-index: 5; }
 .v4 .scroll-orbit { position: relative; width: 106px; height: 106px; display: flex; align-items: center; justify-content: center; }
 .v4 .orbit-text { position: absolute; inset: 0; width: 100%; height: 100%; animation: v4-orbit 18s linear infinite; }
+.v4 .orbit-ring { position: absolute; inset: 0; border: 1px dashed #a9a5bf; border-radius: 50%; animation: v4-orbit 18s linear infinite; }
 @keyframes v4-orbit { to { transform: rotate(360deg); } }
 .v4 .scroll-orbit > span { display: flex; align-items: center; justify-content: center; height: 62px; width: 62px; border-radius: 50%; background: rgba(255,255,255,.72); backdrop-filter: blur(3px); transition: background .4s; }
 .v4 .scroll-orbit:hover > span { background: white; }
@@ -944,13 +945,27 @@ html[data-v4-active] body { font-size: 13px; }
 
 /* Brand lockups used in header / footer instead of logo.svg */
 .v4 .brand-text, .v4 .footer-logo-text { display: flex; flex-direction: column; gap: 4px; font-weight: 700; color: var(--ink); }
-.v4 .brand-text { font-size: 17px; line-height: 1.4; }
+.v4 .brand-text { font-size: 17px; line-height: 1.4; white-space: nowrap; }
 .v4 .brand-text small, .v4 .footer-logo-text small { font-size: 9px; font-weight: 400; color: #8d86a0; line-height: 1.6; }
 .v4 .footer-logo-text { font-size: 21px; }
 .v4 a.brand:hover, .v4 a.footer-logo:hover { opacity: .65; }
 
-/* Rotating orbit ring replaces the Japanese scroll.png circular text */
-.v4 .orbit-ring { position: absolute; inset: 0; border: 1px dashed #a9a5bf; border-radius: 50%; animation: v4-orbit 18s linear infinite; }
+/* Header layout in RTL: the original hard-codes LTR auto-margins and a
+   fixed brand width sized for an image logo; a text lockup needs auto
+   width, and the "push nav+actions to the far end" spacing must sit on
+   the inline-start side (physical right in RTL). */
+.v4 .brand { width: auto; }
+.v4 .desktop-nav { margin-right: auto; margin-left: 0; }
+.v4 .page-progress { transform-origin: right; }
+.v4 .header-phone > .serif, .v4 .contact-phone { direction: ltr; unicode-bidi: isolate; }
+@media (max-width: 1100px) {
+  .v4 .header-actions { margin-right: auto; margin-left: 0; }
+}
+
+/* Rotating orbit ring replaces the Japanese scroll.png circular text.
+   .scroll-orbit > span also matches this element (62px circle styles), so
+   re-assert full size and strip the circle background at higher specificity. */
+.v4 .scroll-orbit > .orbit-ring { width: 100%; height: 100%; background: none; backdrop-filter: none; transition: none; }
 
 /* Star used as the pegasus mark / white contact emblem */
 .v4 .pegasus-mark { width: clamp(70px, 5.5vw, 105px); height: auto; color: #a9a2bd; }
@@ -987,6 +1002,8 @@ html[data-v4-active] body { font-size: 13px; }
 .v4 .treatment-facts > div + div { border-left: 0; border-right: 1px solid var(--line); padding-left: 0; padding-right: 25px; }
 .v4 .concern-result button { margin-left: 0; margin-right: auto; }
 .v4 .menu-treatment-list > button > svg { margin-left: 0; margin-right: auto; }
+.v4 .rail-hover-arrow { right: auto; left: -2px; transform: translate(4px, 4px) scaleX(-1); }
+.v4 .rail-action:hover .rail-hover-arrow { transform: translate(0, 0) scaleX(-1); }
 .v4 .price-list > button > p { margin-left: 0; margin-right: auto; }
 .v4 .selected-summary > span { margin-left: 0; margin-right: auto; }
 .v4 .dialog-close { right: auto; left: 17px; }
