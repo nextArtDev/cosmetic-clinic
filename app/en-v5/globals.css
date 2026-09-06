@@ -1,0 +1,429 @@
+/* =========================================================================
+   /v5 - NOVA CAPILLAIRE frontend (faithful port of chat-clone/nova-capillaire).
+   Fully isolated from production routes:
+   - Second Tailwind build via `prefix(nc)`: every utility is nc:* and every
+     theme token is --nc-* (production uses unprefixed utilities/--color-*).
+   - Preflight/base is gated behind html[data-v5-active] (set by v5-shell on
+     mount, removed on unmount) so global element styles only apply while a
+     /v5 route is on screen.
+   - All custom classes are v5- prefixed and scoped under .v5 / html[data-v5-active].
+   - Keyframes are v5- prefixed; custom props live on .v5, never :root.
+   - Fonts: --font-v5-sans/--font-v5-serif vars from app/v5/fonts.ts.
+   ========================================================================= */
+
+@import "tailwindcss" prefix(nc);
+
+@theme {
+  --font-sans: var(--font-v5-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-v5-serif), ui-serif, Georgia, serif;
+  --color-ink: #0c0d0e;
+  --color-ink-soft: #1f2937;
+  --color-graphite: #4b5563;
+  --color-mist: #9ca3af;
+  --color-line: #e5e7eb;
+  --color-fog: #f3f4f6;
+  --color-paper: #f8f7f4;
+  --color-snow: #ffffff;
+
+  --color-sage: #2f532e;
+  --color-sage-deep: #223d21;
+  --color-sage-soft: #d4e9d6;
+  --color-sage-mist: #eaf4eb;
+
+  --color-azure: #375efb;
+  --color-wine: #870000;
+  --color-blush: #ffdede;
+
+  --radius-sm: 8px;
+  --radius-md: 15px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --shadow-soft: 0 18px 50px -24px rgba(12, 13, 14, 0.25), 0 2px 6px -2px rgba(12, 13, 14, 0.06);
+  --shadow-lift: 0 30px 70px -30px rgba(12, 13, 14, 0.35), 0 4px 12px -4px rgba(12, 13, 14, 0.08);
+}
+
+/* ------------------------------------------------------------------ */
+/* Font plumbing                                                       */
+/*                                                                     */
+/* @theme registers the font-serif/font-sans utilities, but the        */
+/* --font-v5-* vars are attached to the .v5 wrapper (next/font), so    */
+/* they must be re-resolved at .v5 scope — a :root evaluation would    */
+/* see them as undefined. Everything inside .v5 inherits Manrope.     */
+/* ------------------------------------------------------------------ */
+
+.v5 {
+  --nc-font-sans: var(--font-v5-sans), ui-sans-serif, system-ui, sans-serif;
+  --nc-font-serif: var(--font-v5-serif), ui-serif, Georgia, serif;
+  font-family: var(--nc-font-sans);
+  font-feature-settings: "ss01", "cv11", "liga";
+}
+
+/* ------------------------------------------------------------------ */
+/* Base (gated: only while a /v5 route is mounted)                    */
+/* ------------------------------------------------------------------ */
+
+html[data-v5-active] {
+  scroll-behavior: auto;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Lenis adds .lenis to <html> itself, so these must compound directly. */
+html[data-v5-active].lenis,
+html[data-v5-active].lenis body {
+  height: auto;
+}
+html[data-v5-active].lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+html[data-v5-active].lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+html[data-v5-active].lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+html[data-v5-active] body {
+  background: var(--nc-color-snow);
+  color: var(--nc-color-ink);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+.v5 ::selection {
+  background: var(--nc-color-sage-soft);
+  color: var(--nc-color-sage-deep);
+}
+
+.v5 :focus-visible {
+  outline: 2px solid var(--nc-color-azure);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Typography utilities                                                */
+/* ------------------------------------------------------------------ */
+
+.v5 .text-balance {
+  text-wrap: balance;
+}
+
+.v5 .letterpress-dark {
+  color: var(--nc-color-ink);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9),
+    0 -1px 0 rgba(0, 0, 0, 0.08);
+}
+
+.v5 .letterpress-light {
+  color: #fff;
+  text-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.v5 .eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.v5 .dot-black::before,
+.v5 .dot-white::before,
+.v5 .dot-sage::before {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 999px;
+  margin-right: 0.7em;
+  vertical-align: middle;
+  transform: translateY(-1px);
+}
+.v5 .dot-black::before {
+  background: var(--nc-color-ink);
+}
+.v5 .dot-white::before {
+  background: #fff;
+}
+.v5 .dot-sage::before {
+  background: var(--nc-color-sage);
+}
+
+/* ------------------------------------------------------------------ */
+/* Glass & surfaces                                                    */
+/* ------------------------------------------------------------------ */
+
+.v5 .frosted {
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: saturate(160%) blur(18px);
+  backdrop-filter: saturate(160%) blur(18px);
+}
+
+.v5 .frosted-dark {
+  background: rgba(12, 13, 14, 0.62);
+  -webkit-backdrop-filter: saturate(140%) blur(18px);
+  backdrop-filter: saturate(140%) blur(18px);
+}
+
+.v5 .glace-blanche {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 247, 244, 0.95));
+  border: 1px solid rgba(12, 13, 14, 0.06);
+}
+
+.v5 .grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.35 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+.v5 .hero-shape {
+  border-radius: 28px 28px 28px 120px;
+}
+@media (min-width: 1024px) {
+  .v5 .hero-shape {
+    border-radius: 32px 32px 32px 180px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Orbit badges ("pastilles")                                          */
+/* ------------------------------------------------------------------ */
+
+.v5 .orbit-card {
+  --orbit-delay: 0ms;
+  --orbit-radius: 26px;
+}
+
+.v5 .orbit-badge {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  border: 1.5px solid currentColor;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  isolation: isolate;
+  transition:
+    background-color 0.6s var(--ease-out-expo),
+    color 0.6s var(--ease-out-expo),
+    transform 0.6s var(--ease-out-expo);
+}
+
+.v5 .orbit-badge::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 999px;
+  background: var(--nc-color-sage);
+  box-shadow: 0 0 0 4px rgba(47, 83, 46, 0.14);
+  opacity: 0;
+  transform: rotate(-90deg) translateX(var(--orbit-radius));
+  z-index: 2;
+}
+
+.v5 .orbit-badge::after {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 999px;
+  border: 1.5px solid var(--nc-color-sage);
+  opacity: 0;
+  transform: scale(1);
+  z-index: 0;
+}
+
+.v5 .orbit-card.is-orbit-active .orbit-badge {
+  background: var(--nc-color-sage-soft);
+  color: var(--nc-color-sage-deep);
+  transition-delay: calc(var(--orbit-delay) + 900ms);
+}
+
+.v5 .orbit-card.is-orbit-active .orbit-badge::before {
+  animation: v5-orbit-turn 1.5s var(--ease-in-out-quart) var(--orbit-delay) forwards;
+}
+
+.v5 .orbit-card.is-orbit-active .orbit-badge::after {
+  animation: v5-orbit-ring 1.4s ease-out calc(var(--orbit-delay) + 1000ms) forwards;
+}
+
+.v5 .orbit-card--dark.is-orbit-active .orbit-badge {
+  background: #fff;
+  color: var(--nc-color-ink);
+}
+
+@keyframes v5-orbit-turn {
+  0% {
+    opacity: 0;
+    transform: rotate(-90deg) translateX(var(--orbit-radius));
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(270deg) translateX(var(--orbit-radius));
+  }
+}
+
+@keyframes v5-orbit-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.75);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v5 .orbit-card.is-orbit-active .orbit-badge::before,
+  .v5 .orbit-card.is-orbit-active .orbit-badge::after {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Marquee                                                             */
+/* ------------------------------------------------------------------ */
+
+.v5 .marquee-track {
+  display: flex;
+  width: max-content;
+  animation: v5-marquee var(--marquee-duration, 40s) linear infinite;
+}
+.v5 .marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes v5-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Links with sliding underline                                        */
+/* ------------------------------------------------------------------ */
+
+.v5 .link-underline {
+  position: relative;
+}
+.v5 .link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s var(--ease-out-expo);
+}
+.v5 .link-underline:hover::after,
+.v5 .link-underline[aria-current="page"]::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ------------------------------------------------------------------ */
+/* Split text reveal (GSAP)                                            */
+/* ------------------------------------------------------------------ */
+
+.v5 .split-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.v5 .split-word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* ------------------------------------------------------------------ */
+/* Compare slider                                                      */
+/* ------------------------------------------------------------------ */
+
+.v5 .compare-handle {
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Misc                                                                */
+/* ------------------------------------------------------------------ */
+
+.v5 .no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.v5 .no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.v5 .shine {
+  position: relative;
+  overflow: hidden;
+}
+.v5 .shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.9s var(--ease-out-expo);
+  pointer-events: none;
+}
+.v5 .shine:hover::after {
+  transform: translateX(120%);
+}
+
+html[data-v5-active] dialog.v5-dialog::backdrop,
+html[data-v5-active] .v5 dialog::backdrop {
+  background: rgba(12, 13, 14, 0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+@keyframes v5-pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(47, 83, 46, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(47, 83, 46, 0);
+  }
+}
+.v5 .pulse-dot {
+  animation: v5-pulse-dot 2s ease-out infinite;
+}

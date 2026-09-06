@@ -37,8 +37,7 @@ export function MaskImage({ src, alt, className = '', parallax = true, priority 
   // reveal is driven from that instead.
   useEffect(() => {
     const el = ref.current
-    if (!el) return
-    if (reduce) { setInView(true); return }
+    if (!el || reduce) return
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) {
         setInView(true)
@@ -49,9 +48,10 @@ export function MaskImage({ src, alt, className = '', parallax = true, priority 
     return () => observer.disconnect()
   }, [reduce])
 
+  const revealed = reduce || inView
   return (
-    <motion.div ref={ref} className={`mask-image ${className}`} initial={{ clipPath: reduce ? 'inset(0 0 0 0%)' : 'inset(0 0 0 100%)' }} animate={inView ? { clipPath: 'inset(0 0 0 0%)' } : undefined} transition={{ duration: reduce ? 0.01 : 1.4, ease }}>
-      <motion.img src={src} alt={alt} loading={priority ? 'eager' : 'lazy'} decoding="async" width="1500" height="1800" style={{ y: parallax && !reduce ? y : 0 }} initial={{ scale: reduce ? 1 : 1.12 }} animate={inView ? { scale: 1 } : undefined} transition={{ duration: 1.7, ease }} />
+    <motion.div ref={ref} className={`mask-image ${className}`} initial={{ clipPath: reduce ? 'inset(0 0 0 0%)' : 'inset(0 0 0 100%)' }} animate={revealed ? { clipPath: 'inset(0 0 0 0%)' } : undefined} transition={{ duration: reduce ? 0.01 : 1.4, ease }}>
+      <motion.img src={src} alt={alt} loading={priority ? 'eager' : 'lazy'} decoding="async" width="1500" height="1800" style={{ y: parallax && !reduce ? y : 0 }} initial={{ scale: reduce ? 1 : 1.12 }} animate={revealed ? { scale: 1 } : undefined} transition={{ duration: 1.7, ease }} />
     </motion.div>
   )
 }
