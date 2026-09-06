@@ -19,7 +19,7 @@ export function AmbientBackground() {
     if (reduced) ref.current?.pause();
     else ref.current?.play().catch(() => {});
   }, [reduced]);
-  return <div className="ambient-background" aria-hidden="true"><video ref={ref} autoPlay muted loop playsInline preload="auto" poster="/images/personels1.jpg"><source src="/videos/clinic.mp4" type="video/mp4" /></video><div className="ambient-wash" /></div>;
+  return <div className="ambient-background" aria-hidden="true"><video ref={ref} autoPlay muted loop playsInline preload="auto" poster="/images/personels1.jpg"><source src="/videos/fv.mp4" type="video/mp4" /></video><div className="ambient-wash" /></div>;
 }
 
 export function Hero() {
@@ -50,8 +50,7 @@ export function Hero() {
         <div className="hero-oval" aria-roledescription="اسلایدر" aria-label="تصاویر کلینیک">
           <div className="oval-picture"><AnimatePresence initial={false}>{gallery.map((item, index) => slide === index && <motion.img key={item.image} src={item.image} alt={item.alt} className="hero-image" initial={{ opacity: 0, scale: reduced ? 1 : 1.06, x: reduced ? 0 : 8 }} animate={{ opacity: 1, scale: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ opacity: { duration: reduced ? 0 : 1.6 }, scale: { duration: 7, ease: "linear" }, x: { duration: 7, ease: "linear" } }} fetchPriority={index === 0 ? "high" : "auto"} />)}</AnimatePresence><span className="image-soft-light" /></div>
           <div className="gallery-arrows"><button onClick={() => { setSlide((slide + gallery.length - 1) % gallery.length); setPaused(true); }} aria-label="تصویر قبلی"><ChevronRight size={18} strokeWidth={1.3} /></button><button onClick={() => { setSlide((slide + 1) % gallery.length); setPaused(true); }} aria-label="تصویر بعدی"><ChevronLeft size={18} strokeWidth={1.3} /></button></div>
-          <Magnetic className="scroll-orbit-position"><a href="#about" className="scroll-orbit" aria-label="دربارهٔ کلینیک"><span className="orbit-ring" aria-hidden="true" /><span><ArrowDown size={22} strokeWidth={1} /></span></a></Magnetic>
-          <div className="gallery-controls">{gallery.map((item, index) => <button key={item.image} aria-label={`تصویر ${index + 1}`} aria-pressed={slide === index} className={`gallery-dot ${slide === index ? "active" : ""}`} onClick={() => { setSlide(index); setPaused(true); }} />)}<button className="gallery-pause" onClick={() => setPaused(!paused)} aria-label={paused ? "پخش اسلایدشو" : "توقف اسلایدشو"}>{paused ? <Play size={10} fill="currentColor" /> : <Pause size={10} />}</button></div>
+          <Magnetic className="scroll-orbit-position"><a href="#about" className="scroll-orbit" aria-label="دربارهٔ کلینیک"><span className="orbit-ring" aria-hidden="true" /><span><ArrowDown size={22} strokeWidth={1} /></span></a></Magnetic>          <div className="gallery-controls">{gallery.map((item, index) => <button key={item.image} aria-label={`تصویر ${index + 1}`} aria-pressed={slide === index} className={`gallery-dot ${slide === index ? "active" : ""}`} onClick={() => { setSlide(index); setPaused(true); }} />)}<button className="gallery-pause" onClick={() => setPaused(!paused)} aria-label={paused ? "پخش اسلایدشو" : "توقف اسلایدشو"}>{paused ? <Play size={10} fill="currentColor" /> : <Pause size={10} />}</button></div>
         </div>
       </motion.div>
       <div className="hero-copy">

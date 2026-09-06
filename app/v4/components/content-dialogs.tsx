@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Search, Clock3, Info, Check, X } from "lucide-react";
 import { articles, treatments, type Treatment } from "../lib/clinic-data";
-import { Dialog, TextButton } from "./ui";
+import { Dialog, Star, TextButton } from "./ui";
 
 export function SearchDialog({ onClose, onTreatment, onArticle }: { onClose: () => void; onTreatment: (id: string) => void; onArticle: (id: string) => void }) {
   const [query, setQuery] = useState("");
