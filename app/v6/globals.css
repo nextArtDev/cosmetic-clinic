@@ -1,0 +1,881 @@
+/* =========================================================================
+   /v6 - LIKHA AESTHETIC frontend (faithful port of chat-clone/likha-aestetics,
+   iranized for a Persian cardiologist + orthopedic practice).
+   Fully isolated from production routes:
+   - Second Tailwind build via `prefix(lk)`: every utility is lk:* and every
+     theme token is --lk-* (production uses unprefixed utilities/--color-*).
+   - Preflight/base is gated behind html[data-v6-active] (set by v6-shell on
+     mount, removed on unmount) so global element styles only apply while a
+     /v6 route is on screen.
+   - All custom classes are v6- prefixed and scoped under .v6 / html[data-v6-active].
+   - Keyframes are v6- prefixed; custom props live on .v6, never :root.
+   - Fonts: --font-v6-sans/--font-v6-display vars from app/v6/fonts.ts.
+   - RTL: the original is an LTR Irish clinic site; physical left/right rules
+     are mirrored to logical inline-start/inline-end so the Persian layout
+     reads natively right-to-left.
+   - The original 1rem=10px scale is kept via a scoped .v6 font-size (62.5%
+     would leak to :root, so instead .v6 is sized at 62.5% of the page rem —
+     identical math inside the subtree).
+   ========================================================================= */
+
+@import "tailwindcss" prefix(lk);
+
+@theme {
+  /* Likha design tokens (verbatim palette) */
+  --color-ink: #231f20;
+  --color-pink: #eaa098;
+  --color-pink-soft: #f2c8c1;
+  --color-blush: #faf2f0;
+  --color-cream: #fdfcfc;
+  --color-rose: #f4e5e3;
+  --color-grey: #b2b6b7;
+  --color-grey-dark: #a4a7aa;
+  --color-sky: #61cbea;
+  --color-sky-soft: #b1dfed;
+  --color-sky-pale: #e6f4f7;
+
+  --font-sans: var(--font-v6-sans), 'Shabnam', 'Vazirmatn', Tahoma, ui-sans-serif, sans-serif;
+  --font-display: var(--font-v6-display), 'FarsiAdad', 'Shabnam', Tahoma, ui-serif, serif;
+
+  --ease-wondr: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-soft: cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+
+/* ------------------------------------------------------------------ */
+/* Scope root — every custom prop + the 10px rem scale live here        */
+/* ------------------------------------------------------------------ */
+
+.v6 {
+  --v6-header-h: 12.2rem;
+
+  /* 62.5% of the page rem → 1rem = 10px inside .v6 (matches the original
+     html{font-size:62.5%} trick without touching <html>). */
+  font-size: 62.5%;
+  font-family: var(--font-v6-sans), 'Shabnam', 'Vazirmatn', Tahoma, ui-sans-serif, sans-serif;
+  color: #231f20;
+  line-height: 1.5;
+  background: #fdfcfc;
+  min-height: 100svh;
+  overflow-x: hidden;
+  /* Persian: ss01 keeps Shabnam's alternate forms; no Latin ligatures. */
+  font-feature-settings: 'ss01';
+}
+
+.v6 ::selection {
+  background: #eaa098;
+  color: #fdfcfc;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base (gated: only while a /v6 route is mounted)                      */
+/* ------------------------------------------------------------------ */
+
+html[data-v6-active] {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Lenis adds .lenis to <html> itself, so these must compound directly. */
+html[data-v6-active].lenis,
+html[data-v6-active].lenis body {
+  height: auto;
+}
+html[data-v6-active].lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+html[data-v6-active].lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+html[data-v6-active].lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+html[data-v6-active] body {
+  overflow-x: hidden;
+}
+
+.v6 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-v6-active] {
+    scroll-behavior: auto;
+  }
+  .v6 *,
+  .v6 *::before,
+  .v6 *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Scrollbar */
+.v6 ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.v6 ::-webkit-scrollbar-track {
+  background: #faf2f0;
+}
+.v6 ::-webkit-scrollbar-thumb {
+  background: #f2c8c1;
+  border-radius: 40px;
+}
+.v6 ::-webkit-scrollbar-thumb:hover {
+  background: #eaa098;
+}
+.v6 .no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.v6 .no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Typography (scoped — the original styled h1..h5 globally)           */
+/* ------------------------------------------------------------------ */
+
+.v6 h1,
+.v6 .h1 {
+  font-family: var(--font-v6-display), 'FarsiAdad', 'Shabnam', Tahoma, serif;
+  font-size: 12rem;
+  line-height: 13.6rem;
+  font-weight: 400;
+}
+.v6 h2,
+.v6 .h2 {
+  font-family: var(--font-v6-display), 'FarsiAdad', 'Shabnam', Tahoma, serif;
+  font-size: 9.6rem;
+  line-height: 11.2rem;
+  font-weight: 400;
+}
+.v6 h3,
+.v6 .h3 {
+  font-family: var(--font-v6-display), 'FarsiAdad', 'Shabnam', Tahoma, serif;
+  font-size: 6.4rem;
+  line-height: 8rem;
+  font-weight: 400;
+}
+.v6 h4,
+.v6 .h4 {
+  font-family: var(--font-v6-sans), 'Shabnam', Tahoma, sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  line-height: 2.4rem;
+  color: #eaa098;
+}
+.v6 h5,
+.v6 .h5 {
+  font-family: var(--font-v6-display), 'FarsiAdad', 'Shabnam', Tahoma, serif;
+  font-size: 3.2rem;
+  line-height: 4.4rem;
+  font-weight: 400;
+}
+
+@media (max-width: 1024px) {
+  .v6 h2,
+  .v6 .h2 {
+    font-size: 8rem;
+    line-height: 9.6rem;
+  }
+}
+@media (max-width: 991px) {
+  .v6 h1,
+  .v6 .h1 {
+    font-size: 6.4rem;
+    line-height: 8rem;
+  }
+  .v6 h2,
+  .v6 .h2 {
+    font-size: 5.6rem;
+    line-height: 7rem;
+  }
+  .v6 h3,
+  .v6 .h3 {
+    font-size: 4rem;
+    line-height: 5.6rem;
+  }
+}
+@media (max-width: 400px) {
+  .v6 h1,
+  .v6 .h1 {
+    font-size: 4.4rem;
+    line-height: 5.6rem;
+  }
+  .v6 h2,
+  .v6 .h2 {
+    font-size: 4rem;
+    line-height: 5.2rem;
+  }
+}
+
+/* Persian script: the original display face used tight -0.03em tracking;
+   FarsiAdad keeps 0 (cursive joining). */
+.v6 .display {
+  font-family: var(--font-v6-display), 'FarsiAdad', 'Shabnam', Tahoma, serif;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.v6 .body-lg {
+  font-size: 2rem;
+  line-height: 3.2rem;
+}
+.v6 .body-sm {
+  font-size: 1.6rem;
+  line-height: 2.8rem;
+  font-weight: 400;
+}
+/* Eyebrows: Latin used 0.13em/0.27em letter-spacing + uppercase; Persian
+   letter-spacing breaks cursive joining — keep size/weight only. */
+.v6 .eyebrow {
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 2rem;
+  color: #b2b6b7;
+}
+.v6 .eyebrow-wide {
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 2rem;
+}
+
+.v6 p a {
+  color: #eaa098;
+  font-weight: 700;
+  position: relative;
+}
+.v6 p a::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.v6 p a:hover::after {
+  transform: scaleX(1);
+  transform-origin: right;
+}
+
+/* ------------------------------------------------------------------ */
+/* Layout                                                               */
+/* ------------------------------------------------------------------ */
+
+.v6 .container-wondr {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 6.4rem;
+  max-width: 1680px;
+}
+@media (max-width: 991px) {
+  .v6 .container-wondr {
+    padding: 0 2.4rem;
+  }
+}
+
+.v6 .component {
+  padding: 15vh 0;
+}
+@media (max-width: 991px) {
+  .v6 .component {
+    padding: 6.4rem 0;
+  }
+}
+
+.v6 .gradient-section {
+  background: linear-gradient(180deg, #faf2f0 0%, #fdfcfc 100%);
+}
+
+/* Section titles — responsive scale matching the original h2 rhythm.
+   Persian needs more line-height than the tight Latin leading. */
+.v6 .title-xl {
+  font-family: var(--font-v6-display), 'FarsiAdad', 'Shabnam', Tahoma, serif;
+  font-size: 4.8rem;
+  line-height: 6.4rem;
+  font-weight: 400;
+}
+@media (min-width: 768px) {
+  .v6 .title-xl {
+    font-size: 7.2rem;
+    line-height: 9rem;
+  }
+}
+@media (min-width: 1280px) {
+  .v6 .title-xl {
+    font-size: 9.6rem;
+    line-height: 11.6rem;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons                                                              */
+/* ------------------------------------------------------------------ */
+
+.v6 .btn-primary {
+  cursor: pointer;
+  appearance: none;
+  border-radius: 40px;
+  background-color: #231f20;
+  color: #fdfcfc;
+  font-weight: 700;
+  font-size: 1.6rem;
+  line-height: 4.8rem;
+  height: 4.8rem;
+  border: none;
+  padding: 0 2.4rem;
+  min-width: 24rem;
+  position: relative;
+  text-align: right;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.2rem;
+  overflow: hidden;
+  transition: all 0.6s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+.v6 .btn-primary:hover {
+  background-color: #231f20;
+  box-shadow: 0 20px 20px rgba(0, 0, 0, 0.1);
+  color: #fdfcfc;
+}
+.v6 .btn-primary .btn-arrow {
+  margin-right: auto;
+  will-change: transform;
+  transition: transform 0.4s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+.v6 .btn-primary:hover .btn-arrow {
+  transform: translate3d(6px, 0, 0) scaleX(-1);
+}
+
+.v6 .btn-primary--cream {
+  background-color: #fdfcfc;
+  color: #231f20;
+}
+.v6 .btn-primary--pink {
+  background-color: #eaa098;
+  color: #231f20;
+}
+
+.v6 .btn-secondary {
+  background-color: transparent;
+  cursor: pointer;
+  border: 1px solid #eaa098;
+  outline: none;
+  appearance: none;
+  height: 4.8rem;
+  padding: 0 2.4rem 0 5.6rem;
+  color: #231f20;
+  font-weight: 700;
+  border-radius: 40px;
+  position: relative;
+  font-size: 1.6rem;
+  line-height: 2.4rem;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.6s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+.v6 .btn-secondary:hover {
+  background-color: #eaa098;
+  border-color: #eaa098;
+  color: #231f20;
+  box-shadow: 0 20px 20px rgba(0, 0, 0, 0.08);
+}
+/* RTL: arrow sits at the inline-end (physical left). */
+.v6 .btn-secondary .btn-arrow {
+  position: absolute;
+  left: 2.4rem;
+  transition: transform 0.4s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+.v6 .btn-secondary:hover .btn-arrow {
+  transform: translate3d(6px, 0, 0) scaleX(-1);
+}
+
+.v6 .btn-tertiary {
+  background-color: transparent;
+  border-radius: 40px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  appearance: none;
+  font-size: 1.6rem;
+  line-height: 4rem;
+  height: 4rem;
+  color: #231f20;
+  font-weight: 700;
+  padding: 0 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  transition: all 0.6s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+.v6 .btn-tertiary:hover {
+  background-color: rgba(244, 229, 227, 0.6);
+}
+.v6 .btn-tertiary .btn-arrow {
+  transition: transform 0.4s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+.v6 .btn-tertiary:hover .btn-arrow {
+  transform: translate3d(6px, 0, 0) scaleX(-1);
+}
+
+/* ------------------------------------------------------------------ */
+/* Reveal animation                                                    */
+/* ------------------------------------------------------------------ */
+
+.v6 .to-animate {
+  opacity: 0;
+  transform: translate(4rem, 6rem) skewY(5deg);
+}
+.v6 .to-animate.anim {
+  opacity: 1;
+  transform: translate(0) skewY(0);
+  transition: all 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* ------------------------------------------------------------------ */
+/* Keyframes (v6-prefixed)                                             */
+/* ------------------------------------------------------------------ */
+
+@keyframes v6-blob {
+  0%,
+  100% {
+    border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+  }
+  14% {
+    border-radius: 40% 60% 54% 46% / 49% 60% 40% 51%;
+  }
+  28% {
+    border-radius: 54% 46% 38% 62% / 49% 70% 30% 51%;
+  }
+  42% {
+    border-radius: 61% 39% 55% 45% / 61% 38% 62% 39%;
+  }
+  56% {
+    border-radius: 61% 39% 67% 33% / 70% 50% 50% 30%;
+  }
+  70% {
+    border-radius: 50% 50% 34% 66% / 56% 68% 32% 44%;
+  }
+  84% {
+    border-radius: 46% 54% 50% 50% / 35% 61% 39% 65%;
+  }
+}
+
+@keyframes v6-floatcard {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -3rem, 0);
+  }
+}
+
+@keyframes v6-scrolldown {
+  0% {
+    transform: translateX(50%) translateY(-100%);
+  }
+  50% {
+    transform: translateX(50%) translateY(-50%);
+  }
+  100% {
+    transform: translateX(50%) translateY(-100%);
+  }
+}
+
+@keyframes v6-spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* RTL: track slides +50% so items enter from the inline-end (physical
+   left), matching Persian reading direction. */
+@keyframes v6-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(50%, 0, 0);
+  }
+}
+
+.v6 .blob-shape {
+  animation: v6-blob 30s ease-in-out infinite alternate both;
+}
+.v6 .blob-float {
+  animation: v6-floatcard 5s ease infinite;
+}
+.v6 .spin-slow {
+  animation: v6-spin-slow 26s linear infinite;
+}
+
+/* ------------------------------------------------------------------ */
+/* Marquee ticker                                                      */
+/* ------------------------------------------------------------------ */
+
+.v6 .marquee-track {
+  display: flex;
+  width: max-content;
+  animation: v6-marquee 38s linear infinite;
+}
+.v6 .marquee-mask {
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Cards / drag scroller                                              */
+/* ------------------------------------------------------------------ */
+
+.v6 .drag-track {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  user-select: none;
+  cursor: grab;
+  scrollbar-width: none;
+}
+.v6 .drag-track::-webkit-scrollbar {
+  display: none;
+}
+.v6 .drag-track.dragging {
+  cursor: grabbing;
+  scroll-behavior: auto;
+}
+.v6 .drag-track.dragging * {
+  pointer-events: none;
+}
+.v6 .drag-track > * {
+  white-space: normal;
+}
+
+/* Horizontal scroller padding — RTL: paddings mirror (inline-start is
+   physical right). */
+.v6 .drag-pad {
+  padding-right: 2.4rem;
+  padding-left: 2.4rem;
+}
+@media (min-width: 1024px) {
+  .v6 .drag-pad {
+    padding-right: max(6.4rem, calc(50% - 60rem));
+    padding-left: 6.4rem;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Custom cursor                                                       */
+/* ------------------------------------------------------------------ */
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-v6-active] .cursor-hidden,
+  html[data-v6-active] .cursor-hidden a,
+  html[data-v6-active] .cursor-hidden button {
+    cursor: none;
+  }
+}
+.v6 .cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  mix-blend-mode: normal;
+}
+
+/* ------------------------------------------------------------------ */
+/* Header                                                              */
+/* ------------------------------------------------------------------ */
+
+.v6 .header-shell {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  z-index: 60;
+  padding: 3.4rem 0;
+  transition:
+    padding 0.5s cubic-bezier(0.15, 0.9, 0.34, 0.95),
+    background-color 0.5s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+.v6 .header-shell.scrolled {
+  padding: 1.8rem 0;
+  background-color: rgba(253, 252, 252, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 1px 0 rgba(35, 31, 32, 0.06);
+}
+
+.v6 .menu-burger {
+  height: 4.5rem;
+  width: 5rem;
+  display: inline-block;
+  vertical-align: middle;
+  border: none;
+  appearance: none;
+  outline: none;
+  background: transparent;
+  position: relative;
+}
+.v6 .menu-burger span {
+  position: absolute;
+  right: 0;
+  height: 2px;
+  width: 100%;
+  background: #231f20;
+  border-radius: 2px;
+  transition:
+    transform 0.5s cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 0.3s cubic-bezier(0.76, 0, 0.24, 1),
+    width 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.v6 .menu-burger span:nth-child(1) {
+  top: 1.2rem;
+}
+.v6 .menu-burger span:nth-child(2) {
+  top: 2.1rem;
+  width: 65%;
+}
+.v6 .menu-burger span:nth-child(3) {
+  top: 3rem;
+}
+.v6 .menu-burger:hover span:nth-child(2) {
+  width: 100%;
+}
+.v6 .menu-burger.open span:nth-child(1) {
+  transform: translateY(0.9rem) rotate(45deg);
+}
+.v6 .menu-burger.open span:nth-child(2) {
+  opacity: 0;
+}
+.v6 .menu-burger.open span:nth-child(3) {
+  transform: translateY(-0.9rem) rotate(-45deg);
+}
+
+/* ------------------------------------------------------------------ */
+/* Menu overlay                                                        */
+/* ------------------------------------------------------------------ */
+
+.v6 .menu-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: #faf2f0;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+  overflow-y: auto;
+}
+.v6 .menu-panel.open {
+  clip-path: inset(0 0 0% 0);
+}
+.v6 .menu-link {
+  font-family: var(--font-v6-display), 'FarsiAdad', 'Shabnam', Tahoma, serif;
+  font-size: 6.4rem;
+  line-height: 8rem;
+  display: inline-block;
+  position: relative;
+  transition:
+    color 0.5s cubic-bezier(0.76, 0, 0.24, 1),
+    transform 0.5s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+@media (max-width: 991px) {
+  .v6 .menu-link {
+    font-size: 4rem;
+    line-height: 5.6rem;
+  }
+}
+.v6 .menu-link::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0.8rem;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+}
+/* RTL: hover nudges toward inline-start (physical left). */
+.v6 .menu-link:hover {
+  color: #eaa098;
+  transform: translateX(-1.2rem);
+}
+.v6 .menu-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: right;
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero                                                                */
+/* ------------------------------------------------------------------ */
+
+.v6 .hero-title {
+  color: #eaa098;
+  font-family: var(--font-v6-display), 'FarsiAdad', 'Shabnam', Tahoma, serif;
+  font-size: 8rem;
+  line-height: 11rem;
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+}
+@media (max-width: 1200px) {
+  .v6 .hero-title {
+    font-size: 6rem;
+    line-height: 8.4rem;
+  }
+}
+@media (max-width: 991px) {
+  .v6 .hero-title {
+    position: relative;
+    text-align: center;
+    font-size: 4.8rem;
+    line-height: 6.6rem;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+  }
+}
+
+.v6 .hero-arrow path {
+  transition: stroke 0.6s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+.v6 .hero-arrow:hover path {
+  stroke: #eaa098;
+}
+@media (min-width: 992px) {
+  .v6 .hero-arrow {
+    animation: v6-scrolldown 4s ease infinite;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Quick links                                                         */
+/* ------------------------------------------------------------------ */
+
+.v6 .quick-link {
+  font-size: 1.4rem;
+  line-height: 2rem;
+  text-align: center;
+  color: #231f20;
+  display: table;
+  margin: 0 auto;
+}
+.v6 .quick-link span {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 100% 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  transition: background-size 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.v6 .quick-link:hover span {
+  background-size: 0 1px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cross sell blobs                                                    */
+/* ------------------------------------------------------------------ */
+
+.v6 .cross-blob {
+  position: absolute;
+  height: 36rem;
+  width: 36rem;
+  right: 25%;
+  top: 0;
+  background: radial-gradient(
+    146.01% 87.74% at 29.51% 9.49%,
+    rgba(250, 242, 240, 0.65) 41.03%,
+    #f2c8c1 100%,
+    #eaa098 108.47%
+  );
+  animation: v6-blob 30s ease-in-out infinite alternate both;
+  z-index: 0;
+}
+.v6 .cross-blob--sky {
+  background: linear-gradient(
+    149.57deg,
+    rgba(250, 242, 240, 0) 12.97%,
+    rgba(177, 223, 237, 0.29) 54.87%,
+    #61cbea 108.47%
+  );
+  animation: v6-blob 24s ease-in-out infinite reverse both;
+}
+@media (max-width: 991px) {
+  .v6 .cross-blob {
+    height: 19.2rem;
+    width: 19.2rem;
+    right: auto;
+    left: 0;
+    top: 4rem;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Misc                                                                */
+/* ------------------------------------------------------------------ */
+
+.v6 .underline-anim {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 1px;
+  transition: background-size 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.v6 .underline-anim:hover {
+  background-size: 100% 1px;
+}
+
+.v6 .grain::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.v6 input,
+.v6 textarea,
+.v6 select {
+  font-family: var(--font-v6-sans), 'Shabnam', Tahoma, sans-serif;
+  font-size: 1.6rem;
+}
+.v6 .field {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(35, 31, 32, 0.2);
+  padding: 1.2rem 0;
+  color: #231f20;
+  outline: none;
+  transition: border-color 0.4s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+.v6 .field:focus {
+  border-color: #eaa098;
+}
+.v6 .field::placeholder {
+  color: #a4a7aa;
+}
+
+.v6 .star-row {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+/* Numbers: Persian digits everywhere (tabular where counted). */
+.v6 .num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'ss01';
+}
