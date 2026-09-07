@@ -22,7 +22,7 @@ function Hero() {
           <div className="hero-photo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/v9/images/hero-woman.png"
+              src="/v9/images/hero-woman.webp"
               alt="زیبایی و بهزیستی در یک لبخند سالم و طبیعی"
               width="960"
               height="1200"
@@ -32,7 +32,10 @@ function Hero() {
         </div>
         <div className="hero-copy">
           <h1>
-            <Words text="سلامت و زیبایی، بسیار بیش از یک لبخند سفید است." wordClass="hero-word" />
+            <Words
+              text="سلامت و زیبایی، بسیار بیش از یک لبخند سفید است."
+              wordClass="hero-word"
+            />
           </h1>
           <p className="hero-subtitle">
             همه‌ی فناوری، در خدمت سلامت و
@@ -57,11 +60,20 @@ function Introduction() {
           {[
             { icon: 'care', text: 'مراقبت متفاوت توسط تیمی بسیار متخصص' },
             { icon: 'tech', text: 'فناوری روز برای نتایجی ایمن و طبیعی' },
-            { icon: 'location', text: 'موقعیتی عالی در تهران برای بیشترین آسایش' },
+            {
+              icon: 'location',
+              text: 'موقعیتی عالی در تهران برای بیشترین آسایش',
+            },
           ].map((item) => (
             <div className="care-pillar" key={item.icon} data-reveal>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/v9/images/icon-${item.icon}.svg`} alt="" width="84" height="84" loading="lazy" />
+              <img
+                src={`/v9/images/icon-${item.icon}.svg`}
+                alt=""
+                width="84"
+                height="84"
+                loading="lazy"
+              />
               <p>{item.text}</p>
             </div>
           ))}
@@ -92,12 +104,17 @@ function Introduction() {
           className="intro-video"
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/v9/images/drop-gradient.svg" alt="" className="intro-photo-outline" aria-hidden="true" />
+        <img
+          src="/v9/images/drop-gradient.svg"
+          alt=""
+          className="intro-photo-outline"
+          aria-hidden="true"
+        />
         <div className="journey-entry">
           <div className="journey-photo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/v9/images/face.jpg"
+              src="/v9/images/face.webp"
               alt="مراقبت اختصاصی دندانی برای لبخندی سالم"
               width="860"
               height="860"
@@ -112,12 +129,22 @@ function Introduction() {
 
 function TreatmentMarquees() {
   return (
-    <div className="treatment-marquees" aria-label="درمان مناسب خود را پیدا کنید">
+    <div
+      className="treatment-marquees"
+      aria-label="درمان مناسب خود را پیدا کنید"
+    >
       {treatments.slice(0, 3).map((category, row) => (
-        <div className={`treatment-marquee ${row === 1 ? 'reverse' : ''}`} key={category.slug}>
+        <div
+          className={`treatment-marquee ${row === 1 ? 'reverse' : ''}`}
+          key={category.slug}
+        >
           <div className="marquee-track">
             {[0, 1, 2].map((duplicate) => (
-              <div className="marquee-group" key={duplicate} aria-hidden={duplicate > 0}>
+              <div
+                className="marquee-group"
+                key={duplicate}
+                aria-hidden={duplicate > 0}
+              >
                 {category.procedures.map((procedure, index) => (
                   <span className="marquee-link-wrap" key={procedure.id}>
                     <Link
@@ -148,7 +175,11 @@ function TreatmentMarquees() {
 
 function TreatmentCards() {
   return (
-    <section className="treatments-section" id="treatments" aria-label="درمان‌های دندان، لثه و زیبایی">
+    <section
+      className="treatments-section"
+      id="treatments"
+      aria-label="درمان‌های دندان، لثه و زیبایی"
+    >
       <div className="treatment-grid">
         {[
           { item: treatments[1], className: 'hair' },
@@ -178,7 +209,10 @@ function TreatmentCards() {
 
 function SpecialtySections() {
   return (
-    <section className="specialty-stage section-shell" aria-label="مراقبت تخصصی و طراحی لبخند">
+    <section
+      className="specialty-stage section-shell"
+      aria-label="مراقبت تخصصی و طراحی لبخند"
+    >
       <div className="specialty-visual">
         <div className="specialty-glow warm" aria-hidden="true" />
         <div className="specialty-glow cool" aria-hidden="true" />
@@ -186,14 +220,14 @@ function SpecialtySections() {
         <div className="specialty-photo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/v9/images/clinical.jpg"
+            src="/v9/images/clinical.webp"
             className="clinical-photo"
             alt="درمان‌های تخصصی دندانپزشکی"
             loading="lazy"
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/v9/images/collagen.jpg"
+            src="/v9/images/collagen.webp"
             className="collagen-photo"
             alt="درمان‌های پیشگیرانه برای سلامت دهان و دندان"
             loading="lazy"
