@@ -6,8 +6,8 @@ import Nav from './components/nav'
 import Cursor from './components/cursor'
 
 // /v11 is a self-contained frontend port (ShowcaseMD design recreation,
-// chat-clone/showcasemd-website), Iranized for an Obstetrician &
-// Gynecologist practice (متخصص زنان و زایمان). It deliberately renders NO
+// chat-clone/showcasemd-website), Iranized for a Neurology clinic
+// (کلینیک مغز و اعصاب دکتر آرمان صالحی). It deliberately renders NO
 // shared chrome of the production site (no Navbar/Footer/Toaster markup),
 // so nothing outside this subtree can style or script it. Its Tailwind
 // build is fully scmd:-prefixed and every custom rule is .v11-scoped or

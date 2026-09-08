@@ -67,7 +67,7 @@ export default function Practice() {
       <div className="practice-img-wrap scmd:relative scmd:overflow-hidden">
         <img
           src={PRACTICE.image}
-          alt="مانیتور مدنما در اتاق انتظار مطب"
+          alt="مانیتور مدنما در اتاق انتظار کلینیک"
           className="practice-image scmd:w-full"
           style={{ height: '45em', objectFit: 'cover' }}
         />

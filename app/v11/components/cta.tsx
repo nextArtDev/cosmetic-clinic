@@ -76,7 +76,7 @@ export default function CTA({ initialCount = 0 }: { initialCount?: number }) {
                 className="form-heading text-16-regular black"
                 style={{ maxWidth: '26em' }}
               >
-                یا دربارهٔ مطب‌تان بگویید تا دمو را برایتان بیاوریم:
+                یا دربارهٔ کلینیک‌تان بگویید تا دمو را برایتان بیاوریم:
               </div>
 
               <form
@@ -94,9 +94,9 @@ export default function CTA({ initialCount = 0 }: { initialCount?: number }) {
                   />
                   <input
                     name="clinic"
-                    placeholder="نام مطب یا کلینیک"
+                    placeholder="نام کلینیک یا مطب"
                     className="text-field"
-                    aria-label="نام مطب یا کلینیک"
+                    aria-label="نام کلینیک یا مطب"
                   />
                 </div>
                 <div className="scmd:flex scmd:flex-col scmd:md:flex-row" style={{ gap: '0.63em' }}>
@@ -158,7 +158,7 @@ export default function CTA({ initialCount = 0 }: { initialCount?: number }) {
                 </AnimatePresence>
                 <p className="text-9-regular" style={{ opacity: 0.6 }}>
                   {total > 0
-                    ? `${toFa(total)} مطب تاکنون دمو را درخواست کرده‌اند.`
+                    ? `${toFa(total)} کلینیک تاکنون دمو را درخواست کرده‌اند.`
                     : 'بدون اسپم — فقط تأیید دمو و به‌روزرسانی‌های محصول.'}
                 </p>
               </div>
