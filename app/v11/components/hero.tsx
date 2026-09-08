@@ -17,9 +17,23 @@ export default function Hero() {
     if (!el) return
 
     const baseFont = () => parseFloat(getComputedStyle(el).fontSize) || 16
-    // final scale so the TV never overflows the viewport width
-    const finalScale = () =>
-      Math.min(0.8, (window.innerWidth * 0.92) / (75.75 * baseFont()))
+
+    // Live site curves (measured at 1440/768/390):
+    //  desktop: TV 75.75em wide, scale .40 -> .82 (TV ends ~994px)
+    //  tablet : TV 75em wide,    scale .50 -> .82
+    //  mobile : TV 22.4em wide,  scale .65 -> 1.0 (TV ends ~92vw)
+    const isMobile = () => window.matchMedia('(max-width: 479px)').matches
+    const isTablet = () =>
+      window.matchMedia('(min-width: 480px) and (max-width: 991px)').matches
+
+    const restScale = () =>
+      isMobile() ? 0.65 : isTablet() ? 0.5 : Math.min(0.4, (window.innerWidth * 0.9) / (75.75 * baseFont()))
+    const endScale = () =>
+      isMobile()
+        ? Math.min(1, (window.innerWidth * 0.92) / (22.4 * baseFont()))
+        : isTablet()
+          ? Math.min(0.82, (window.innerWidth * 0.95) / (75 * baseFont()))
+          : Math.min(0.82, (window.innerWidth * 0.95) / (75.75 * baseFont()))
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -38,9 +52,9 @@ export default function Hero() {
 
       tl.fromTo(
         '.screen-inner',
-        { scale: () => finalScale() * 0.34, y: 0 },
+        { scale: () => restScale(), y: 0 },
         {
-          scale: () => finalScale(),
+          scale: () => endScale(),
           y: () => -window.innerHeight * 0.1,
           duration: 1,
         },

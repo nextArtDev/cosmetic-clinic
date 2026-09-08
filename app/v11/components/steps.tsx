@@ -109,10 +109,11 @@ export default function Steps() {
 
           <div
             className="steps-animation-main-wrap scmd:relative"
-            style={{ height: '320vh' }}
+            style={{ height: '300vh' }}
           >
             <div className="scmd:sticky scmd:top-0 scmd:flex scmd:h-[100svh] scmd:w-full scmd:items-center scmd:justify-center">
-              <div className="scmd:relative scmd:flex scmd:h-full scmd:min-w-0 scmd:flex-1 scmd:items-center scmd:justify-center">
+              {/* live DOM: texts layer absolute, bar flows centered over it */}
+              <div className="steps-texts-wrap">
                 {STEPS.items.map((s) => (
                   <div
                     key={s}
@@ -123,7 +124,7 @@ export default function Steps() {
                 ))}
               </div>
 
-              <div className="step-progress-bar-wrap" style={{ marginRight: '2em' }}>
+              <div className="step-progress-bar-wrap">
                 <div className="step-progress-bar">
                   <div className="step-gradient" />
                 </div>

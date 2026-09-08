@@ -434,13 +434,14 @@ html[data-v11-active].lenis.lenis-smooth iframe {
   transform: translateY(-100%);
 }
 
-/* solution cards */
+/* solution cards — transform-style stays FLAT exactly like the original:
+   with preserve-3d, an opacity fade on the card groups/flattens the faces
+   and both texts composite over each other mid-flip. */
 .v11 .solution-card {
   flex: none;
   width: 17.5em;
   height: 20.56em;
   position: relative;
-  transform-style: preserve-3d;
 }
 .v11 .solution-front {
   z-index: 2;
@@ -540,8 +541,8 @@ html[data-v11-active].lenis.lenis-smooth iframe {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
-  width: 76em;
-  bottom: -11em;
+  width: 98em;
+  bottom: -18.9em;
   pointer-events: none;
 }
 .v11 .hero-title {
@@ -636,6 +637,19 @@ html[data-v11-active].lenis.lenis-smooth iframe {
 .v11 .steps-description {
   width: 28.81em;
 }
+/* live DOM: absolute texts layer behind the centered progress bar */
+.v11 .steps-texts-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 10em;
+  padding-bottom: 5vh;
+}
 .v11 .step-progress-bar-wrap {
   border: 0.5px solid #cda07f;
   display: flex;
@@ -643,7 +657,7 @@ html[data-v11-active].lenis.lenis-smooth iframe {
   justify-content: flex-start;
   align-items: center;
   width: 0.8em;
-  height: 68vh;
+  height: 80vh;
   margin-top: 5em;
   position: relative;
   flex: none;
@@ -658,16 +672,45 @@ html[data-v11-active].lenis.lenis-smooth iframe {
   height: 42.94em;
   width: 100%;
 }
+/* Centered with margin (NOT transform) so the GSAP y-tween never clobbers
+   the horizontal centering. */
 .v11 .fire-icon {
   width: 4.38em;
+  max-width: 100svh;
   height: 4.38em;
   position: absolute;
   top: 0;
   left: 50%;
-  transform: translateX(-50%);
+  margin-left: -2.19em;
 }
 .v11 .solutions-description {
   width: 26.81em;
+}
+/* sticky stack only on desktop; below 992px the cards are a scroll row */
+.v11 .solution-cards.web {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  height: 100svh;
+  margin-top: 0;
+  overflow: hidden;
+}
+@media screen and (max-width: 991px) {
+  .v11 .solution-cards.web {
+    position: relative;
+    height: auto;
+    min-height: 60vh;
+    margin-top: 3.13em;
+    padding-left: 2em;
+    padding-right: 2em;
+    column-gap: 1em;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .v11 .solution-cards.web .solution-card {
+    position: relative;
+    flex: none;
+  }
 }
 .v11 .brands-description {
   width: 18em;
@@ -840,6 +883,49 @@ html[data-v11-active].lenis.lenis-smooth iframe {
   }
 }
 
+/* Mobile landscape (live tier): wide short TV strip */
+@media screen and (min-width: 480px) and (max-width: 767px) {
+  .v11 .screen-inner {
+    width: 76.6em;
+    height: 12.8em;
+    top: -3.2em;
+  }
+  .v11 .video-wrap {
+    width: 75em;
+    height: 12.2em;
+  }
+  .v11 .screen-description-wrap {
+    width: 50em;
+    bottom: -9.9em;
+  }
+  .v11 .text-70-regular {
+    font-size: 2.2em;
+  }
+  .v11 .step-progress-bar-wrap {
+    height: 65vh;
+  }
+  .v11 .solutions-wrap {
+    height: auto;
+    padding-top: 5em;
+    padding-bottom: 5em;
+  }
+  /* cards flow as a scrollable row, no scroll-jack */
+  .v11 .solution-cards {
+    position: relative;
+    height: auto;
+    margin-top: 3.13em;
+    padding-left: 2em;
+    padding-right: 2em;
+    column-gap: 1em;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .v11 .solution-card {
+    position: relative;
+    flex: none;
+  }
+}
+
 /* ------------------------------------------------------------------ *
  *  Responsive (original breakpoints, scoped)                          *
  * ------------------------------------------------------------------ */
@@ -860,12 +946,19 @@ html[data-v11-active].lenis.lenis-smooth iframe {
   .v11 .text-146-regular {
     font-size: 8em;
   }
+  /* live tablet: TV container 75em wide, rest scale .5 */
   .v11 .screen-inner {
+    width: 75em;
     height: 30.7em;
+    top: -6em;
   }
   .v11 .video-wrap {
     width: 52.6em;
     height: 29.7em;
+  }
+  .v11 .screen-description-wrap {
+    width: 70em;
+    bottom: -15.3em;
   }
   .v11 .numbers-title {
     width: 38em;
@@ -878,6 +971,28 @@ html[data-v11-active].lenis.lenis-smooth iframe {
   }
   .v11 .steps-description {
     width: 31em;
+  }
+  .v11 .step-progress-bar-wrap {
+    height: 75vh;
+  }
+  .v11 .solutions-wrap {
+    height: auto;
+    padding-top: 10em;
+  }
+  .v11 .solution-cards {
+    position: relative;
+    height: auto;
+    min-height: 60vh;
+    margin-top: 3.13em;
+    padding-left: 2em;
+    padding-right: 2em;
+    column-gap: 1em;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .v11 .solution-card {
+    position: relative;
+    flex: none;
   }
   .v11 .brands-description {
     margin-left: 2em;
@@ -906,17 +1021,25 @@ html[data-v11-active].lenis.lenis-smooth iframe {
     font-size: 3em;
     margin-top: 0;
   }
+  /* live mobile (measured @390px): TV container 22.4em wide, hero JS
+     animates scale 0.65 -> 1.0 (TV ends at ~92vw) */
   .v11 .screen-inner {
+    width: 22.4em;
     height: 12.8em;
   }
   .v11 .video-wrap {
     width: 22em;
     height: 12.4em;
   }
+  .v11 .screen-description-wrap {
+    width: 32em;
+    bottom: -9.9em;
+  }
   .v11 .hero-title {
-    width: 100%;
-    padding-left: 2.2em;
+    width: 20em;
     top: 5.5em;
+    right: 2.2em;
+    padding-left: 0;
   }
   .v11 .numbers-title {
     width: 100%;
@@ -982,8 +1105,25 @@ html[data-v11-active].lenis.lenis-smooth iframe {
     width: 100%;
     padding-right: 1em;
   }
+  /* live mobile steps: texts layer absolute behind a centered bar */
+  .v11 .steps-texts-wrap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 7em;
+    padding-bottom: 5vh;
+    row-gap: 2em;
+  }
   .v11 .step-progress-bar-wrap {
+    position: relative;
     height: 55vh;
+    margin-right: 0;
+    margin-top: 0;
   }
   .v11 .solutions-description {
     width: 100%;

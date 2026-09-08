@@ -12,75 +12,82 @@ export default function Solutions() {
   useLayoutEffect(() => {
     const el = root.current
     if (!el) return
-    const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray<HTMLElement>('.solution-card')
-      const n = cards.length
-      const slot = 0.16
+    // The sticky 3D stack only exists >=992px (below that the cards flow
+    // as a horizontal scroll row, like the original mobile layout).
+    const mm = gsap.matchMedia()
+    mm.add('(min-width: 992px)', () => {
+      const ctx = gsap.context(() => {
+        const cards = gsap.utils.toArray<HTMLElement>('.solution-card')
+        const n = cards.length
+        const slot = 0.16
 
-      gsap.set(cards, {
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        xPercent: -50,
-        yPercent: -50,
-        transformPerspective: 1400,
-        transformStyle: 'preserve-3d',
-        rotate: (i: number) => (i % 2 === 0 ? -1 : 1) * Math.min(i * 0.8, 3.2),
-        y: (i: number) => i * 4,
-      })
+        gsap.set(cards, {
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          xPercent: -50,
+          yPercent: -50,
+          /* transform-style stays FLAT like the original: preserve-3d +
+             opacity fade would flatten the faces and composite both texts
+             over each other mid-flip. Container perspective gives depth. */
+          rotate: (i: number) => (i % 2 === 0 ? -1 : 1) * Math.min(i * 0.8, 3.2),
+          y: (i: number) => i * 4,
+        })
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: '.solutions-wrap',
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 0.8,
-        },
-      })
-
-      cards.forEach((card, i) => {
-        const at = i * slot
-        tl.to(
-          card,
-          {
-            rotateY: 180,
-            duration: slot * 0.45,
-            ease: 'power2.inOut',
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '.solutions-wrap',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.8,
           },
-          at,
-        )
+        })
 
-        // the last card stays on screen
-        if (i === n - 1) return
+        cards.forEach((card, i) => {
+          const at = i * slot
+          tl.to(
+            card,
+            {
+              rotateY: 180,
+              duration: slot * 0.45,
+              ease: 'power2.inOut',
+            },
+            at,
+          )
 
-        tl.to(
-          card,
-          {
-            x: () => window.innerWidth * (i % 2 === 0 ? 0.75 : -0.75),
-            rotate: i % 2 === 0 ? 8 : -8,
-            duration: slot * 0.32,
-            ease: 'power2.in',
-          },
-          at + slot * 0.5,
-        ).to(
-          card,
-          { opacity: 0, duration: slot * 0.18 },
-          at + slot * 0.68,
-        )
-      })
+          // the last card stays on screen
+          if (i === n - 1) return
 
-      // keep the timeline length consistent
-      tl.to({}, { duration: 0.02 })
-    }, el)
-    return () => ctx.revert()
+          tl.to(
+            card,
+            {
+              x: () => window.innerWidth * (i % 2 === 0 ? 0.75 : -0.75),
+              rotate: i % 2 === 0 ? 8 : -8,
+              duration: slot * 0.32,
+              ease: 'power2.in',
+            },
+            at + slot * 0.5,
+          ).to(
+            card,
+            { opacity: 0, duration: slot * 0.18 },
+            at + slot * 0.68,
+          )
+        })
+
+        // keep the timeline length consistent
+        tl.to({}, { duration: 0.02 })
+      }, el)
+      return () => ctx.revert()
+    })
+    return () => mm.revert()
   }, [])
 
   return (
     <section id="solutions" className="scmd:relative scmd:w-full" ref={root}>
       <div className="container scmd:relative">
         <div
-          className="solutions-wrap scmd:relative scmd:w-full"
-          style={{ height: '720vh', paddingTop: '10em', paddingBottom: '10em' }}
+          className="solutions-wrap scmd:relative scmd:w-full scmd:md:h-[720vh]"
+          style={{ paddingTop: '10em', paddingBottom: '10em' }}
         >
           <div className="side-lines">
             <span className="line-vertical beige scmd:block" />
@@ -115,7 +122,7 @@ export default function Solutions() {
           </div>
 
           <div
-            className="scmd:sticky scmd:top-0 scmd:z-[4] scmd:flex scmd:h-[100svh] scmd:w-full scmd:items-center scmd:justify-center scmd:overflow-hidden"
+            className="solution-cards web scmd:sticky scmd:top-0 scmd:z-[4] scmd:flex scmd:h-[100svh] scmd:w-full scmd:items-center scmd:justify-center scmd:overflow-hidden scmd:md:h-[100svh]"
             style={{ perspective: '1400px' }}
           >
             {SOLUTIONS.cards.map((c, i) => (
