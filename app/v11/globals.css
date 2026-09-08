@@ -1,0 +1,1011 @@
+/* =========================================================================
+   /v11 — ShowcaseMD frontend port (faithful recreation of
+   chat-clone/showcasemd-website), Iranized for an OB/GYN practice
+   (متخصص زنان و زایمان). Fully isolated from production routes:
+   - Second Tailwind build via `prefix(scmd)`: every utility is scmd:* and
+     every theme token compiles to --scmd-* (production uses unprefixed
+     utilities/--color-*), so the two utility sets can never collide.
+   - No global element selectors: everything the original set on html/body
+     is gated on html[data-v11-active] (set by v11-shell while a /v11
+     route is mounted, removed on unmount) and every component rule is
+     .v11-scoped. Custom props live on .v11, never :root.
+   - Fonts: --font-v11-sans (Shabnam) and --font-v11-serif (SD Golpayegani)
+     from app/v11/fonts.ts. The original Suisse/Awesome OTF faces are not
+     shipped; Golpayegani plays the "Awesome Serif" accent role.
+   - RTL: the original is LTR; flex/grid rows and physical edges are
+     mirrored where the composition demands it. Latin-only
+     letter-spacing/text-indent was dropped (breaks Persian joining).
+     Numbers render with Persian digits (۰۱۲۳۴۵۶۷۸۹).
+   - Fluid scale: the original sets 1em ≈ 1.1111vw on body. That scale is
+     applied to the .v11 wrapper, and all em-based component styles
+     resolve against it, exactly like the source.
+   ========================================================================= */
+
+@import 'tailwindcss' prefix(scmd);
+
+/* ------------------------------------------------------------------ */
+/* Wrapper + variables (scoped — never :root)                          */
+/* ------------------------------------------------------------------ */
+
+.v11 {
+  --web-padding: 1em;
+  --pink: #cf018f;
+  --black: #1e1e1e;
+  --white: #fff;
+  --cream: #f8f7f2;
+  --tan: #cda07f;
+  --tan-deep: #cea17f;
+  --scmd-font-sans:
+    var(--font-v11-sans), 'Shabnam', 'Vazirmatn', Tahoma, ui-sans-serif,
+    sans-serif;
+  --scmd-font-serif:
+    var(--font-v11-serif), 'SD Golpayegani', 'Shabnam', Tahoma, serif;
+
+  /* fluid root: 1em == 1.1111vw, exactly like the original site */
+  font-size: 1.1111111111111112vw;
+  background-color: var(--cream);
+  color: var(--black);
+  font-family: var(--scmd-font-sans);
+  max-width: 100vw;
+  overflow-x: clip;
+  min-height: 100svh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (min-width: 1920px) {
+  .v11 {
+    font-size: 21.333px;
+  }
+}
+@media screen and (max-width: 991px) {
+  .v11 {
+    font-size: 1.8vw;
+  }
+}
+@media screen and (max-width: 479px) {
+  .v11 {
+    font-size: 4.10256vw;
+  }
+}
+
+/* Base (gated: only while a /v11 route is mounted) */
+html[data-v11-active] {
+  overscroll-behavior: none;
+}
+
+html[data-v11-active] body {
+  background: #f8f7f2;
+}
+
+/* Lenis adds .lenis to <html> itself; compound directly, like v10. */
+html[data-v11-active].lenis,
+html[data-v11-active].lenis body {
+  height: auto;
+}
+html[data-v11-active].lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+html[data-v11-active].lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+html[data-v11-active].lenis.lenis-stopped {
+  overflow: hidden;
+}
+html[data-v11-active].lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+.v11 ::selection {
+  background: var(--pink);
+  color: #fff;
+}
+
+.v11 img,
+.v11 svg,
+.v11 video {
+  display: block;
+  max-width: 100%;
+}
+
+.v11 p,
+.v11 h1,
+.v11 h2,
+.v11 h3,
+.v11 figure {
+  margin: 0;
+}
+
+.v11 button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.v11 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Typography scale (1em ≈ 1.1111vw) — scoped like the source         *
+ * ------------------------------------------------------------------ */
+.v11 .font-suisse {
+  font-family: var(--scmd-font-sans);
+}
+.v11 .h1-style {
+  color: #fff;
+  margin: 0;
+  font-family: var(--scmd-font-sans);
+  font-size: 6.25em;
+  font-weight: 400;
+  line-height: 130%;
+}
+/* The original Awesome Serif accents inherit the heading color; only the
+   typeface switches (Suisse -> Golpayegani). */
+.v11 .h1-awesome {
+  font-family: var(--scmd-font-serif);
+  font-weight: 400;
+  line-height: 100%;
+}
+.v11 .h2-style {
+  color: #fff;
+  margin: 0;
+  font-family: var(--scmd-font-sans);
+  font-size: 4em;
+  font-weight: 400;
+  line-height: 150%;
+}
+.v11 .h2-style.black {
+  color: var(--black);
+}
+.v11 .h2-style.black.no-indent {
+  font-size: 3.9em;
+  display: inline;
+}
+.v11 .h2-style.black.last-text {
+  font-size: 3.7em;
+}
+.v11 .h2-awesome {
+  margin: 0;
+  font-family: var(--scmd-font-serif);
+}
+.v11 .h2-awesome-f {
+  margin: 0;
+  font-family: var(--scmd-font-serif);
+}
+.v11 .h3-style {
+  color: var(--black);
+  margin: 0;
+  font-family: var(--scmd-font-sans);
+  font-size: 1.75em;
+  font-weight: 500;
+  line-height: 150%;
+}
+.v11 .h3-style.white {
+  color: var(--white);
+}
+.v11 .h3-awesome {
+  font-family: var(--scmd-font-serif);
+  font-weight: 400;
+}
+.v11 .h3-awesome.white {
+  color: var(--white);
+}
+.v11 .awesome-wrap-70 {
+  font-family: var(--scmd-font-serif);
+  font-weight: 400;
+}
+.v11 .awesome-37 {
+  color: var(--black);
+  font-family: var(--scmd-font-serif);
+  font-size: 2.31em;
+  line-height: 140%;
+}
+.v11 .semibold-wrap {
+  color: var(--black);
+  font-family: var(--scmd-font-sans);
+  font-weight: 700;
+}
+.v11 .pink-wrap {
+  color: var(--pink);
+}
+
+.v11 .text-9-regular {
+  opacity: 0.9;
+  color: var(--black);
+  font-family: var(--scmd-font-sans);
+  font-size: 0.56em;
+  line-height: 180%;
+}
+.v11 .text-14-regular {
+  color: var(--black);
+  font-family: var(--scmd-font-sans);
+  font-size: 0.88em;
+  line-height: 180%;
+}
+.v11 .text-14-regular.center {
+  text-align: center;
+}
+.v11 .text-14-regular.white {
+  color: var(--white);
+}
+.v11 .text-16-regular {
+  color: var(--black);
+  font-family: var(--scmd-font-sans);
+  font-size: 1em;
+  line-height: 200%;
+}
+.v11 .text-16-regular.black {
+  color: var(--black);
+}
+.v11 .text-18-regular {
+  color: var(--black);
+  font-family: var(--scmd-font-sans);
+  font-size: 1.13em;
+  line-height: 180%;
+}
+.v11 .text-18-regular.white {
+  color: #fff;
+}
+.v11 .text-18-regular.opacity-80 {
+  color: rgba(255, 255, 255, 0.8);
+}
+.v11 .text-65-regular {
+  color: #f8f7f2;
+  font-family: var(--scmd-font-sans);
+  font-size: 4.06em;
+  font-weight: 400;
+  line-height: 140%;
+  text-decoration: none;
+}
+.v11 .text-70-regular {
+  z-index: 2;
+  color: #fff;
+  text-align: center;
+  font-family: var(--scmd-font-sans);
+  font-size: 5.6em;
+  line-height: 150%;
+}
+.v11 .text-146-regular {
+  color: #d2a2854d;
+  text-align: center;
+  font-family: var(--scmd-font-sans);
+  font-size: 8.1em;
+  line-height: 100%;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Buttons                                                            *
+ * ------------------------------------------------------------------ */
+.v11 .btn-white {
+  gap: 0.69em;
+  color: #000200;
+  background-color: #fff;
+  justify-content: center;
+  align-items: center;
+  padding: 1em 2em;
+  font-family: var(--scmd-font-sans);
+  font-size: 1em;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  cursor: pointer;
+  border: 0;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+.v11 .btn-white:hover {
+  background-color: var(--black);
+  color: #fff;
+}
+.v11 .btn-white.absolute {
+  z-index: 1;
+  height: 3.56em;
+  position: absolute;
+  /* RTL mirror of the source "top right" pin */
+  inset: -3.56em auto auto 0;
+}
+.v11 .btn-black {
+  gap: 0.69em;
+  background-color: var(--black);
+  color: #fff;
+  justify-content: center;
+  align-items: center;
+  padding: 1em 2em;
+  font-family: var(--scmd-font-sans);
+  font-size: 1em;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s;
+  display: inline-flex;
+  border: 0;
+  cursor: pointer;
+}
+.v11 .btn-black:hover {
+  background-color: var(--pink);
+  color: #fff;
+}
+.v11 .plus-icon {
+  width: 1em;
+  height: 1.4em;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  flex: none;
+  display: inline-flex;
+}
+.v11 .btn-black:hover .plus-icon,
+.v11 .btn-white:hover .plus-icon,
+.v11 .group\/btn:hover .plus-icon {
+  transform: rotate(90deg);
+}
+
+/* ------------------------------------------------------------------ *
+ *  Layout helpers / decorations                                       *
+ * ------------------------------------------------------------------ */
+.v11 .container {
+  width: 100%;
+  max-width: 100vw;
+}
+.v11 .side-lines {
+  z-index: 10;
+  padding-left: var(--web-padding);
+  padding-right: var(--web-padding);
+  pointer-events: none;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: absolute;
+  inset: 0;
+}
+.v11 .line-vertical {
+  background-color: rgba(255, 255, 255, 0.5);
+  width: 0.5px;
+  height: 100%;
+}
+.v11 .line-vertical.beige {
+  background-color: rgba(205, 160, 127, 0.5);
+}
+.v11 .line-horizontal {
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.5);
+  width: 100%;
+  height: 0.5px;
+  position: absolute;
+  inset: auto 0 0 0;
+}
+.v11 .bg-lines {
+  z-index: 1;
+  padding-left: var(--web-padding);
+  padding-right: var(--web-padding);
+  pointer-events: none;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: absolute;
+  inset: 0;
+}
+
+/* word / line reveal masks */
+.v11 .line-mask,
+.v11 .word-mask {
+  margin-block: -0.1em;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: top;
+}
+.v11 .word {
+  display: inline-block;
+  padding-bottom: 0.05em;
+}
+
+/* slide-label link (nav + footer): label rolls up on hover, RTL-safe */
+.v11 .slide-link {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  height: 1.2em;
+  color: var(--black);
+  font-family: var(--scmd-font-sans);
+  font-size: 0.88em;
+  line-height: 120%;
+  text-decoration: none;
+}
+.v11 .slide-link.light {
+  color: #fff;
+}
+.v11 .slide-link > span {
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.v11 .slide-link > span + span {
+  position: absolute;
+  left: 0;
+  top: 100%;
+}
+.v11 .slide-link:hover > span {
+  transform: translateY(-100%);
+}
+
+/* solution cards */
+.v11 .solution-card {
+  flex: none;
+  width: 17.5em;
+  height: 20.56em;
+  position: relative;
+  transform-style: preserve-3d;
+}
+.v11 .solution-front {
+  z-index: 2;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background-image: linear-gradient(#f9f6f2, #edafb7);
+  border-radius: 0.2em;
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 17.5em;
+  height: 20.56em;
+  padding: 1.25em;
+  display: flex;
+  position: absolute;
+  inset: 0;
+}
+.v11 .solution-back {
+  z-index: 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+  background-color: #1e1e1e;
+  background-image:
+    linear-gradient(#edafb700 18%, #edafb7), linear-gradient(#b6298000, #b62980);
+  border-radius: 0.2em;
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 17.5em;
+  height: 20.56em;
+  padding: 1.25em;
+  display: flex;
+  position: absolute;
+  inset: 0;
+  transform: rotateY(-180deg);
+}
+.v11 .solution-heading-wrap {
+  gap: 0.75em;
+  flex-flow: column;
+  display: flex;
+}
+.v11 .solution-heading {
+  position: relative;
+}
+
+/* misc */
+.v11 .text-field {
+  color: var(--black);
+  background-color: transparent;
+  border: 0.5px solid #cda07f;
+  border-radius: 0.13em;
+  height: 2.56em;
+  padding: 0.63em;
+  font-family: var(--scmd-font-sans);
+  font-size: 1em;
+  line-height: 120%;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.v11 .text-field:focus {
+  border-color: var(--pink);
+}
+.v11 .text-field::placeholder {
+  color: rgba(30, 30, 30, 0.45);
+}
+.v11 .no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.v11 .no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Components (widths / rhythm, incl. the original breakpoints)       *
+ * ------------------------------------------------------------------ */
+.v11 .screen-inner {
+  position: relative;
+  z-index: 5;
+  width: 75.75em;
+  height: 42.7em;
+  transform-origin: center center;
+}
+.v11 .video-wrap {
+  position: absolute;
+  z-index: 4;
+  width: 74.5em;
+  height: 41.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.v11 .screen-description-wrap {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  width: 76em;
+  bottom: -11em;
+  pointer-events: none;
+}
+.v11 .hero-title {
+  position: absolute;
+  z-index: 3;
+  width: 41em;
+  top: 6em;
+  /* RTL mirror: the source title hugs the physical left edge */
+  right: 2.2em;
+}
+.v11 .hero__section-numbers {
+  margin-top: -15em;
+}
+.v11 .numbers-title {
+  position: relative;
+  z-index: 3;
+  width: 51em;
+  padding-right: 1.5em;
+}
+.v11 .numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.5);
+}
+.v11 .number-grid-item {
+  border-left: 0.5px solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: 22.56em;
+  padding: 1.63em;
+  position: relative;
+}
+.v11 .number-grid-item.last {
+  border-left: none;
+}
+.v11 .number-grid-item-heading {
+  color: #fff;
+  margin: 0;
+  font-family: var(--scmd-font-sans);
+  font-size: 1.63em;
+  font-weight: 700;
+  line-height: 160%;
+}
+.v11 .practice-title-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 8em 2em 3.25em 4em;
+}
+.v11 .practice-title {
+  position: relative;
+  width: 27em;
+}
+.v11 .practice-description {
+  width: 34.69em;
+}
+.v11 .practice-image {
+  object-fit: cover;
+  width: 100%;
+  height: 45em;
+}
+.v11 .brand-title {
+  position: relative;
+  z-index: 4;
+  width: 64em;
+  padding-right: 1.5em;
+  margin-bottom: 1.13em;
+}
+.v11 .brand-title.brands {
+  border-top: 0.5px solid rgba(205, 160, 127, 0.5);
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  margin-bottom: 1.88em;
+  padding-top: 5em;
+  padding-right: 2em;
+  display: flex;
+}
+.v11 .steps-title-wrap {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-left: 9.8em;
+}
+.v11 .steps-description {
+  width: 28.81em;
+}
+.v11 .step-progress-bar-wrap {
+  border: 0.5px solid #cda07f;
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 0.8em;
+  height: 68vh;
+  margin-top: 5em;
+  position: relative;
+  flex: none;
+}
+.v11 .step-progress-bar {
+  width: 100%;
+  height: 10em;
+  overflow: hidden;
+}
+.v11 .step-gradient {
+  background-image: linear-gradient(#d2a585, #db2993);
+  height: 42.94em;
+  width: 100%;
+}
+.v11 .fire-icon {
+  width: 4.38em;
+  height: 4.38em;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.v11 .solutions-description {
+  width: 26.81em;
+}
+.v11 .brands-description {
+  width: 18em;
+  margin-left: 19.5em;
+}
+.v11 .reviews-title {
+  position: relative;
+  z-index: 3;
+  width: 49.38em;
+  margin-bottom: 1.88em;
+  padding-top: 2.5em;
+  padding-right: 2em;
+}
+.v11 .reviews-grid {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding-left: var(--web-padding);
+  padding-right: var(--web-padding);
+}
+.v11 .review-item {
+  border-top: 0.5px solid rgba(255, 255, 255, 0.5);
+  border-left: 0.5px solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  height: 34.88em;
+  position: relative;
+}
+.v11 .review-item.last {
+  border-left: none;
+}
+.v11 .review-photo {
+  width: 7.5em;
+  height: 7.5em;
+  object-fit: cover;
+}
+.v11 .review-text {
+  width: 27em;
+  padding-bottom: 2.5em;
+  padding-right: 1.5em;
+}
+.v11 .cta-photo {
+  object-fit: cover;
+  width: 100%;
+  height: 42.81em;
+}
+.v11 .cta-text {
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 2.81em;
+  padding: 2.5em 2.5em 2.5em 2em;
+}
+.v11 .footer-left {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  width: 55.44em;
+  max-width: 100%;
+  border-left: 0.5px solid rgba(205, 160, 127, 0.5);
+  padding: 1.5em 2.5em 1.5em 2em;
+}
+.v11 .footer-right {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1.5em 2em 1.5em 2.5em;
+}
+.v11 .footer-lins-wrap {
+  display: flex;
+  flex-flow: column;
+  gap: 2.5em;
+}
+.v11 .follow-us-wrap {
+  display: flex;
+  flex-flow: column;
+  gap: 0.75em;
+  width: 12em;
+}
+.v11 .form-heading {
+  width: 19em;
+  max-width: 100%;
+}
+.v11 .text-under-form {
+  width: 25.1em;
+  max-width: 100%;
+}
+.v11 .legacy-links {
+  display: flex;
+  gap: 2.5em;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* marquee */
+@keyframes v11-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.v11 .marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 3em;
+  width: max-content;
+  will-change: transform;
+  animation: v11-marquee var(--marquee-duration, 42s) linear infinite;
+}
+.v11 .marquee-track.reverse {
+  animation-direction: reverse;
+}
+
+/* card hover overlays (semantic, replaces group-hover utilities) */
+.v11 .hover-veil {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.v11 .num-card:hover .hover-veil,
+.v11 .rev-card:hover .hover-veil {
+  opacity: 0.07;
+}
+.v11 .num-card .grid-icon {
+  position: relative;
+  transition: transform 0.5s;
+}
+.v11 .num-card:hover .grid-icon {
+  transform: translateY(-0.15em);
+}
+.v11 .rev-card .review-photo {
+  transition: transform 0.7s;
+}
+.v11 .rev-card:hover .review-photo {
+  transform: scale(1.04);
+}
+
+/* social icon buttons (footer) */
+.v11 .social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 2em;
+  border: 0.5px solid #cda07f;
+  border-radius: 0.44em;
+  transition:
+    transform 0.3s,
+    background-color 0.3s;
+}
+.v11 .social-btn:hover {
+  transform: scale(1.1);
+  background-color: var(--pink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v11 .marquee-track {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Responsive (original breakpoints, scoped)                          *
+ * ------------------------------------------------------------------ */
+@media screen and (max-width: 991px) {
+  .v11 .h1-style {
+    font-size: 5em;
+  }
+  .v11 .h2-style,
+  .v11 .h2-style.black.no-indent {
+    font-size: 3.1em;
+  }
+  .v11 .h2-style.black.last-text {
+    font-size: 3em;
+  }
+  .v11 .text-70-regular {
+    font-size: 4.4em;
+  }
+  .v11 .text-146-regular {
+    font-size: 8em;
+  }
+  .v11 .screen-inner {
+    height: 30.7em;
+  }
+  .v11 .video-wrap {
+    width: 52.6em;
+    height: 29.7em;
+  }
+  .v11 .numbers-title {
+    width: 38em;
+  }
+  .v11 .brand-title {
+    width: 32em;
+  }
+  .v11 .steps-title-wrap {
+    padding-left: 2em;
+  }
+  .v11 .steps-description {
+    width: 31em;
+  }
+  .v11 .brands-description {
+    margin-left: 2em;
+  }
+  .v11 .practice-title-wrap {
+    padding-left: 2em;
+  }
+  .v11 .legacy-links {
+    gap: 1.5em;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .v11 .h1-style {
+    font-size: 3em;
+  }
+  .v11 .h2-style,
+  .v11 .h2-style.black.no-indent,
+  .v11 .h2-style.black.last-text {
+    font-size: 2em;
+  }
+  .v11 .text-70-regular {
+    font-size: 2.2em;
+  }
+  .v11 .text-146-regular {
+    font-size: 3em;
+    margin-top: 0;
+  }
+  .v11 .screen-inner {
+    height: 12.8em;
+  }
+  .v11 .video-wrap {
+    width: 22em;
+    height: 12.4em;
+  }
+  .v11 .hero-title {
+    width: 100%;
+    padding-left: 2.2em;
+    top: 5.5em;
+  }
+  .v11 .numbers-title {
+    width: 100%;
+    padding: 0 1em 1em 1em;
+  }
+  .v11 .numbers-grid {
+    display: flex;
+    flex-flow: column;
+  }
+  .v11 .number-grid-item {
+    border-left: none;
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.5);
+    height: auto;
+    gap: 2em;
+    padding: 1.5em 1em;
+  }
+  .v11 .practice-title {
+    width: 100%;
+  }
+  .v11 .practice-description {
+    width: 100%;
+  }
+  .v11 .steps-description {
+    width: 100%;
+  }
+  .v11 .practice-title-wrap {
+    flex-flow: column;
+    align-items: flex-start;
+    gap: 1em;
+    padding: 4em 2em;
+  }
+  .v11 .practice-image {
+    height: 26em;
+  }
+  .v11 .brand-title {
+    width: 100%;
+  }
+  .v11 .brand-title.brands {
+    flex-flow: column;
+    align-items: flex-start;
+    gap: 1em;
+  }
+  .v11 .brands-description {
+    width: 100%;
+    margin-left: 0;
+    padding-right: 2em;
+  }
+  .v11 .reviews-title {
+    width: 100%;
+    padding-right: 1em;
+  }
+  .v11 .reviews-grid {
+    display: flex;
+    flex-flow: column;
+  }
+  .v11 .review-item {
+    height: auto;
+    gap: 1.5em;
+    padding-bottom: 2.5em;
+    border-left: none;
+  }
+  .v11 .review-text {
+    width: 100%;
+    padding-right: 1em;
+  }
+  .v11 .step-progress-bar-wrap {
+    height: 55vh;
+  }
+  .v11 .solutions-description {
+    width: 100%;
+    padding: 0 1em;
+  }
+  .v11 .cta-photo {
+    height: 24em;
+  }
+  .v11 .footer-left {
+    border-left: none;
+    padding: 1.5em 2em 1.5em 1.5em;
+  }
+  .v11 .footer-right {
+    padding: 1.5em 2em;
+  }
+  .v11 .legacy-links {
+    gap: 0.8em;
+  }
+  .v11 .form-heading {
+    width: 100%;
+  }
+  .v11 .text-under-form {
+    width: 100%;
+  }
+}

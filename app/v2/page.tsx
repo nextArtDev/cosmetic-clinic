@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { ShaninaSite } from './components/shanina-site'
 import './globals.css'
 
@@ -15,6 +15,9 @@ export const metadata: Metadata = {
     type: 'website',
   },
   robots: { index: false, follow: false },
+}
+export const viewport: Viewport = {
+  themeColor: '#e7ddcc',
 }
 
 export default function V2Page() {
