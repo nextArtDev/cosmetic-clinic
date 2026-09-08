@@ -4,9 +4,11 @@ import { useEffect, type RefObject } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-// Ported from the Salvato source with RTL-aware directional flips:
-// x-translation signs are mirrored so horizontal entrances move the way
-// a Persian (rtl) reader expects.
+// Ported from the Salvato source (ricardoseola.com/salvato js/main.js) with
+// RTL-aware directional flips: x-translation/rotation signs are mirrored so
+// entrances move the way a Persian (rtl) reader expects. SplitText/DrawSVG
+// are replaced by whole-word spans and stroke-dash drawing so Persian letter
+// joining stays intact and no paid plugins are needed.
 export function usePageMotion(ref: RefObject<HTMLElement | null>) {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger)
@@ -56,17 +58,100 @@ export function usePageMotion(ref: RefObject<HTMLElement | null>) {
             scrollTrigger: { trigger: element.parentElement, start: 'top 80%' },
           })
         })
-        gsap.utils.toArray<HTMLElement>('.statement-row', root).forEach((element, index) => {
-          gsap.from(element, {
+        // Statement: each phrase rises in and each video pill slides from the
+        // mirrored edge (source: .statement_span yPercent/rotation +
+        // .statement_icon xPercent, stagger 0.2, reverse on scroll-back).
+        if (root.querySelector('.statement-section')) {
+          const statementTrigger = {
+            trigger: '.statement-section',
+            start: 'top 70%',
+            end: 'bottom center',
+            toggleActions: 'play none none reverse',
+          }
+          gsap.from(root.querySelectorAll('.statement-row > span'), {
             opacity: 0,
-            y: 50,
-            rotation: -3,
-            duration: 1.1,
-            delay: index * 0.13,
-            ease: 'power2.out',
-            scrollTrigger: { trigger: element.parentElement, start: 'top 85%' },
+            yPercent: 100,
+            rotation: -10,
+            duration: 1,
+            stagger: 0.2,
+            ease: 'power1.out',
+            scrollTrigger: statementTrigger,
           })
-        })
+          gsap.from(root.querySelectorAll('.statement-row .statement-video'), {
+            opacity: 0,
+            xPercent: 100,
+            rotation: -10,
+            duration: 2,
+            stagger: 0.2,
+            ease: 'power1.out',
+            scrollTrigger: statementTrigger,
+          })
+        }
+        // Contact: photo slides in from the mirrored viewport edge (source:
+        // .contato_main.maps from x:100vw) and the droplet outline draws
+        // itself (source uses DrawSVG on .drop_line; stroke-dash here).
+        if (root.querySelector('.contact-section')) {
+          gsap.from('.contact-photo', {
+            x: '-100vw',
+            duration: 2,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.contact-section',
+              start: 'top center',
+              toggleActions: 'play none none reverse',
+            },
+          })
+          const outlinePath = root.querySelector<SVGPathElement>('.contact-outline-path')
+          if (outlinePath) {
+            const length = outlinePath.getTotalLength()
+            gsap.set(outlinePath, { strokeDasharray: length, strokeDashoffset: length })
+            gsap.to(outlinePath, {
+              strokeDashoffset: 0,
+              duration: 2,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: '.contact-section',
+                start: 'top 80%',
+                toggleActions: 'play none none reverse',
+              },
+            })
+          }
+        }
+        // Treatment cards: the card label rises into place (source splits
+        // .card_title per char; whole-word here keeps Persian shaping).
+        if (root.querySelector('.treatment-grid')) {
+          gsap.from('.treatment-grid .treatment-card h2', {
+            yPercent: 100,
+            rotation: -5,
+            duration: 1.5,
+            stagger: 0.12,
+            ease: 'power1.out',
+            scrollTrigger: { trigger: '.treatment-grid', start: 'top 30%', toggleActions: 'play none none reverse' },
+          })
+        }
+        // Testimonials: rows are scrub-tied to the section like the source's
+        // .to-left/.to-right marquee (replaces the time-based CSS ticker).
+        if (root.querySelector('.testimonials-section')) {
+          gsap.utils.toArray<HTMLElement>('.testimonial-track', root).forEach((track) => {
+            const reverse = track.closest('.testimonial-track-wrap')?.classList.contains('reverse') ?? false
+            gsap.fromTo(
+              track,
+              { x: 0 },
+              {
+                x: () => (reverse ? -1 : 1) * (track.scrollWidth / 2),
+                ease: 'none',
+                scrollTrigger: {
+                  trigger: '.testimonials-section',
+                  start: 'top bottom',
+                  end: 'bottom top',
+                  scrub: true,
+                  invalidateOnRefresh: true,
+                },
+              },
+            )
+          })
+        }
+        // Technology: outline drifts while the video container settles.
         if (root.querySelector('.technology-art')) {
           gsap.to('.technology-outline', {
             x: 36,
@@ -80,6 +165,37 @@ export function usePageMotion(ref: RefObject<HTMLElement | null>) {
             scaleY: 0.85,
             ease: 'none',
             scrollTrigger: { trigger: '.technology-section', start: 'top 75%', end: 'top 15%', scrub: 1 },
+          })
+        }
+        // Clinic page: hero video unfolds (source .clinica_hero_back_img)
+        // and gallery photos settle from a slight tilt (source
+        // .clinica-galeria-foto scale/rotation scrub).
+        if (root.querySelector('.clinic-hero-video')) {
+          gsap.from('.clinic-hero-video', { height: 384, y: 12, duration: 3, ease: 'power2.out' })
+        }
+        if (root.querySelector('.gallery-grid')) {
+          gsap.set('.gallery-button', { scale: 0.95, rotation: -1 })
+          gsap.to('.gallery-button', {
+            scale: 1,
+            rotation: 0,
+            ease: 'power2.out',
+            stagger: 0.15,
+            duration: 2,
+            scrollTrigger: { trigger: '.gallery-grid', start: 'top center', scrub: true },
+          })
+        }
+        // Treatment pages: CTA rises in (source .cta_grad flourish) and the
+        // related cards grow into place (source .veja_tambem_card height).
+        if (root.querySelector('.detail-copy > .glow-cta')) {
+          gsap.from('.detail-copy > .glow-cta', { opacity: 0, yPercent: 50, duration: 2, ease: 'back.out(1)' })
+        }
+        if (root.querySelector('.related-grid')) {
+          gsap.from('.related-grid .treatment-card', {
+            height: 190,
+            duration: 1,
+            stagger: 0.2,
+            ease: 'power2.inOut',
+            scrollTrigger: { trigger: '.related-grid', start: 'top 70%', toggleActions: 'play none none none', once: true },
           })
         }
       })

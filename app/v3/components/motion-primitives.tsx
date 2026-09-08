@@ -23,6 +23,33 @@ export function Reveal({ children, className = '', delay = 0, id }: { children: 
   )
 }
 
+// Port of the reference site's zoomIn entrance (awards logos, staggered
+// 200–400ms). Scales from 0.4 → 1 instead of the default fade-up.
+export function ZoomReveal({ children, className = '', delay = 0, id }: { children: ReactNode; className?: string; delay?: number; id?: string }) {
+  const reduce = useReducedMotion()
+  return (
+    <motion.div id={id} className={className} initial={{ opacity: 0, scale: reduce ? 1 : 0.4 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: 0.12 }} transition={{ duration: reduce ? 0.01 : 0.6, delay, ease }}>
+      {children}
+    </motion.div>
+  )
+}
+
+// Port of the reference site's "Pour qui" visual: a portrait that stays
+// pinned (Elementor sticky top / offset 250) and grows as the section
+// scrolls through the viewport (motion_fx_scale, direction out-in,
+// affected range 35–100%).
+export function StickyScale({ children, className = '' }: { children: ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const reduce = useReducedMotion()
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const scale = useTransform(scrollYProgress, [0.35, 1], [0.82, 1])
+  return (
+    <div ref={ref} className={className}>
+      <motion.div className="sticky-scale" style={{ scale: reduce ? 1 : scale }}>{children}</motion.div>
+    </div>
+  )
+}
+
 export function MaskImage({ src, alt, className = '', parallax = true, priority = false }: { src: string; alt: string; className?: string; parallax?: boolean; priority?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
   const reduce = useReducedMotion()

@@ -16,6 +16,9 @@ export function HowToUse() {
   const [active, setActive] = useState(0)
   const reduced = useReducedMotion()
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
+  // Reference site parallax pattern (l-how-to-use-background): the photo
+  // drifts slower than the scroll across the pinned section.
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ['-6%', '6%'])
   useMotionValueEvent(scrollYProgress, 'change', value =>
     setActive(Math.min(3, Math.floor(value * 4))),
   )
@@ -23,16 +26,17 @@ export function HowToUse() {
   return (
     <section id="how-to-use" className="steps-section" ref={ref}>
       <div className="steps-sticky">
-        <img
+        <motion.img
           className="steps-background"
           src="/v8/media/steps-background.webp"
           alt=""
           loading="lazy"
+          style={{ y: reduced ? 0 : backgroundY }}
         />
         <div className="steps-heading">
           <Reveal>
             <h2>
-              <span>دریافت درمان در مهر</span>خیلی ساده است
+              <span>درمان قلب در مهر</span>خیلی ساده است
             </h2>
           </Reveal>
           <div className="segmented-control" aria-label="روش مراجعه">
@@ -120,13 +124,13 @@ export function TwoTouches() {
       <div className="two-touch-sticky">
         <div className="two-touch-header shell">
           <Reveal>
-            <p className="eyebrow">برای هر تخصص، یک مسیر مشخص</p>
-            <h2>{'تشخیص شفاف در\nیک جلسه'}</h2>
+            <p className="eyebrow">ویزیت قلب، بدون معطلی</p>
+            <h2>{'تشخیص قلبی شفاف در\nیک جلسه'}</h2>
           </Reveal>
           <Reveal className="two-touch-description" delay={0.1}>
             <p>
-              پزشک شما از قبل نتیجه آزمایش‌ها و سوابق را در پرونده الکترونیک می‌بیند؛ جلسه
-              معاینه فقط برای شما و مشکل امروزتان صرف می‌شود.
+              دکتر صادقی از قبل نوار قلب، اکو و سوابق شما را در پرونده الکترونیک می‌بیند؛
+              جلسه ویزیت فقط برای شما و مشکل امروزتان صرف می‌شود.
             </p>
             <p>
               بعد از ویزیت، برنامه درمانی کتبی و قابل فهم تحویل می‌گیرید — با زمان‌بندی
@@ -140,7 +144,7 @@ export function TwoTouches() {
           progress={scrollYProgress}
           fallback="product-mini.webp"
           className="touch-sequence"
-          label="محیط معاینه و تجهیزات کلینیک"
+          label="اتاق نوار قلب و اکوی کلینیک قلب مهر"
         />
         <p className="sequence-caption">تکنولوژی پیشرفته، اما با کلامی ساده برای شما.</p>
       </div>
@@ -149,19 +153,26 @@ export function TwoTouches() {
 }
 
 export function FilmSection({ onVideo }: { onVideo: () => void }) {
+  const ref = useRef<HTMLElement>(null)
+  const reduced = useReducedMotion()
+  // Reference site: the video section photo drifts as it crosses the
+  // viewport (same cover-parallax family as the other photo sections).
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const y = useTransform(scrollYProgress, [0, 1], ['-4%', '4%'])
   return (
-    <section className="film-section">
-      <img
+    <section className="film-section" ref={ref}>
+      <motion.img
         src="/v8/media/video-background.webp"
-        alt="فضای آرامبخش بخش روان‌پزشکی کلینیک مهر"
+        alt="فضای آرامبخش کلینیک قلب دکتر صادقی"
         loading="lazy"
+        style={{ y: reduced ? 0 : y }}
       />
       <div className="film-overlay" />
       <button className="film-action" onClick={onVideo}>
         <span className="round-button">
           <PlayMark />
         </span>
-        <span>{'ببینید چرا بیماران\nبه مهر اعتماد دارند'}</span>
+        <span>{'ببینید چرا بیماران قلبی\nبه دکتر صادقی اعتماد دارند'}</span>
       </button>
     </section>
   )
@@ -171,20 +182,28 @@ export function Specifications() {
   const ref = useRef<HTMLElement>(null)
   const [model, setModel] = useState<'original' | 'mini'>('original')
   const [active, setActive] = useState(0)
+  const reduced = useReducedMotion()
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
   const progress = useTransform(scrollYProgress, [0, 0.65], [0, 1])
+  // Reference site: the giant wordmark drifts upward as the specs sequence
+  // scrubs (l-specification pattern).
+  const wordmarkY = useTransform(scrollYProgress, [0, 1], [0, -90])
   const visibleDetails = model === 'original' ? details : [details[0], details[1], details[3]]
   const detail = visibleDetails[Math.min(active, visibleDetails.length - 1)]
   return (
     <section id="specifications" className="specs-section" ref={ref}>
       <div className="specs-sticky">
         <Reveal className="specs-heading">
-          <h2>کیفیت در جزئیات هر واحد پنهان است</h2>
+          <h2>کیفیت تشخیص قلبی در جزئیات پنهان است</h2>
         </Reveal>
-        <div className="specs-wordmark" aria-hidden="true">
+        <motion.div
+          className="specs-wordmark"
+          aria-hidden="true"
+          style={{ y: reduced ? 0 : wordmarkY }}
+        >
           مهر<sup>®</sup>
           {model === 'mini' && <span>سرپایی</span>}
-        </div>
+        </motion.div>
         <div className="specs-stage">
           {model === 'original' ? (
             <ProductSequence
@@ -192,7 +211,7 @@ export function Specifications() {
               count={33}
               progress={progress}
               fallback="product.webp"
-              label="نمای نزدیک از فضای تشخیصی کلینیک مهر"
+              label="نمای نزدیک از اتاق تشخیص قلب کلینیک قلب مهر"
             />
           ) : (
             <motion.img
@@ -201,7 +220,7 @@ export function Specifications() {
               animate={{ opacity: 1, scale: 1 }}
               className="specs-mini-image"
               src="/v8/media/product-mini.webp"
-              alt="بخش سرپایی و مشاوره کلینیک مهر"
+              alt="ویزیت و مشاوره سرپایی قلب در کلینیک قلب مهر"
             />
           )}
           <div className="hotspots">
@@ -235,7 +254,7 @@ export function Specifications() {
                 }}
                 aria-pressed={model === 'original'}
               >
-                کل مجموعه
+                اتاق تشخیص
               </button>
               <button
                 className={model === 'mini' ? 'selected' : ''}
@@ -245,10 +264,10 @@ export function Specifications() {
                 }}
                 aria-pressed={model === 'mini'}
               >
-                بخش سرپایی
+                ویزیت و مشاوره
               </button>
             </div>
-            <p className="specs-hint">روی هر واحد کلیک کنید تا جزئیاتش را ببینید.</p>
+            <p className="specs-hint">روی هر شماره کلیک کنید تا جزئیاتش را ببینید.</p>
           </div>
           <AnimatePresence mode="wait">
             <motion.div

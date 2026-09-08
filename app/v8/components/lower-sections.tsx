@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { Plus } from 'lucide-react'
 import { Arrow, BrandIcon, FlowLines, Logo, OvalButton, Reveal, ease } from './primitives'
 import { useCases, referenceReviews, type Review } from '../lib/content'
@@ -15,7 +15,7 @@ export function UseCases() {
     <section className="uses-section" id="possibilities">
       <div className="shell">
         <Reveal className="uses-heading">
-          <h2>{'یک کلینیک،\nمسیرهای درمانی متفاوت'}</h2>
+          <h2>{'یک کلینیک قلب،\nمسیرهای درمانی متفاوت'}</h2>
         </Reveal>
         <div className="uses-list">
           {useCases.map((item, i) => (
@@ -66,14 +66,21 @@ export function Shopping({
   onShop: () => void
   onProduct: (mini: boolean) => void
 }) {
+  const ref = useRef<HTMLElement>(null)
+  const reduced = useReducedMotion()
+  // Reference site parallax pattern (l-how-to-buy-background): the photo
+  // scrolls slower than the page behind the purchase steps.
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ['-5%', '5%'])
   return (
     <>
-      <section className="how-to-buy-section">
-        <img
+      <section className="how-to-buy-section" ref={ref}>
+        <motion.img
           className="buy-background"
           src="/v8/media/how-to-buy.webp"
-          alt="پذیرش و هماهنگی نوبت در کلینیک مهر"
+          alt="پذیرش و هماهنگی نوبت قلب در کلینیک قلب مهر"
           loading="lazy"
+          style={{ y: reduced ? 0 : backgroundY }}
         />
         <div className="buy-shade" />
         <div className="shell how-to-buy-content">
@@ -87,12 +94,12 @@ export function Shopping({
                 body: 'آنلاین فرم را پر کنید یا تلفنی هماهنگ کنید',
               },
               {
-                title: 'تخصص خود را رزرو کنید',
-                body: 'قلب، ارتوپدی، مغز و اعصاب یا روان‌پزشکی',
+                title: 'نوبت قلب رزرو کنید',
+                body: 'ویزیت دکتر صادقی، متخصص قلب و عروق',
               },
               {
                 title: 'آرام درمان شوید',
-                body: 'پرونده و برنامه پیگیری برایتان آماده است',
+                body: 'پرونده قلبی و برنامه پیگیری برایتان آماده است',
               },
             ].map((step, i) => (
               <Reveal key={i} delay={i * 0.1} className="purchase-step">
@@ -114,7 +121,7 @@ export function Shopping({
         <FlowLines />
         <div className="shell">
           <Reveal className="products-title">
-            <h2>{'تخصص خود را\nانتخاب کنید'}</h2>
+            <h2>{'نوبت قلب\nرا رزرو کنید'}</h2>
           </Reveal>
           <div className="product-grid">
             {[false, true].map((mini, i) => (
@@ -126,7 +133,7 @@ export function Shopping({
                 >
                   <img
                     src={`/v8/media/${mini ? 'mini-card' : 'clingr-card'}.webp`}
-                    alt={mini ? 'ویزیت آنلاین و مشاوره پیامکی' : 'ویزیت حضوری در کلینیک مهر'}
+                    alt={mini ? 'ویزیت آنلاین و مشاوره پیامکی قلب' : 'ویزیت حضوری قلب در کلینیک قلب مهر'}
                     loading="lazy"
                   />
                 </button>
@@ -148,8 +155,8 @@ export function Shopping({
                       <span>{mini ? '۲۰ دقیقه' : '۴۵ دقیقه'}</span>
                     </li>
                     <li>
-                      <span>تخصص‌ها</span>
-                      <span>{mini ? 'هر چهار تخصص' : 'هر چهار تخصص'}</span>
+                      <span>پزشک</span>
+                      <span>دکتر آرش صادقی</span>
                     </li>
                     <li>
                       <span>نحوه انجام</span>
@@ -223,7 +230,7 @@ export function Reviews({ onReview, refresh }: { onReview: () => void; refresh: 
           <div className="review-image">
             <img
               src={`/v8/media/review-${(active % 2) + 1}.jpg`}
-              alt="بیماران در جلسه درمان کلینیک مهر"
+              alt="بیماران قلبی در جلسه ویزیت کلینیک قلب مهر"
               loading="lazy"
             />
           </div>
@@ -267,20 +274,24 @@ export function Reviews({ onReview, refresh }: { onReview: () => void; refresh: 
 
 export function Kit() {
   const kit = [
-    { icon: 'certificate', fa: 'پرونده الکترونیک سلامت' },
-    { icon: 'instruction', fa: 'برنامه درمانی کتبی' },
-    { icon: 'fastening', fa: 'خط تماس مستقیم با دستیار پزشک' },
-    { icon: 'clingr', fa: 'یادآور نوبت پیامکی' },
+    { icon: 'certificate', fa: 'پرونده الکترونیک قلب' },
+    { icon: 'instruction', fa: 'برنامه درمانی و کنترل فشار خون' },
+    { icon: 'fastening', fa: 'خط تماس مستقیم با دستیار دکتر صادقی' },
+    { icon: 'clingr', fa: 'یادآور نوبت و دارو، پیامکی' },
   ]
   return (
     <section className="kit-section">
       <div className="kit-layout shell">
         <Reveal className="kit-picture">
-          <img src="/v8/media/kit.webp" alt="پرونده درمان و برنامه پیگیری کلینیک مهر" loading="lazy" />
+          <img
+            src="/v8/media/kit.webp"
+            alt="پرونده قلبی و برنامه پیگیری کلینیک قلب مهر"
+            loading="lazy"
+          />
         </Reveal>
         <div className="kit-copy">
           <Reveal>
-            <h2>برای هر بیمار همراه می‌شود:</h2>
+            <h2>با هر بیمار قلبی همراه می‌شود:</h2>
           </Reveal>
           <ul>
             {kit.map((item, i) => (
@@ -318,15 +329,16 @@ export function PartnerAndFooter({
       <FlowLines />
       <div className="partner-content shell">
         <Reveal>
-          <p className="eyebrow">سلامت جامعه را با هم گسترش دهیم</p>
+          <p className="eyebrow">قلب سالم جامعه را با هم بسازیم</p>
           <h2>{'همکاری\nبا ما'}</h2>
           <OvalButton onClick={onPartner} className="partner-cta" arrow>
             ارسال درخواست
           </OvalButton>
         </Reveal>
         <p className="partner-note">
-          برای پزشکان، فیزیوتراپیست‌ها، آزمایشگاه‌ها و مراکز ارزیابی سلامت. اگر به مراقبت
-          پیوسته باور دارید، بیایید مسیر درمان را برای بیماران ساده‌تر کنیم.
+          برای پزشکان عمومی، آزمایشگاه‌ها، مراکز تصویربرداری و باشگاه‌های ورزشی. اگر به
+          پیشگیری قلبی و مراقبت پیوسته باور دارید، بیایید مسیر سلامت قلب را برای مردم
+          ساده‌تر کنیم.
         </p>
       </div>
       <footer className="site-footer shell">
@@ -335,7 +347,7 @@ export function PartnerAndFooter({
             <Logo />
           </a>
           <button className="text-link" onClick={onShop}>
-            دریافت نوبت در مهر
+            نوبت ویزیت قلب در مهر
             <Arrow direction="diagonal" size={21} />
           </button>
           <a href="#top" className="footer-back-top" aria-label="بازگشت به بالا">
@@ -343,7 +355,7 @@ export function PartnerAndFooter({
           </a>
         </div>
         <div className="footer-bottom">
-          <span>© کلینیک مهر {toPersianDigits(new Date().getFullYear())}</span>
+          <span>© کلینیک قلب مهر {toPersianDigits(new Date().getFullYear())}</span>
           <button onClick={onPrivacy}>حریم خصوصی و کوکی‌ها</button>
           <span className="footer-credit">
             نسخه آزمایشی طراحی v8 <span className="credit-dot" />

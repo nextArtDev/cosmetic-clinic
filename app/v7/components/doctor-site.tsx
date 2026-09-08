@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import {
   AnimatePresence,
@@ -30,15 +30,50 @@ import {
   type OverlayState,
   type ConsultationLocation,
 } from '../lib/site-content'
-import { Logo, Reveal } from './ui'
+import { getLenis } from '../lib/lenis'
+import { Logo, Reveal, MaskReveal, ImageReveal, Parallax, SwapText } from './ui'
 import SiteOverlays from './site-overlays'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
+const heroFade = (delay: number) => ({
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.9, ease, delay } },
+})
+
+function Preloader() {
+  return (
+    <motion.div
+      className="v7-preloader"
+      exit={{ y: '-100%' }}
+      transition={{ duration: 0.95, ease: [0.76, 0, 0.24, 1] }}
+      aria-hidden="true"
+    >
+      <motion.div
+        className="v7-preloader__inner"
+        exit={{ opacity: 0, y: -26, transition: { duration: 0.35, ease: 'easeIn' } }}
+      >
+        <span className="v7-preloader__mark">گریگوری</span>
+        <span className="v7-preloader__sub">متخصص لیزر مو و پوست</span>
+      </motion.div>
+      <motion.div
+        className="v7-preloader__line"
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 1.55, ease: [0.65, 0, 0.35, 1] }}
+      />
+    </motion.div>
+  )
+}
+
 export default function DoctorWebsite() {
   const [overlay, setOverlay] = useState<OverlayState>(null)
   const [scrolled, setScrolled] = useState(false)
+  const [headerHidden, setHeaderHidden] = useState(false)
   const [paused, setPaused] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+  const [heroDone, setHeroDone] = useState(false)
   const [activeService, setActiveService] = useState(0)
   const [resultFilter, setResultFilter] = useState('all')
   const [resultIndex, setResultIndex] = useState(0)
@@ -47,6 +82,7 @@ export default function DoctorWebsite() {
   const [contactLocation, setContactLocation] = useState<ConsultationLocation>('تهران')
   const reducedMotion = useReducedMotion()
   const heroRef = useRef<HTMLElement>(null)
+  const prevScrollRef = useRef(0)
   const { scrollY, scrollYProgress } = useScroll()
   const { scrollYProgress: heroProgress } = useScroll({
     target: heroRef,
@@ -54,16 +90,58 @@ export default function DoctorWebsite() {
   })
   const heroY = useTransform(heroProgress, [0, 1], ['0%', '22%'])
   const heroOpacity = useTransform(heroProgress, [0, 0.85], [1, 0.15])
+  // Reference: entrance title scales to .87, lifts -5vh and fades out
+  // across the first ~20% of the hero's scroll (data-parallax-0-20).
+  const titleScale = useTransform(heroProgress, [0, 0.22], [1, 0.87])
+  const titleY = useTransform(heroProgress, [0, 0.22], ['0vh', '-5vh'])
+  const titleOpacity = useTransform(heroProgress, [0, 0.22], [1, 0])
   const pointerX = useSpring(0, { stiffness: 35, damping: 20 })
-  useMotionValueEvent(scrollY, 'change', (value) => setScrolled(value > 60))
+  useMotionValueEvent(scrollY, 'change', (value) => {
+    setScrolled(value > 60)
+    const previous = prevScrollRef.current
+    if (value > 420 && value > previous + 4) setHeaderHidden(true)
+    else if (value < previous - 4 || value <= 420) setHeaderHidden(false)
+    prevScrollRef.current = value
+  })
+  useMotionValueEvent(heroProgress, 'change', (value) => {
+    const done = value > 0.24
+    if (done !== heroDone) setHeroDone(done)
+  })
+
+  // Entrance preloader gates the hero choreography, like the reference's
+  // landing preloader (reveal delays are timed off its completion).
+  // Reduced motion skips the show — loaded flips on the next tick.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    if (!reducedMotion) document.documentElement.setAttribute('data-v7-loading', '')
+    const timer = window.setTimeout(() => setLoaded(true), reducedMotion ? 0 : 2050)
+    return () => {
+      window.clearTimeout(timer)
+      document.documentElement.removeAttribute('data-v7-loading')
+    }
+  }, [reducedMotion])
+  useEffect(() => {
+    if (loaded) document.documentElement.removeAttribute('data-v7-loading')
+    const lenis = getLenis()
+    if (!lenis) return
+    if (loaded) lenis.start()
+    else lenis.stop()
+  }, [loaded])
+
   const closeOverlay = useCallback(() => setOverlay(null), [])
-  const navigate = useCallback((id: string) => {
-    setOverlay(null)
-    window.setTimeout(
-      () => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-      320,
-    )
-  }, [])
+  const navigate = useCallback(
+    (id: string) => {
+      setOverlay(null)
+      window.setTimeout(() => {
+        const target = document.getElementById(id)
+        if (!target) return
+        const lenis = getLenis()
+        if (lenis && !reducedMotion) lenis.scrollTo(target, { offset: -72, duration: 1.25 })
+        else target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' })
+      }, 320)
+    },
+    [reducedMotion],
+  )
   const service = services[activeService]
   const filteredResults =
     resultFilter === 'all' ? results : results.filter((item) => item.service === resultFilter)
@@ -71,12 +149,19 @@ export default function DoctorWebsite() {
     { length: Math.min(filteredResults.length, 3) },
     (_, index) => filteredResults[(resultIndex + index) % filteredResults.length],
   )
+  const heroState = loaded ? 'show' : 'hidden'
 
   return (
     <>
+      <AnimatePresence>{!loaded && !reducedMotion && <Preloader />}</AnimatePresence>
       <div id="v7-content">
         <motion.div className="page-progress" style={{ scaleX: scrollYProgress }} />
-        <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
+        <motion.header
+          className={`site-header ${scrolled ? 'is-scrolled' : ''} ${headerHidden ? 'is-hidden' : ''}`}
+          initial={reducedMotion ? false : { opacity: 0, y: -16 }}
+          animate={loaded || reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -16 }}
+          transition={{ duration: 0.8, ease, delay: 0.9 }}
+        >
           <button
             className="header-menu text-button"
             onClick={() => setOverlay({ type: 'menu' })}
@@ -93,10 +178,12 @@ export default function DoctorWebsite() {
             <Logo />
           </a>
           <button className="header-book text-button" onClick={() => setOverlay({ type: 'appointment' })}>
-            <span>رزرو نوبت</span>
+            <span>
+              <SwapText text="رزرو نوبت" />
+            </span>
             <ArrowUpRight size={17} strokeWidth={1.1} />
           </button>
-        </header>
+        </motion.header>
 
         <main id="main-content">
           <section
@@ -132,39 +219,45 @@ export default function DoctorWebsite() {
               </motion.div>
               <div className="hero-shade" />
             </motion.div>
-            <div className="hero-topline">
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.65, duration: 1 }}
-              >
+            <motion.div
+              className="hero-topline"
+              variants={heroFade(0.55)}
+              initial={reducedMotion ? false : 'hidden'}
+              animate={heroState}
+            >
+              <span>
                 آرمان گریگوری
                 <br />
                 <span className="muted">متخصص لیزر مو و پوست</span>
-              </motion.span>
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8, duration: 1 }}
-              >
+              </span>
+              <span>
                 تهران
                 <br />
                 کرج
-              </motion.span>
-            </div>
-            <div className="hero-center">
-              <motion.h1
-                initial={reducedMotion ? false : { opacity: 0, y: 45, filter: 'blur(5px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 1.55, ease, delay: 0.15 }}
-              >
-                زیباییِ تو
-              </motion.h1>
+              </span>
+            </motion.div>
+            <motion.div
+              className="hero-center"
+              style={
+                reducedMotion
+                  ? undefined
+                  : {
+                      scale: titleScale,
+                      y: titleY,
+                      opacity: titleOpacity,
+                      pointerEvents: heroDone ? 'none' : 'auto',
+                      willChange: 'transform, opacity',
+                    }
+              }
+            >
+              <MaskReveal play={loaded} delay={0.15} className="hero-h1-mask">
+                <h1>زیباییِ تو</h1>
+              </MaskReveal>
               <motion.div
                 className="hero-statement"
-                initial={reducedMotion ? false : { opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.75 }}
+                variants={heroFade(0.6)}
+                initial={reducedMotion ? false : 'hidden'}
+                animate={heroState}
               >
                 <span className="little-star" aria-hidden="true">
                   ✧
@@ -175,28 +268,41 @@ export default function DoctorWebsite() {
                   تا آخرین جزئیات
                 </p>
               </motion.div>
-            </div>
-            <div className="hero-bottom">
-              <div className="hero-description">
+            </motion.div>
+            <motion.div
+              className="hero-bottom"
+              initial={reducedMotion ? false : 'hidden'}
+              animate={heroState}
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 0.75 } } }}
+            >
+              <motion.div className="hero-description" variants={heroFade(0)}>
                 <span className="eyebrow">زیبایی، شخصی است.</span>
                 <p>رویکرد ما هم همین‌طور.</p>
-              </div>
-              <a className="hero-discover" href="#doctor" aria-label="آشنایی با پزشک">
-                <span>کشف کنید</span>
+              </motion.div>
+              <motion.a
+                className="hero-discover"
+                href="#doctor"
+                aria-label="آشنایی با پزشک"
+                variants={heroFade(0)}
+              >
+                <span>
+                  <SwapText text="کشف کنید" />
+                </span>
                 <span className="square-arrow">
                   <ArrowDown size={25} strokeWidth={1} />
                 </span>
                 <span className="discover-line" />
-              </a>
-              <button
+              </motion.a>
+              <motion.button
                 className="motion-control"
                 onClick={() => setPaused((value) => !value)}
                 aria-label={paused ? 'پخش حرکت ملایم' : 'توقف حرکت ملایم'}
+                variants={heroFade(0)}
               >
                 {paused ? <Play size={11} fill="currentColor" /> : <Pause size={11} />}
                 <span>{paused ? 'پخش حرکت' : 'توقف حرکت'}</span>
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
             <div className="hero-grain" aria-hidden="true" />
           </section>
 
@@ -205,24 +311,34 @@ export default function DoctorWebsite() {
               <span className="eyebrow">۰۱ / پزشک</span>
               <span className="eyebrow">جایی که تخصص به هنر می‌رسد</span>
             </div>
-            <Reveal className="doctor-title-wrap">
-              <div className="doctor-honed">
-                پخته
-                <br />
-                در دلِ سال‌ها
+            <Parallax distance={44}>
+              <div className="doctor-title-wrap">
+                <MaskReveal className="doctor-honed-mask" delay={0.1}>
+                  <div className="doctor-honed">
+                    پخته
+                    <br />
+                    در دلِ سال‌ها
+                  </div>
+                </MaskReveal>
+                <h2 className="sr-only">کمال، پخته در دلِ سال‌ها</h2>
+                <MaskReveal>
+                  <div className="doctor-title" aria-hidden="true">
+                    کمالِ مطلق
+                  </div>
+                </MaskReveal>
               </div>
-              <h2 className="sr-only">کمال، پخته در دلِ سال‌ها</h2>
-              <div className="doctor-title" aria-hidden="true">
-                کمالِ مطلق
-              </div>
-            </Reveal>
+            </Parallax>
             <div className="doctor-portrait">
-              <Image
-                src="/v7/images/portrait.webp"
-                alt="دکتر آرمان گریگوری، متخصص لیزر مو و پوست"
-                fill
-                sizes="(max-width: 760px) 100vw, 64vw"
-              />
+              <ImageReveal className="v7-abs-fill">
+                <Parallax distance={0} scale className="v7-abs-fill">
+                  <Image
+                    src="/v7/images/portrait.webp"
+                    alt="دکتر آرمان گریگوری، متخصص لیزر مو و پوست"
+                    fill
+                    sizes="(max-width: 760px) 100vw, 64vw"
+                  />
+                </Parallax>
+              </ImageReveal>
               <div />
             </div>
             <div className="doctor-editorial">
@@ -242,13 +358,15 @@ export default function DoctorWebsite() {
                   آشنایی با پزشک <ArrowUpRight size={19} strokeWidth={1} />
                 </button>
               </Reveal>
-              <Reveal className="doctor-quote" delay={0.15}>
-                <span className="quote-mark">”</span>
-                <blockquote>
-                  تنها چشمِ ورزیده و دستِ ماهرِ استادی می‌تواند کمالِ پنهان را آشکار کند.
-                </blockquote>
-                <span className="signature">آ. گریگوری</span>
-              </Reveal>
+              <Parallax distance={26}>
+                <Reveal className="doctor-quote" delay={0.15}>
+                  <span className="quote-mark">”</span>
+                  <blockquote>
+                    تنها چشمِ ورزیده و دستِ ماهرِ استادی می‌تواند کمالِ پنهان را آشکار کند.
+                  </blockquote>
+                  <span className="signature">آ. گریگوری</span>
+                </Reveal>
+              </Parallax>
             </div>
             <Reveal className="doctor-stats">
               <div>
@@ -278,36 +396,50 @@ export default function DoctorWebsite() {
               <span className="eyebrow">طبیعی، بی‌مانندِ خودتان</span>
             </div>
             <div className="philosophy-grid">
-              <Reveal className="philosophy-heading">
-                <h2>
-                  درخششِ
-                  <br />
-                  <span>پوست.</span>
-                </h2>
-                <p className="philosophy-intro">
-                  نسخه‌ای دیگر از شما نه؛
-                  <br />
-                  درخشان‌ترینِ خودتان.
-                </p>
-                <div className="philosophy-small-image">
-                  <Image
-                    src="/v7/images/face.webp"
-                    alt="مطالعه‌ای در هماهنگی طبیعی پوست"
-                    fill
-                    sizes="220px"
-                  />
-                  <span className="image-caption">نگاهی به فردِ یکتا.</span>
+              <div className="philosophy-left">
+                <div className="philosophy-heading">
+                  <MaskReveal>
+                    <h2>
+                      درخششِ
+                      <br />
+                      <span>پوست.</span>
+                    </h2>
+                  </MaskReveal>
                 </div>
-              </Reveal>
+                <div className="philosophy-phase philosophy-phase--intro">
+                  <Reveal>
+                    <p className="philosophy-intro">
+                      نسخه‌ای دیگر از شما نه؛
+                      <br />
+                      درخشان‌ترینِ خودتان.
+                    </p>
+                  </Reveal>
+                  <div className="philosophy-small-image">
+                    <ImageReveal className="v7-abs-fill" delay={0.1}>
+                      <Image
+                        src="/v7/images/face.webp"
+                        alt="مطالعه‌ای در هماهنگی طبیعی پوست"
+                        fill
+                        sizes="220px"
+                      />
+                    </ImageReveal>
+                    <span className="image-caption">نگاهی به فردِ یکتا.</span>
+                  </div>
+                </div>
+              </div>
               <div className="philosophy-right">
-                <Reveal className="philosophy-image">
-                  <Image
-                    src="/v7/images/aesthetic.webp"
-                    alt="مطالعه‌ای هنری از ظرافت و تناسب"
-                    fill
-                    sizes="(max-width: 760px) 90vw, 42vw"
-                  />
-                </Reveal>
+                <ImageReveal className="philosophy-image">
+                  <Parallax axis="x" distance={26} className="v7-abs-fill">
+                    <Image
+                      src="/v7/images/aesthetic.webp"
+                      alt="مطالعه‌ای هنری از ظرافت و تناسب"
+                      fill
+                      sizes="(max-width: 760px) 90vw, 42vw"
+                    />
+                  </Parallax>
+                </ImageReveal>
+              </div>
+              <div className="philosophy-phase philosophy-phase--copy">
                 <Reveal className="philosophy-copy">
                   <span className="little-star" aria-hidden="true">
                     ✧
@@ -333,13 +465,13 @@ export default function DoctorWebsite() {
               </button>
             </div>
             <div className="services-heading">
-              <Reveal>
+              <MaskReveal>
                 <h2>
                   خدمات
                   <br />
                   اصلی.
                 </h2>
-              </Reveal>
+              </MaskReveal>
               <Reveal>
                 <p>
                   درخشش نگاه شما. ظرافت خطوط چهره. شفافیت پوست.
@@ -418,13 +550,13 @@ export default function DoctorWebsite() {
               <span className="eyebrow">اعتمادی از جنس شفافیت</span>
             </div>
             <div className="results-heading">
-              <Reveal>
+              <MaskReveal>
                 <h2>
                   نتیجه،
                   <br />
                   <span>واقعی.</span>
                 </h2>
-              </Reveal>
+              </MaskReveal>
               <Reveal>
                 <p>
                   زیباییِ فردی. چشم‌اندازی شخصی.
@@ -551,21 +683,25 @@ export default function DoctorWebsite() {
               <span className="eyebrow">۰۵ / رویکرد</span>
               <span className="eyebrow">دقت. مراقبت. ظرافت.</span>
             </div>
-            <Reveal className="approach-heading">
+            <MaskReveal className="approach-heading">
               <h2>
                 ارکانِ
                 <br />
                 بی‌نقصی.
               </h2>
-            </Reveal>
+            </MaskReveal>
             <div className="approach-grid">
               <div className="hand-image">
-                <Image
-                  src="/v7/images/hands.webp"
-                  alt="دست متخصص در حال تنظیم دقیق دستگاه لیزر"
-                  fill
-                  sizes="(max-width: 760px) 85vw, 50vw"
-                />
+                <ImageReveal className="v7-abs-fill">
+                  <Parallax distance={30} className="v7-abs-fill">
+                    <Image
+                      src="/v7/images/hands.webp"
+                      alt="دست متخصص در حال تنظیم دقیق دستگاه لیزر"
+                      fill
+                      sizes="(max-width: 760px) 85vw, 50vw"
+                    />
+                  </Parallax>
+                </ImageReveal>
                 <span className="hand-caption eyebrow">
                   دستی دقیق.
                   <br />
@@ -625,13 +761,15 @@ export default function DoctorWebsite() {
             </div>
             <div className="faq-grid">
               <Reveal>
-                <h2>
-                  اندکی
-                  <br />
-                  شفافیتِ
-                  <br />
-                  بیشتر.
-                </h2>
+                <MaskReveal>
+                  <h2>
+                    اندکی
+                    <br />
+                    شفافیتِ
+                    <br />
+                    بیشتر.
+                  </h2>
+                </MaskReveal>
                 <p>
                   پاسخ‌هایی موشکافانه،
                   <br />
@@ -687,23 +825,31 @@ export default function DoctorWebsite() {
             </div>
             <div className="contact-intro">
               <div className="contact-photo">
-                <Image
-                  src="/v7/images/consultation.webp"
-                  alt="دکتر گریگوری، آماده برای یک گفت‌وگوی شخصی"
-                  fill
-                  sizes="(max-width: 760px) 100vw, 55vw"
-                />
+                <ImageReveal className="v7-abs-fill">
+                  <Parallax distance={44} className="v7-abs-fill">
+                    <Image
+                      src="/v7/images/consultation.webp"
+                      alt="دکتر گریگوری، آماده برای یک گفت‌وگوی شخصی"
+                      fill
+                      sizes="(max-width: 760px) 100vw, 55vw"
+                    />
+                  </Parallax>
+                </ImageReveal>
               </div>
               <Reveal className="contact-heading">
-                <h2>
-                  دیداری که
-                  <br />
-                  مسیرِ پوستِ شما
-                  <br />
-                  را عوض می‌کند.
-                </h2>
+                <MaskReveal>
+                  <h2>
+                    دیداری که
+                    <br />
+                    مسیرِ پوستِ شما
+                    <br />
+                    را عوض می‌کند.
+                  </h2>
+                </MaskReveal>
                 <button className="contact-book" onClick={() => setOverlay({ type: 'appointment' })}>
-                  <span>رزرو نوبت</span>
+                  <span>
+                    <SwapText text="رزرو نوبت" />
+                  </span>
                   <span className="circle-button">
                     <ArrowUpRight size={30} strokeWidth={1} />
                   </span>
@@ -796,7 +942,7 @@ export default function DoctorWebsite() {
             </a>
             <span className="eyebrow">لیزر؛ به روایتِ هنر</span>
             <a href="#home" className="back-top">
-              بازگشت به بالا <ArrowUp size={18} strokeWidth={1} />
+              <SwapText text="بازگشت به بالا" /> <ArrowUp size={18} strokeWidth={1} />
             </a>
           </div>
           <div className="footer-bottom">

@@ -5,6 +5,7 @@ import { useLayoutEffect, useRef } from 'react'
 import { PRACTICE } from '../lib/content'
 import { gsap } from '../lib/gsap'
 import WordReveal from './word-reveal'
+import ClipReveal from './clip-reveal'
 
 export default function Practice() {
   const root = useRef<HTMLElement>(null)
@@ -65,12 +66,14 @@ export default function Practice() {
       </div>
 
       <div className="practice-img-wrap scmd:relative scmd:overflow-hidden">
-        <img
-          src={PRACTICE.image}
-          alt="مانیتور مدنما در اتاق انتظار کلینیک"
-          className="practice-image scmd:w-full"
-          style={{ height: '45em', objectFit: 'cover' }}
-        />
+        <ClipReveal>
+          <img
+            src={PRACTICE.image}
+            alt="مانیتور مدنما در اتاق انتظار مطب"
+            className="practice-image scmd:w-full"
+            style={{ height: '45em', objectFit: 'cover' }}
+          />
+        </ClipReveal>
         <div className="side-lines">
           <span
             className="practice-line line-vertical scmd:block"

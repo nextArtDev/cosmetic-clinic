@@ -56,7 +56,8 @@ export default function Results() {
   return (
     <section id="resultats" className="nc:relative   nc:overflow-hidden   nc:bg-ink   nc:py-24   nc:text-white   nc:sm:py-32">
       <div className="grain   nc:absolute   nc:inset-0" />
-      <div className="nc:pointer-events-none   nc:absolute   nc:-end-32   nc:top-20   nc:size-[560px]   nc:rounded-full   nc:bg-sage/30   nc:blur-[160px]" />
+      {/* Ambient glow — velvet-breath ported from novacapillaire.fr */}
+      <div className="v5-velvet-blob   nc:pointer-events-none   nc:absolute   nc:-end-32   nc:top-20   nc:size-[560px]   nc:rounded-full   nc:bg-sage/30   nc:blur-[160px]" />
 
       <div className="nc:relative   nc:mx-auto   nc:max-w-7xl   nc:px-5   nc:sm:px-8">
         <div className="nc:grid   nc:gap-14   nc:lg:grid-cols-12   nc:lg:gap-10">

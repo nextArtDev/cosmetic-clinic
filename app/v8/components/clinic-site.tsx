@@ -129,7 +129,7 @@ export default function ClinicSite() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 15 }}
             onClick={openShop}
-            aria-label="دریافت نوبت در کلینیک مهر"
+            aria-label="دریافت نوبت در کلینیک قلب مهر"
           >
             <ShoppingBag size={21} strokeWidth={1.1} />
             <span>نوبت</span>

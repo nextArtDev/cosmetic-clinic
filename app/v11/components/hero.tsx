@@ -245,6 +245,7 @@ export default function Hero() {
                       parts={HERO.title}
                       delay={0.25}
                       stagger={0.06}
+                      waitForBoot
                     />
                   </div>
                   <div className="scmd:absolute scmd:inset-0 scmd:flex scmd:h-full scmd:w-full scmd:items-center scmd:justify-center">

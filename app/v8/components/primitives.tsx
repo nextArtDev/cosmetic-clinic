@@ -8,7 +8,7 @@ export const ease = [0.22, 1, 0.36, 1] as const
 
 export function Logo({ className = '' }: { className?: string }) {
   return (
-    <svg className={`brand-logo ${className}`} viewBox="0 0 69 30" role="img" aria-label="کلینیک مهر">
+    <svg className={`brand-logo ${className}`} viewBox="0 0 69 30" role="img" aria-label="کلینیک قلب مهر">
       <use href="/v8/media/icons.svg#clingr-logo" />
     </svg>
   )

@@ -17,6 +17,12 @@ export const BRAND = {
 export type RevealPart = {
   text: string
   className?: string
+  /**
+   * When set, the leading digits of `text` render as an animated
+   * Persian count-up (reference site's "170+ projets" stat behavior);
+   * the remainder (e.g. «٪») becomes the counter suffix.
+   */
+  count?: number
 }
 
 export const NAV_LINKS = [
@@ -62,7 +68,8 @@ export const NUMBERS = {
       icon: '/v11/img/icons/analytics.svg',
       heading: 'ویدیو، تصمیم بیمار را می‌سازد',
       description: [
-        { text: '۸۷٪ از مراجعان', className: 'semibold-wrap' },
+        { text: '۸۷٪', className: 'semibold-wrap', count: 87 },
+        { text: 'از مراجعان', className: 'semibold-wrap' },
         { text: 'پس از دیدن ویدیوی یک خدمت، با اطمینان بیشتری آن را انتخاب می‌کنند.' },
       ] as RevealPart[],
     },
@@ -70,16 +77,20 @@ export const NUMBERS = {
       icon: '/v11/img/icons/person-clock.svg',
       heading: 'یادگیری با ویدیو ۹ برابر بیشتر است',
       description: [
-        { text: '۹۵٪ از یک پیام', className: 'semibold-wrap' },
+        { text: '۹۵٪', className: 'semibold-wrap', count: 95 },
+        { text: 'از یک پیام', className: 'semibold-wrap' },
         { text: 'در قالب ویدیو در ذهن می‌ماند؛ در برابرِ' },
-        { text: 'تنها ۱۰٪ در قالب متن.', className: 'semibold-wrap' },
+        { text: 'تنها', className: 'semibold-wrap' },
+        { text: '۱۰٪', className: 'semibold-wrap', count: 10 },
+        { text: 'در قالب متن.', className: 'semibold-wrap' },
       ] as RevealPart[],
     },
     {
       icon: '/v11/img/icons/people.svg',
       heading: 'بیمارانِ شما دنبال اطلاعات‌اند',
       description: [
-        { text: '۶۱٪ از مراجعان', className: 'semibold-wrap' },
+        { text: '۶۱٪', className: 'semibold-wrap', count: 61 },
+        { text: 'از مراجعان', className: 'semibold-wrap' },
         { text: 'همان لحظه‌ای که در کلینیک‌اند، دنبال شناختن خدمات بیشترند؛ اما تیمِ پرکار فرصت توضیح‌دادن ندارد.' },
       ] as RevealPart[],
     },
@@ -129,13 +140,13 @@ export const SOLUTIONS = {
         { text: 'چه خدماتی دارید', className: 'h3-awesome' },
       ] as RevealPart[],
       problemText:
-        'بیمار بدون شناختن دامنهٔ کامل خدمات، کلینیک را ترک می‌کند و پتانسیل مراقبت‌تان هدر می‌رود.',
+        'بیمار بدون شناختن دامنهٔ کامل خدمات، مطب را ترک می‌کند و پتانسیل مراقبت‌تان هدر می‌رود.',
       solution: [
         { text: 'آموزش' },
         { text: 'بدون حرف‌زدن', className: 'h3-awesome' },
       ] as RevealPart[],
       solutionText:
-        'ما روایتی تصویری از خدمات شما می‌سازیم — همان‌جا روی مانیتورهای کلینیک — تا بیمار پیش از رسیدن به اتاق ویزیت، خودش سؤالش را پیدا کند.',
+        'ما روایتی تصویری از خدمات شما می‌سازیم — همان‌جا روی مانیتورهای مطب — تا بیمار پیش از رسیدن به اتاق ویزیت، خودش سؤالش را پیدا کند.',
     },
     {
       problem: [
@@ -171,7 +182,7 @@ export const SOLUTIONS = {
         { text: 'ندارید', className: 'h3-awesome' },
       ] as RevealPart[],
       problemText:
-        'شما و تیمتان آن‌قدر مشغولیت‌های بالینی دارید که ساخت، مدیریت و به‌روزرسانی منظم مانیتورها ممکن نیست.',
+        'شما و تیمتان آن‌قدر مشغولید که ساخت، مدیریت و به‌روزرسانی منظم مانیتورها ممکن نیست.',
       solution: [
         { text: 'یک‌بار تنظیم،' },
         { text: 'همیشه فعال', className: 'h3-awesome' },
@@ -195,18 +206,18 @@ export const SOLUTIONS = {
     },
     {
       problem: [
-        { text: 'بیمار در کلینیک شما' },
+        { text: 'بیمار در مطب شما' },
         { text: 'باید راحت‌تر باشد', className: 'h3-awesome' },
         { text: '' },
       ] as RevealPart[],
       problemText:
-        'کلینیک‌هایی که از ویدیو و ابزارهای دیجیتال مدرن استفاده می‌کنند، پیشرفته‌تر و قابل‌اعتمادتر به نظر می‌رسند.',
+        'مطب‌هایی که از ویدیو و ابزارهای دیجیتال مدرن استفاده می‌کنند، پیشرفته‌تر و قابل‌اعتمادتر به نظر می‌رسند.',
       solution: [
         { text: 'آموزش و' },
         { text: 'تحسین بیماران', className: 'h3-awesome' },
       ] as RevealPart[],
       solutionText:
-        'مدنما تجربه‌ای مدرن و باکیفیت برای بیماران شما می‌سازد؛ تجربه‌ای که آموزش می‌دهد و کلینیک شما را از دیگران متمایز می‌کند.',
+        'مدنما تجربه‌ای مدرن و باکیفیت برای بیماران شما می‌سازد؛ تجربه‌ای که آموزش می‌دهد و مطب شما را از دیگران متمایز می‌کند.',
     },
   ],
 }
@@ -217,7 +228,7 @@ export const BRANDS = {
     { text: 'روی مانیتورهای شما', className: 'h2-awesome' },
   ] as RevealPart[],
   description:
-    'با معرفی بی‌وقفهٔ برندهای معتبر تجهیزات و مکمل‌های درمانی، سود کلینیک خود را بالا ببرید.',
+    'با معرفی بی‌وقفهٔ برندهای معتبر تجهیزات و مکمل‌های درمانی، سود مطب خود را بالا ببرید.',
   logos: [
     '/v11/img/brands/b01.avif',
     '/v11/img/brands/b02.svg',

@@ -47,7 +47,7 @@ export function Hero({
   const titleY = useTransform(scrollYProgress, [0, 1], [0, -140])
   const titleOpacity = useTransform(scrollYProgress, [0, 0.72], [1, 0])
   const videoY = useTransform(scrollYProgress, [0, 1], [0, -85])
-  const headline = ['قلبی آرام،', 'بدنی بدون درد،', 'ذهنی آسوده']
+  const headline = ['قلبی آرام،', 'خیالی راحت،', 'زندگی کامل']
 
   return (
     <section ref={ref} id="top" className="hero">
@@ -56,7 +56,7 @@ export function Hero({
           <source media="(max-width: 600px)" srcSet="/v8/media/hero-mobile.webp" />
           <img
             src="/v8/media/hero.webp"
-            alt="فضای آرام و حرفه‌ای کلینیک تخصصی مهر"
+            alt="فضای آرام و حرفه‌ای کلینیک قلب دکتر آرش صادقی"
             fetchPriority="high"
             loading="eager"
           />
@@ -64,7 +64,7 @@ export function Hero({
       </motion.div>
       <img className="hero-linework" src="/v8/media/hero-lines.svg" alt="" aria-hidden="true" />
       <header className="site-header shell">
-        <a href="#top" className="logo-link" aria-label="کلینیک مهر — خانه">
+        <a href="#top" className="logo-link" aria-label="کلینیک قلب مهر — خانه">
           <Logo />
         </a>
         <div className="header-actions">
@@ -105,7 +105,7 @@ export function Hero({
           type="button"
           className="hero-video"
           onClick={onVideo}
-          aria-label="تماشای معرفی کلینیک"
+          aria-label="تماشای معرفی کلینیک قلب"
           style={{ y: reduced ? 0 : videoY }}
           initial={{ opacity: 0, scale: 0.94 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -127,7 +127,7 @@ export function Hero({
           </span>
           <span className="video-hover-label">تماشای ویدیو</span>
         </motion.button>
-        <a href="#about" className="hero-scroll round-button" aria-label="آشنایی با کلینیک مهر">
+        <a href="#about" className="hero-scroll round-button" aria-label="آشنایی با کلینیک قلب مهر">
           <Arrow direction="down" size={19} />
         </a>
       </div>

@@ -232,7 +232,17 @@ export function ContactSection({
             loading="lazy"
           />
         </div>
-        <div className="contact-outline" aria-hidden="true" />
+        <div className="contact-outline" aria-hidden="true">
+          {/* Drawn-in on scroll (source uses DrawSVG on .drop_line). */}
+          <svg className="contact-outline-svg" viewBox="0 0 432 432" fill="none">
+            <path
+              className="contact-outline-path"
+              d="M20 0H216A216 216 0 0 1 432 216A216 216 0 0 1 216 432A216 216 0 0 1 0 216V20A20 20 0 0 1 20 0Z"
+              stroke="#b29db9"
+              strokeWidth="2"
+            />
+          </svg>
+        </div>
       </div>
     </section>
   )

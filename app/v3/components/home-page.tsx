@@ -14,6 +14,8 @@ import {
   MaskImage,
   Reveal,
   SectionHeading,
+  StickyScale,
+  ZoomReveal,
   ease,
 } from './motion-primitives'
 import {
@@ -160,11 +162,13 @@ export function HomePageView() {
 
       <section className="audience-section content-width" id="studio">
         <div className="audience-visual">
-          <MaskImage
-            src="/images/doctor.png"
-            alt="دکتر شبنم فضلی، جراح پلاستیک و زیبایی"
-            className="audience-image"
-          />
+          <StickyScale className="audience-sticky">
+            <MaskImage
+              src="/images/doctor.png"
+              alt="دکتر شبنم فضلی، جراح پلاستیک و زیبایی"
+              className="audience-image"
+            />
+          </StickyScale>
           <span className="image-annotation">تصویری درست. حضوری مؤثر.</span>
         </div>
         <Reveal className="audience-copy">
@@ -317,13 +321,13 @@ export function HomePageView() {
                 type: 'اعتماد',
               },
             ].map((award, i) => (
-              <Reveal className="award-row" key={award.year} delay={i * 0.06}>
+              <ZoomReveal className="award-row" key={award.year} delay={i * 0.1}>
                 <span className="award-year">{award.year}</span>
                 <h3>{award.name}</h3>
                 <span className="award-org">{award.org}</span>
                 <span className="award-type">{award.type}</span>
                 <span aria-hidden="true">↖</span>
-              </Reveal>
+              </ZoomReveal>
             ))}
           </div>
         </div>

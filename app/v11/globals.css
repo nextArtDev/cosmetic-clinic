@@ -1149,3 +1149,41 @@ html[data-v11-active].lenis.lenis-smooth iframe {
     width: 100%;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ *  Reference extras: clip reveal, decor spin, review photo hover      *
+ * ------------------------------------------------------------------ */
+.v11 .clip-reveal {
+  width: 100%;
+  will-change: clip-path;
+}
+.v11 .clip-reveal > img {
+  will-change: transform;
+}
+
+@keyframes v11-decor-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.v11 img[src*='decor-'] {
+  animation: v11-decor-spin 14s linear infinite;
+}
+
+.v11 .review-photo {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.v11 .rev-card:hover .review-photo {
+  transform: scale(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v11 img[src*='decor-'] {
+    animation: none;
+  }
+  .v11 .clip-reveal,
+  .v11 .clip-reveal > img {
+    transition: none !important;
+    animation: none !important;
+  }
+}

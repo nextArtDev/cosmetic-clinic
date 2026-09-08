@@ -26,6 +26,14 @@ export default function Hero() {
       {/* Backdrop */}
       <div className="nc:pointer-events-none   nc:absolute   nc:inset-0   nc:-z-10">
         <div className="nc:absolute   nc:start-1/2   nc:top-[-20%]   nc:h-[70vh]   nc:w-[110vw]   nc:-translate-x-1/2   nc:rounded-[100%]   nc:bg-[radial-gradient(closest-side,rgba(212,233,214,.65),transparent)]" />
+        {/* Ambient silk sheen — ported from novacapillaire.fr (novaHeroSilk) */}
+        <div
+          className="v5-silk   nc:absolute   nc:end-[-12%]   nc:top-[-45%]   nc:h-[190%]   nc:w-[82%]"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, rgba(47, 83, 46, 0.10) 0%, rgba(212, 233, 214, 0.16) 28%, rgba(212, 233, 214, 0.05) 48%, transparent 72%)",
+          }}
+        />
         <div className="nc:absolute   nc:inset-0   nc:bg-[linear-gradient(rgba(12,13,14,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(12,13,14,.035)_1px,transparent_1px)]   nc:bg-[size:72px_72px]   nc:[mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
       </div>
 
@@ -126,6 +134,9 @@ export default function Hero() {
               transition={{ duration: 1.4, ease: EASE, delay: 0.3 }}
               className="nc:relative   nc:col-span-8   nc:row-span-6   nc:overflow-hidden"
             >
+              {/* Concentric pulsing rings — ported from novacapillaire.fr
+                  (nova-hero-image-shape::before, nova-circles-pulse 4.2s) */}
+              <span className="v5-hero-rings" aria-hidden />
               <motion.div style={{ scale: scaleMain }} className="hero-shape   nc:absolute   nc:inset-0   nc:overflow-hidden">
                 <Image
                   src="/v5/images/hero-main.webp"
@@ -201,6 +212,20 @@ export default function Hero() {
         </div>
       </div>
 
+      {/* Trust cards — ported from novacapillaire.fr hero (nova-trust-card,
+          breathing badge nova-trust-outline-breathe 3.8s). On the WP site
+          they sit under the hero image column; here they span under both
+          columns, above the marquee. */}
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, ease: EASE, delay: 1.35 }}
+        className="nc:mx-auto   nc:mt-10   nc:grid   nc:max-w-7xl   nc:grid-cols-1   nc:gap-3   nc:px-5   nc:sm:grid-cols-2   nc:sm:px-8"
+      >
+        <TrustCard badge="ایران" title="کلینیک داخل ایران" subtitle="مراقبت در نزدیک‌ترین فاصله از شما" />
+        <TrustCard badge="۴٫۷" title="امتیاز گوگل" subtitle="رضایت واقعی مراجعان" />
+      </motion.div>
+
       <div className="nc:mt-16   nc:border-y   nc:border-ink/[0.07]   nc:sm:mt-20">
         <Marquee
           items={[
@@ -214,5 +239,26 @@ export default function Hero() {
         />
       </div>
     </section>
+  );
+}
+
+/** WP nova-trust-card: 46px breathing badge + title/subtitle rows. */
+function TrustCard({
+  badge,
+  title,
+  subtitle,
+}: {
+  badge: string;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <article className="v5-trust-card" aria-label={title}>
+      <span aria-hidden>{badge}</span>
+      <div>
+        <strong>{title}</strong>
+        <small>{subtitle}</small>
+      </div>
+    </article>
   );
 }

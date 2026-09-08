@@ -6,6 +6,7 @@ import Preloader from './ui/Preloader'
 import Header from './layout/Header'
 import Footer from './layout/Footer'
 import MobileQuickNav from './layout/MobileQuickNav'
+import BackToTop from './ui/BackToTop'
 import CookieConsent from './ui/CookieConsent'
 import Hero from './sections/Hero'
 import Profiles from './sections/Profiles'
@@ -42,6 +43,7 @@ export default function NovaSite({ children }: { children?: ReactNode }) {
       </main>
       <Footer />
       <MobileQuickNav />
+      <BackToTop />
       <CookieConsent />
     </SmoothScroll>
   )

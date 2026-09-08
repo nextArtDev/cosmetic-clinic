@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from 'react'
 import { shabnamV7, farsiAdadV7 } from '../fonts'
+import { SmoothScroll } from './v7-smooth-scroll'
 
 /**
  * Marks <html> with data-v7-active while any /v7 page is mounted.
@@ -28,6 +29,7 @@ export function V7Shell({ children }: { children: ReactNode }) {
       lang="fa-IR"
       dir="rtl"
     >
+      <SmoothScroll />
       {children}
     </div>
   )

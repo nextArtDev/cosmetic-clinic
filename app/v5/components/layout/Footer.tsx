@@ -42,9 +42,10 @@ export default function Footer() {
   return (
     <footer id="contact" className="nc:relative   nc:overflow-hidden   nc:bg-ink   nc:text-white">
       <div className="grain   nc:absolute   nc:inset-0" />
-      {/* Ambient glow */}
-      <div className="nc:pointer-events-none   nc:absolute   nc:-start-40   nc:top-0   nc:size-[520px]   nc:rounded-full   nc:bg-sage/25   nc:blur-[140px]" />
-      <div className="nc:pointer-events-none   nc:absolute   nc:-end-40   nc:bottom-0   nc:size-[460px]   nc:rounded-full   nc:bg-azure/10   nc:blur-[140px]" />
+      {/* Ambient glow — velvet-breath ported from novacapillaire.fr
+          (avApVelvetBreath 8s scale/opacity loop) */}
+      <div className="v5-velvet-blob   nc:pointer-events-none   nc:absolute   nc:-start-40   nc:top-0   nc:size-[520px]   nc:rounded-full   nc:bg-sage/25   nc:blur-[140px]" />
+      <div className="v5-velvet-blob   nc:pointer-events-none   nc:absolute   nc:-end-40   nc:bottom-0   nc:size-[460px]   nc:rounded-full   nc:bg-azure/10   nc:blur-[140px]" />
 
       <div className="nc:relative   nc:mx-auto   nc:max-w-7xl   nc:px-5   nc:pb-28   nc:pt-20   nc:sm:px-8   nc:sm:pb-12   nc:lg:pt-28">
         <div className="nc:grid   nc:gap-14   nc:lg:grid-cols-12">

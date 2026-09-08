@@ -295,9 +295,16 @@ html[data-v7-active] body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: height 0.45s, background 0.45s, border-color 0.45s;
+  transition:
+    height 0.45s,
+    background 0.45s,
+    border-color 0.45s,
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   border-bottom: 1px solid transparent;
   color: #f5f1ec;
+}
+.v7 .site-header.is-hidden {
+  transform: translateY(-110%); /* stickyHeader: hide on scroll down */
 }
 .v7 .site-header.is-scrolled {
   height: 78px;
@@ -3439,5 +3446,192 @@ html[data-v7-active] body {
 @keyframes v7-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reference-site animation systems (ported)                          */
+/* ------------------------------------------------------------------ */
+
+/* Line-mask text reveal (data-reveal="title"/"text"). The padding +
+   negative margin lets Persian descenders render without escaping the
+   mask above. */
+.v7 .mask-reveal {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+.v7 .mask-reveal__inner {
+  display: block;
+  will-change: transform;
+}
+
+/* Image reveal (image-zoom-in / image-parallax-in) + fill helper for
+   decorating absolutely-positioned photo blocks. */
+.v7 .v7-image-reveal {
+  will-change: transform, clip-path, opacity;
+}
+.v7 .v7-abs-fill {
+  position: absolute;
+  inset: 0;
+}
+
+/* Entrance preloader (preloaderLanding): dark cover, gradient wordmark,
+   progress line, then the whole panel lifts away. */
+.v7 .v7-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  background: #090908;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.v7 .v7-preloader__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.v7 .v7-preloader__mark {
+  font-family: var(--v7-font-display);
+  font-size: clamp(72px, 11vw, 170px);
+  line-height: 1.2;
+  background: linear-gradient(105deg, #b49482 20%, #d1b49e 51%, #a9826d 83%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.v7 .v7-preloader__sub {
+  margin-top: 14px;
+  font-size: 10px;
+  color: #8e8880;
+}
+.v7 .v7-preloader__line {
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+  height: 2px;
+  background: var(--v7-bronze);
+  transform-origin: 100% 50%; /* RTL: progress grows right to left */
+}
+html[data-v7-loading] {
+  overflow: hidden !important;
+}
+
+/* Button label swap (btn--clone): label rolls out up, duplicate rolls
+   in from below. */
+.v7 .swap-text {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.v7 .swap-text > span {
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.v7 .swap-text > span:last-child {
+  position: absolute;
+  inset: 0;
+  transform: translateY(115%);
+}
+.v7 button:hover .swap-text > span:first-child,
+.v7 button:focus-visible .swap-text > span:first-child,
+.v7 a:hover .swap-text > span:first-child,
+.v7 a:focus-visible .swap-text > span:first-child {
+  transform: translateY(-115%);
+}
+.v7 button:hover .swap-text > span:last-child,
+.v7 button:focus-visible .swap-text > span:last-child,
+.v7 a:hover .swap-text > span:last-child,
+.v7 a:focus-visible .swap-text > span:last-child {
+  transform: translateY(0);
+}
+
+/* Hero title mask keeps the huge gradient word unclipped at rest. */
+.v7 .hero-h1-mask {
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+.v7 .hero-center {
+  will-change: transform, opacity;
+}
+
+/* Gentle invitation from the discover button (btn--outline-next pulse). */
+.v7 .hero-discover .square-arrow svg {
+  animation: v7-nudge 2.6s ease-in-out infinite;
+}
+@keyframes v7-nudge {
+  0%,
+  100% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Philosophy = the reference's pinned sticky slider (astetics).      */
+/* Desktop only: the photo pins while heading, intro and copy phases  */
+/* scroll past it, like the reference's data-scroll-sticky section.   */
+/* Mobile keeps the original stacked flow.                            */
+/* ------------------------------------------------------------------ */
+
+@media (min-width: 1101px) {
+  .v7 .philosophy-grid {
+    grid-template-columns: 42% 58%;
+    grid-template-rows: auto auto;
+    align-items: start;
+  }
+  .v7 .philosophy-left {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+  .v7 .philosophy-heading {
+    min-height: 68vh;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 4vh;
+  }
+  .v7 .philosophy-heading h2 {
+    font-size: clamp(56px, 9vw, 150px);
+    padding-top: 0;
+  }
+  .v7 .philosophy-phase {
+    min-height: 74vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .v7 .philosophy-phase--intro .philosophy-intro {
+    margin-top: 0;
+  }
+  .v7 .philosophy-phase--copy {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .v7 .philosophy-right {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    position: sticky;
+    top: 12vh;
+    align-self: start;
+    height: 76vh;
+    padding-top: 0;
+  }
+  .v7 .philosophy-image {
+    height: 100%;
+  }
+}
+
+@media (max-width: 1100px) {
+  .v7 .philosophy-phase--copy {
+    margin-top: 32px;
+  }
+  .v7 .philosophy-copy {
+    margin-top: 0;
   }
 }

@@ -16,9 +16,9 @@ import './globals.css'
 // /v8/api (in-memory, no Prisma) — swap them for the real backend when
 // this route goes live.
 export const metadata: Metadata = {
-  title: 'کلینیک تخصصی قلب و ارتوپدی، مغز و اعصاب — نسخه v8',
+  title: 'کلینیک قلب مهر — دکتر آرش صادقی، متخصص قلب و عروق — نسخه v8',
   description:
-    'نسخه آزمایشی طراحی v8: کلینیک تخصصی قلب و عروق، ارتوپدی، نورولوژی و روان‌پزشکی با نوبت‌دهی آنلاین. مسیر غیرفهرست‌شده.',
+    'نسخه آزمایشی طراحی v8: کلینیک تخصصی قلب و عروق دکتر آرش صادقی؛ نوار قلب، اکو، تست ورزش و نوبت‌دهی آنلاین. مسیر غیرفهرست‌شده.',
   robots: { index: false, follow: false },
 }
 

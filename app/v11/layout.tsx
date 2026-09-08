@@ -4,10 +4,12 @@ import { V11Shell } from './components/v11-shell'
 import SmoothScroll from './components/smooth-scroll'
 import Nav from './components/nav'
 import Cursor from './components/cursor'
+import Preloader from './components/preloader'
+import { BRAND } from './lib/content'
 
 // /v11 is a self-contained frontend port (ShowcaseMD design recreation,
 // chat-clone/showcasemd-website), Iranized for a Neurology clinic
-// (کلینیک مغز و اعصاب دکتر آرمان صالحی). It deliberately renders NO
+// (کلینیک مغز و اعصاب). It deliberately renders NO
 // shared chrome of the production site (no Navbar/Footer/Toaster markup),
 // so nothing outside this subtree can style or script it. Its Tailwind
 // build is fully scmd:-prefixed and every custom rule is .v11-scoped or
@@ -20,6 +22,7 @@ import Cursor from './components/cursor'
 export default function V11Layout({ children }: { children: ReactNode }) {
   return (
     <V11Shell>
+      <Preloader label={BRAND.name} />
       <SmoothScroll>
         <Cursor />
         <Nav />

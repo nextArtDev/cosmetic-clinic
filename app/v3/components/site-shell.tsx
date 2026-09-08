@@ -21,7 +21,6 @@ export function SiteShell({ children }: { children: ReactNode }) {
   const [preferences, setPreferences] = useState(false)
   const [analytics, setAnalytics] = useState(false)
   const [lightHeader, setLightHeader] = useState(pathname === '/v3')
-  const [intro, setIntro] = useState(true)
   const [consentSaved, setConsentSaved] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const cookieRef = useRef<HTMLDivElement>(null)
@@ -33,7 +32,6 @@ export function SiteShell({ children }: { children: ReactNode }) {
     html.setAttribute('data-v3-active', '')
     const lenis = new Lenis({ autoRaf: true, lerp: 0.085, smoothWheel: true, anchors: { offset: -80 }, allowNestedScroll: true })
     lenisRef.current = lenis
-    const timer = window.setTimeout(() => setIntro(false), 350)
     const consentFrame = requestAnimationFrame(() => {
       try {
         const saved = localStorage.getItem('v3-studio-consent')
@@ -43,7 +41,6 @@ export function SiteShell({ children }: { children: ReactNode }) {
     return () => {
       html.removeAttribute('data-v3-active')
       lenis.destroy()
-      window.clearTimeout(timer)
       cancelAnimationFrame(consentFrame)
       window.scrollTo(0, 0)
     }
@@ -113,10 +110,6 @@ export function SiteShell({ children }: { children: ReactNode }) {
 
         <Link href="/v3/#nazarat" className="awards-ribbon" aria-label="دیدن نظرات مراجعان"><strong>۵</strong><span>رضایت مراجعان</span></Link>
         <button className="consent-trigger" onClick={() => { setMenuOpen(false); setCookieOpen(true) }} aria-label="مدیریت رضایت و کوکی‌ها"><span className={`consent-dot ${consentSaved ? 'is-saved' : ''}`} />مدیریت رضایت</button>
-
-        <AnimatePresence>
-          {intro && <motion.div className="intro-curtain" initial={{ y: 0 }} exit={{ y: '-100%' }} transition={{ duration: reduce ? 0.01 : 0.85, ease }} aria-hidden="true"><motion.span className="wordmark" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>دکتر شبنم فضلی</motion.span></motion.div>}
-        </AnimatePresence>
 
         <AnimatePresence>
           {menuOpen && (

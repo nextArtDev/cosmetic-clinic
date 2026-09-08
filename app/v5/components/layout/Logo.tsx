@@ -1,5 +1,14 @@
-import Link from "next/link";
+"use client";
 
+import Link from "next/link";
+import { type MouseEvent } from "react";
+
+/**
+ * Cursor-follow glow — ported from novacapillaire.fr (.nova-logo-tooltip):
+ * a delegated mousemove writes --v5-tooltip-x/y relative to the logo, and a
+ * radial sage highlight follows the cursor (see .v5-logo-glow in
+ * globals.css). Vars reset on pointer leave.
+ */
 export default function Logo({
   dark,
   className = "",
@@ -9,11 +18,28 @@ export default function Logo({
   className?: string;
   withTooltip?: boolean;
 }) {
+  const onMouseMove = (e: MouseEvent<HTMLAnchorElement>) => {
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+    el.style.setProperty("--v5-tooltip-x", `${e.clientX - rect.left}px`);
+    el.style.setProperty("--v5-tooltip-y", `${e.clientY - rect.top}px`);
+  };
+
+  const onMouseLeave = (e: MouseEvent<HTMLAnchorElement>) => {
+    const el = e.currentTarget;
+    const next = e.relatedTarget;
+    if (next && el.contains(next as Node)) return;
+    el.style.removeProperty("--v5-tooltip-x");
+    el.style.removeProperty("--v5-tooltip-y");
+  };
+
   return (
     <Link
       href="/v5/"
       aria-label="کلینیک کاشت مو — صفحه اصلی"
-      className={`nc:group/logo   nc:relative   nc:inline-flex   nc:items-center   nc:gap-2.5  ${className}`}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      className={`v5-logo-glow nc:group/logo   nc:relative   nc:inline-flex   nc:items-center   nc:gap-2.5  ${className}`}
     >
       <span
         className={`nc:relative   nc:grid   nc:size-9   nc:place-items-center   nc:overflow-hidden   nc:rounded-[10px]  ${

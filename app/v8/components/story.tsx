@@ -10,34 +10,41 @@ import { PlayMark } from './hero'
 
 export function About() {
   const ref = useRef<HTMLElement>(null)
+  const reduced = useReducedMotion()
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
   const progress = useTransform(scrollYProgress, [0, 0.9], [0, 1])
+  // The reference site's l-description-content pattern: the statement
+  // rises slightly as the sequence takes over, then fades out.
+  const titleY = useTransform(scrollYProgress, [0, 0.5], [0, -70])
   const titleOpacity = useTransform(scrollYProgress, [0, 0.4, 0.8], [1, 1, 0.2])
   return (
     <section ref={ref} id="about" className="about-section">
       <div className="about-sticky">
         <FlowLines />
-        <motion.div className="about-statement shell" style={{ opacity: titleOpacity }}>
-          <p className="eyebrow">آشنایی با کلینیک مهر</p>
+        <motion.div
+          className="about-statement shell"
+          style={{ y: reduced ? 0 : titleY, opacity: reduced ? 1 : titleOpacity }}
+        >
+          <p className="eyebrow">آشنایی با کلینیک قلب مهر</p>
           <h2>
-            چهار تخصص در کنار هم؛ قلب و عروق، ارتوپدی، مغز و اعصاب و روان‌پزشکی — همه با یک
-            پرونده، یک هماهنگی و یک استاندارد درمان.
+            از نوار قلب تا اکو و تست ورزش؛ تشخیص، درمان و پیگیری قلب شما — همه با یک پزشک،
+            یک پرونده و یک استاندارد.
           </h2>
         </motion.div>
         <ProductSequence name="intro" count={60} progress={progress} className="about-sequence" />
         <div className="about-notes shell">
           <div className="surface-note">
-            <BrandIcon name="spa" />
+            <BrandIcon name="heart" />
             <h3>در قلب تهران، نزدیک شما</h3>
             <p>
-              مجهز به نوار قلب، اکو، نوار مغز، رادیولوژی و آزمایشگاه؛ بدون معطلی و بدون
+              مجهز به نوار قلب، اکو، تست ورزش و هولتر فشار خون؛ بدون معطلی و بدون
               رفت‌وآمد بین چند مرکز.
             </p>
           </div>
           <p className="about-small">
-            از تشخیص تا پیگیری، همه مسیر درمان شما یک‌جا مدیریت می‌شود.
+            از تشخیص تا پیگیری، همه مسیر درمان قلبی شما یک‌جا مدیریت می‌شود.
             <a href="#benefits" className="text-link">
-              آشنایی با خدمات
+              آشنایی با خدمات قلب
               <Arrow direction="down" size={18} />
             </a>
           </p>
@@ -50,7 +57,7 @@ export function About() {
 export function Benefits() {
   const [expanded, setExpanded] = useState<number | null>(null)
   return (
-    <section id="benefits" className="benefits-section" aria-label="خدمات کلینیک مهر">
+    <section id="benefits" className="benefits-section" aria-label="خدمات قلب کلینیک قلب مهر">
       <div className="benefits-stack shell">
         {benefits.map((benefit, index) => (
           <article
@@ -87,9 +94,9 @@ export function Benefits() {
 }
 
 const travelCaptions = [
-  'پرونده الکترونیک شما همه‌جا همراهتان است؛ نتیجه آزمایش و تصویربرداری برای پزشک بعدی، همان لحظه آماده است.',
-  'برنامه درمانی، نوبت‌های پیگیری و یادآورها از ابتدای مسیر مشخص است؛ بدون سردرگمی و اتلاف وقت.',
-  'در منزل، محل کار یا سفر — خط تماس و مشاوره پیامکی دستیار پزشک همیشه در دسترس شماست.',
+  'پرونده الکترونیک قلبی شما همه‌جا همراهتان است؛ نوار قلب و اکوی قبلی برای ویزیت بعدی، همان لحظه آماده است.',
+  'برنامه کنترل فشار خون، نوبت‌های پیگیری و یادآور داروها از ابتدای مسیر مشخص است؛ بدون سردرگمی و اتلاف وقت.',
+  'در منزل، محل کار یا سفر — خط تماس و مشاوره پیامکی دستیار دکتر صادقی همیشه در دسترس شماست.',
 ]
 
 export function WithYou() {
@@ -115,7 +122,7 @@ export function WithYou() {
           <motion.img
             className="travel-product"
             src="/v8/media/stylist.webp"
-            alt="تیم درمان کلینیک مهر در حال هماهنگی برنامه بیمار"
+            alt="تیم کلینیک قلب مهر در حال هماهنگی برنامه پیگیری بیمار"
             loading="lazy"
             style={{ rotate: reduced ? 0 : rotate, y: reduced ? 0 : y }}
           />
@@ -132,7 +139,7 @@ export function WithYou() {
                 <span className="tiny-label">۰{active + 1} / ۰۳</span>
                 <img
                   src={`/v8/media/person-${active + 1}.jpg`}
-                  alt="بیماران در جلسه پیگیری درمان"
+                  alt="بیماران قلبی در جلسه پیگیری درمان"
                   loading="lazy"
                 />
                 <p>{travelCaptions[active]}</p>
@@ -167,8 +174,8 @@ export function WithYou() {
             </div>
           </div>
           <p className="travel-description">
-            ساختار کلینیک طوری طراحی شده که همه‌چیز — از آزمایش تا نوبت پیگیری — برای راحتی
-            شما و بدون معطلی هماهنگ شود.
+            ساختار کلینیک طوری طراحی شده که همه مراحل قلبی — از نوار قلب تا نوبت پیگیری —
+            برای راحتی شما و بدون معطلی هماهنگ شود.
           </p>
         </div>
       </div>
@@ -186,27 +193,27 @@ export function Beauty({ onVideo }: { onVideo: () => void }) {
       <section className="beauty-section" ref={ref}>
         <motion.picture className="beauty-background" style={{ y: reduced ? 0 : y }}>
           <source media="(max-width: 600px)" srcSet="/v8/media/beauty-mobile.webp" />
-          <img src="/v8/media/beauty.webp" alt="حس آرامش و اطمینان در محیط درمان" loading="lazy" />
+          <img src="/v8/media/beauty.webp" alt="حس آرامش و اطمینان در محیط درمان قلب" loading="lazy" />
         </motion.picture>
-        <div className="beauty-marquee" aria-label="آرامش، هر روز">
+        <div className="beauty-marquee" aria-label="قلبی آرام، هر روز">
           <div className="marquee-track" aria-hidden="true">
             {Array.from({ length: 6 }, (_, i) => (
-              <span key={i}>آرامش، هر روز</span>
+              <span key={i}>قلبی آرام</span>
             ))}
           </div>
         </div>
         <div className="beauty-message shell">
           <Reveal>
-            <h2>زندگی روزمره، بدون درد و نگرانی</h2>
+            <h2>قلبی آرام، برای هر روز زندگی</h2>
             <p>
-              قلبی که آرام می‌تپد، مفصلی که بدون درد حرکت می‌کند و ذهنی که آسوده می‌خوابد —
+              تپش نگران‌کننده نداشتن، نفس بدون تنگی و فشار خونی که می‌شود به آن اعتماد کرد —
               این حق شماست.
             </p>
           </Reveal>
           <button
             className="beauty-play round-button"
             onClick={onVideo}
-            aria-label="تماشای معرفی کلینیک"
+            aria-label="تماشای معرفی کلینیک قلب"
           >
             <PlayMark />
           </button>
@@ -215,19 +222,19 @@ export function Beauty({ onVideo }: { onVideo: () => void }) {
       <section className="care-section">
         <div className="care-card shell">
           <Reveal className="care-product">
-            <h2>{'مراقبت از\nآنچه مهم است'}</h2>
+            <h2>{'مراقبت از\nقلب شما'}</h2>
             <img
               src="/v8/media/hair-product.webp"
-              alt="تجهیزات تشخیصی کلینیک مهر"
+              alt="تجهیزات تشخیصی قلب کلینیک قلب مهر"
               loading="lazy"
             />
           </Reveal>
           <Reveal delay={0.1}>
             <p>
-              کلینیک مهر با این هدف ساخته شد که بیمار برای هر مرحله درمان، بین چند مرکز و چند
-              پرونده سرگردان نشود. تجربه سال‌ها کار تخصصی نشان داد بیشتر نارضایتی‌ها از
-              پراکندگی مسیر درمان شروع می‌شود؛ پس همه‌چیز — پزشک، آزمایش، تصویربرداری و
-              پیگیری — را یک‌جا جمع کردیم.
+              کلینیک قلب مهر با این هدف ساخته شد که بیمار قلبی برای هر مرحله درمان، بین چند
+              مرکز و چند پرونده سرگردان نشود. تجربه شانزده سال تخصص قلب و عروق دکتر صادقی
+              نشان داد بیشتر نگرانی‌های بیماران از پراکندگی مسیر درمان شروع می‌شود؛ پس نوار
+              قلب، اکو، تست ورزش و پیگیری را یک‌جا جمع کردیم.
             </p>
           </Reveal>
           <Reveal delay={0.2}>
@@ -235,7 +242,7 @@ export function Beauty({ onVideo }: { onVideo: () => void }) {
               استاندارد درمان ما ساده است: شنیدن کامل شرح حال، معاینه بدون عجله، تشخیص شفاف و
               برنامه‌ای که خودتان هم آن را می‌فهمید.
             </p>
-            <span className="care-signature">کلینیک مهر. آرامش، هر روز.</span>
+            <span className="care-signature">کلینیک قلب مهر. قلبی آرام، هر روز.</span>
           </Reveal>
         </div>
       </section>

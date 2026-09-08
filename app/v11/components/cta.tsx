@@ -6,6 +6,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { BOOK_LINK, CTA as CTA_CONTENT } from '../lib/content'
 import WordReveal from './word-reveal'
 import PlusIcon from './plus-icon'
+import Magnetic from './magnetic'
+import ClipReveal from './clip-reveal'
 
 export default function CTA({ initialCount = 0 }: { initialCount?: number }) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
@@ -55,7 +57,9 @@ export default function CTA({ initialCount = 0 }: { initialCount?: number }) {
             <span className="line-vertical beige scmd:block" />
           </div>
 
-          <img src="/v11/img/cta.avif" alt="" className="cta-photo scmd:order-2 scmd:md:order-1" />
+          <ClipReveal className="scmd:order-2 scmd:md:order-1">
+            <img src="/v11/img/cta.avif" alt="" className="cta-photo" />
+          </ClipReveal>
 
           <div className="cta-text scmd:relative scmd:order-1 scmd:md:order-2">
             <div className="cta-heading">
@@ -66,17 +70,19 @@ export default function CTA({ initialCount = 0 }: { initialCount?: number }) {
               />
             </div>
 
-            <a href={BOOK_LINK} className="btn-black">
-              <span>رزرو دمو</span>
-              <PlusIcon />
-            </a>
+            <Magnetic>
+              <a href={BOOK_LINK} className="btn-black">
+                <span>رزرو دمو</span>
+                <PlusIcon />
+              </a>
+            </Magnetic>
 
             <div className="scmd:w-full">
               <div
                 className="form-heading text-16-regular black"
                 style={{ maxWidth: '26em' }}
               >
-                یا دربارهٔ کلینیک‌تان بگویید تا دمو را برایتان بیاوریم:
+                یا دربارهٔ مطب‌تان بگویید تا دمو را برایتان بیاوریم:
               </div>
 
               <form
@@ -94,9 +100,9 @@ export default function CTA({ initialCount = 0 }: { initialCount?: number }) {
                   />
                   <input
                     name="clinic"
-                    placeholder="نام کلینیک یا مطب"
+                    placeholder="نام مطب یا کلینیک"
                     className="text-field"
-                    aria-label="نام کلینیک یا مطب"
+                    aria-label="نام مطب یا کلینیک"
                   />
                 </div>
                 <div className="scmd:flex scmd:flex-col scmd:md:flex-row" style={{ gap: '0.63em' }}>
@@ -158,7 +164,7 @@ export default function CTA({ initialCount = 0 }: { initialCount?: number }) {
                 </AnimatePresence>
                 <p className="text-9-regular" style={{ opacity: 0.6 }}>
                   {total > 0
-                    ? `${toFa(total)} کلینیک تاکنون دمو را درخواست کرده‌اند.`
+                    ? `${toFa(total)} مطب تاکنون دمو را درخواست کرده‌اند.`
                     : 'بدون اسپم — فقط تأیید دمو و به‌روزرسانی‌های محصول.'}
                 </p>
               </div>

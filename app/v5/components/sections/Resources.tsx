@@ -59,7 +59,10 @@ export default function Resources() {
                         sizes="(min-width:1024px) 28vw, (min-width:640px) 45vw, 100vw"
                         className="nc:object-cover   nc:transition-transform   nc:duration-[1.4s]   nc:ease-[cubic-bezier(.16,1,.3,1)]   nc:group-hover:scale-105"
                       />
-                      <span className="nc:absolute   nc:start-4   nc:top-4   nc:rounded-full   nc:bg-white/90   nc:px-3   nc:py-1   nc:text-[11px]   nc:font-bold   nc:normal-case     nc:text-ink   nc:backdrop-blur">
+                      <span className="nc:absolute   nc:start-4   nc:top-4   nc:inline-flex   nc:items-center   nc:gap-2   nc:rounded-full   nc:bg-white/90   nc:px-3   nc:py-1   nc:text-[11px]   nc:font-bold   nc:normal-case     nc:text-ink   nc:backdrop-blur">
+                        {/* Pulsing dot — ported from novacapillaire.fr
+                            (nova-resource-card__badge::before, 1.8s) */}
+                        <span className="v5-badge-dot" aria-hidden />
                         {c.badge}
                       </span>
                     </div>

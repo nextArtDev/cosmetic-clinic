@@ -89,7 +89,7 @@ function MenuDialog({ onClose, onNavigate, onShop }: Omit<OverlayProps, 'kind' |
             event.preventDefault()
             onNavigate('top')
           }}
-          aria-label="کلینیک مهر — خانه"
+          aria-label="کلینیک قلب مهر — خانه"
         >
           <Logo />
         </a>
@@ -153,7 +153,7 @@ function ShopDialog({ onClose }: { onClose: () => void }) {
   return (
     <Dialog title="انتخاب روش نوبت‌دهی" onClose={onClose} className="shop-dialog">
       <div className="shop-content">
-        <p className="eyebrow">مسیر درمان شما از همین‌جا شروع می‌شود</p>
+        <p className="eyebrow">مسیر سلامت قلب شما از همین‌جا شروع می‌شود</p>
         <h2>انتخاب روش نوبت</h2>
         <div className="store-links">
           {stores.map((store, i) => (
@@ -170,12 +170,12 @@ function ShopDialog({ onClose }: { onClose: () => void }) {
           ))}
         </div>
         <p className="dialog-note">
-          ساعت کاری پذیرش: شنبه تا پنجشنبه ۹ تا ۱۹. برای موارد فوری، خط اورژانس کلینیک شبانه
-          روزی پاسخگوست.
+          ساعت کاری پذیرش: شنبه تا پنجشنبه ۹ تا ۱۹. برای درد قفسه سینه ناگهانی و تنگی نفس
+          شدید، به‌جای تماس با کلینیک، با ۱۱۵ اورژانس تماس بگیرید.
         </p>
       </div>
       <div className="shop-image">
-        <img src="/v8/media/shop.webp" alt="پذیرش کلینیک مهر" />
+        <img src="/v8/media/shop.webp" alt="پذیرش کلینیک قلب مهر" />
       </div>
     </Dialog>
   )
@@ -216,15 +216,15 @@ function ProductDialog({
         <img src={`/v8/media/${mini ? 'mini-card' : 'clingr-card'}.webp`} alt={mini ? 'ویزیت آنلاین' : 'ویزیت حضوری'} />
       </div>
       <div className="product-dialog-copy">
-        <p className="eyebrow">درمان دقیق، پیگیری پیوسته</p>
+        <p className="eyebrow">درمان دقیق قلب، پیگیری پیوسته</p>
         <h2>
           نوبت
           {mini && <span>آنلاین</span>}
         </h2>
         <p>
           {mini
-            ? 'مشاوره تصویری با پزشک تخصص شما برای پیگیری دارو، تفسیر آزمایش یا سؤالات فوری — بدون ترافیک و از خانه.'
-            : 'معاینه کامل حضوری با تجهیزات تشخیصی کلینیک؛ پرونده شما از قبل آماده است و جلسه فقط صرف درمان می‌شود.'}
+            ? 'مشاوره تصویری با دکتر صادقی برای پیگیری داروهای قلبی، تفسیر نوار قلب و آزمایش یا سؤالات فوری — بدون ترافیک و از خانه.'
+            : 'ویزیت حضوری قلب با تجهیزات تشخیصی کلینیک؛ نوار قلب و اکو در همان جلسه و پرونده شما از قبل آماده است.'}
         </p>
         <dl className="specification-list">
           <div>
@@ -232,8 +232,8 @@ function ProductDialog({
             <dd>{mini ? '۲۰ دقیقه' : '۴۵ دقیقه'}</dd>
           </div>
           <div>
-            <dt>تخصص‌ها</dt>
-            <dd>قلب، ارتوپدی، مغز و اعصاب، روان‌پزشکی</dd>
+            <dt>پزشک</dt>
+            <dd>دکتر آرش صادقی — متخصص قلب و عروق</dd>
           </div>
           <div>
             <dt>نحوه انجام</dt>
@@ -274,7 +274,7 @@ function ProductDialog({
                 />
               </div>
               <label className="form-field">
-                <span>تخصص مورد نیاز</span>
+                <span>نوع ویزیت قلب</span>
                 <select
                   name="specialty"
                   value={form.specialty}
@@ -292,7 +292,7 @@ function ProductDialog({
                 >
                   {doctors.map(doctor => (
                     <option key={doctor.role} value={doctor.role}>
-                      {doctor.role} — {doctor.name}
+                      {doctor.name} — {doctor.role}
                     </option>
                   ))}
                 </select>
@@ -332,7 +332,7 @@ function PartnerDialog({ onClose }: { onClose: () => void }) {
     }
   }
   return (
-    <Dialog title="همکاری با کلینیک مهر" onClose={onClose} className="form-dialog">
+    <Dialog title="همکاری با کلینیک قلب مهر" onClose={onClose} className="form-dialog">
       {reference ? (
         <Success
           title="سپاسگزاریم!"
@@ -345,7 +345,7 @@ function PartnerDialog({ onClose }: { onClose: () => void }) {
           <p className="eyebrow">همه مسیرهای خوب با یک گفت‌وگو شروع می‌شوند</p>
           <h2>{'بیایید با هم\nکار کنیم'}</h2>
           <p className="form-intro">
-            کمی از خودتان و از اینکه چطور می‌خواهید با کلینیک مهر همکاری کنید بنویسید.
+            کمی از خودتان و از اینکه چطور می‌خواهید با کلینیک قلب مهر همکاری کنید بنویسید.
           </p>
           <form onSubmit={onSubmit} className="enquiry-form">
             <div className="form-two-col">
@@ -504,7 +504,7 @@ export function SiteOverlay({ kind, onClose, onNavigate, onShop, onReviewSaved }
   if (kind === 'menu') return <MenuDialog onClose={onClose} onNavigate={onNavigate} onShop={onShop} />
   if (kind === 'video')
     return (
-      <Dialog title="معرفی کلینیک مهر" onClose={onClose} variant="video">
+      <Dialog title="معرفی کلینیک قلب مهر" onClose={onClose} variant="video">
         <video
           src="/videos/fv.mp4"
           poster="/v8/media/intro-poster.webp"
@@ -512,9 +512,9 @@ export function SiteOverlay({ kind, onClose, onNavigate, onShop, onReviewSaved }
           autoPlay
           playsInline
           preload="auto"
-          aria-label="ویدیوی معرفی کلینیک"
+          aria-label="ویدیوی معرفی کلینیک قلب"
         />
-        <p className="video-caption">کلینیک مهر. درمان دقیق، پیگیری پیوسته.</p>
+        <p className="video-caption">کلینیک قلب مهر. تشخیص دقیق، پیگیری پیوسته.</p>
       </Dialog>
     )
   if (kind === 'shop') return <ShopDialog onClose={onClose} />
@@ -533,18 +533,18 @@ export function SiteOverlay({ kind, onClose, onNavigate, onShop, onReviewSaved }
         </p>
         <h3>اطلاعات شما</h3>
         <p>
-          درخواست‌های نوبت به‌صورت خصوصی ذخیره می‌شوند. نظرات و نامی که ثبت می‌کنید عمومی
-          نمایش داده می‌شود. هیچ اطلاعات پرداختی در این مسیر جمع‌آوری نمی‌شود.
+          درخواست‌های نوبت قلب به‌صورت خصوصی ذخیره می‌شوند. نظرات و نامی که ثبت می‌کنید
+          عمومی نمایش داده می‌شود. هیچ اطلاعات پرداختی در این مسیر جمع‌آوری نمی‌شود.
         </p>
         <h3>تنظیمات محلی</h3>
         <p>
           وضعیت اطلاعیه کوکی به‌صورت محلی در مرورگر شما ذخیره می‌شود. این نسخه هیچ کوکی
           تبلیغاتی یا آماری نصب نمی‌کند.
         </p>
-        <h3>پیگیری درمان</h3>
+        <h3>پیگیری درمان قلب</h3>
         <p>
           شماره تماسی که برای هماهنگی نوبت ثبت می‌کنید فقط توسط پرسنل پذیرش برای هماهنگی
-          همان نوبت استفاده می‌شود.
+          همان نوبت با دکتر صادقی استفاده می‌شود.
         </p>
       </div>
       <OvalButton onClick={onClose}>متوجه شدم</OvalButton>

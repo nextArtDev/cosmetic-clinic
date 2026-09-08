@@ -5,6 +5,7 @@ import { BOOK_LINK, SOLUTIONS } from '../lib/content'
 import { gsap } from '../lib/gsap'
 import WordReveal from './word-reveal'
 import PlusIcon from './plus-icon'
+import Magnetic from './magnetic'
 
 export default function Solutions() {
   const root = useRef<HTMLElement>(null)
@@ -115,10 +116,12 @@ export default function Solutions() {
                 stagger={0.014}
               />
             </div>
-            <a href={BOOK_LINK} className="btn-black">
-              <span>رزرو دمو</span>
-              <PlusIcon />
-            </a>
+            <Magnetic>
+              <a href={BOOK_LINK} className="btn-black">
+                <span>رزرو دمو</span>
+                <PlusIcon />
+              </a>
+            </Magnetic>
           </div>
 
           <div

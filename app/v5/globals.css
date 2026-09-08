@@ -138,6 +138,9 @@ html[data-v5-active] body {
   font-weight: 700;
 }
 
+/* Label dots heartbeat — ported from novacapillaire.fr
+   (nova-pulse-label-heartbeat 1.8s). The 7px dot before section labels
+   scales/echoes in an ease-in-out loop; ring colors per theme. */
 .v5 .dot-black::before,
 .v5 .dot-white::before,
 .v5 .dot-sage::before {
@@ -146,18 +149,37 @@ html[data-v5-active] body {
   width: 0.5em;
   height: 0.5em;
   border-radius: 999px;
-  margin-right: 0.7em;
+  margin-inline-end: 0.7em;
   vertical-align: middle;
-  transform: translateY(-1px);
+  animation: v5-label-heartbeat 1.8s ease-in-out infinite;
 }
 .v5 .dot-black::before {
   background: var(--nc-color-ink);
+  --v5-ring: rgba(12, 13, 14, 0.14);
 }
 .v5 .dot-white::before {
   background: #fff;
+  --v5-ring: rgba(255, 255, 255, 0.14);
 }
 .v5 .dot-sage::before {
   background: var(--nc-color-sage);
+  --v5-ring: rgba(47, 83, 46, 0.16);
+}
+@keyframes v5-label-heartbeat {
+  0%, 100% { transform: translateY(-1px) scale(1); box-shadow: 0 0 0 0 transparent; }
+  12% { transform: translateY(-1px) scale(0.88); }
+  23% { transform: translateY(-1px) scale(1.3); box-shadow: 0 0 0 4px var(--v5-ring, rgba(12, 13, 14, 0.14)); }
+  36% { transform: translateY(-1px) scale(0.96); box-shadow: 0 0 0 2px var(--v5-ring, rgba(12, 13, 14, 0.07)); }
+  49% { transform: translateY(-1px) scale(1.12); box-shadow: 0 0 0 5px transparent; }
+  62% { transform: translateY(-1px) scale(1); box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v5 .dot-black::before,
+  .v5 .dot-white::before,
+  .v5 .dot-sage::before {
+    animation: none;
+    transform: translateY(-1px);
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -438,4 +460,344 @@ html[data-v5-active] .v5 dialog::backdrop {
 }
 .v5 .pulse-dot {
   animation: v5-pulse-dot 2s ease-out infinite;
+}
+
+/* ------------------------------------------------------------------ */
+/* NOVA reference animations (ported from novacapillaire.fr)          */
+/*                                                                     */
+/* Ambient loops the production WP site runs on its homepage: silk     */
+/* hero sheen, velvet-breath blobs on dark sections, pulsing rings    */
+/* behind the hero image, breathing trust badges, resource badge dot  */
+/* pulse, and the back-to-top scroll-progress ring.                    */
+/* ------------------------------------------------------------------ */
+
+/* Ambient hero sheen — novaHeroSilk (8s drift + rotate + opacity). */
+.v5 .v5-silk {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(56px);
+  transform-origin: center;
+  animation: v5-silk 8s ease-in-out infinite alternate;
+}
+@keyframes v5-silk {
+  0% {
+    transform: translate(-18%, -7%) rotate(-9deg) scale(0.96);
+    opacity: 0.62;
+  }
+  50% {
+    transform: translate(1%, 2%) rotate(-1deg) scale(1.04);
+    opacity: 0.92;
+  }
+  100% {
+    transform: translate(18%, 7%) rotate(7deg) scale(1);
+    opacity: 0.7;
+  }
+}
+
+/* Velvet breath — avApVelvetBreath (8s scale/opacity alternate) for the
+   soft glow circles on dark sections (footer, results). */
+.v5 .v5-velvet-blob {
+  animation: v5-velvet-breath 8s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+@keyframes v5-velvet-breath {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.42;
+  }
+  100% {
+    transform: scale(1.045);
+    opacity: 0.74;
+  }
+}
+
+/* Concentric rings behind the hero image — nova-circles-pulse (4.2s),
+   mirroring nova-hero-image-shape::before (positioned at the inline-start
+   top corner; box-shadow ring stack in white/blue tints). */
+.v5 .v5-hero-rings {
+  position: absolute;
+  top: -100px;
+  inset-inline-start: -92px;
+  z-index: -1;
+  width: 210px;
+  height: 210px;
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 50%;
+  background: transparent;
+  box-shadow:
+    0 0 0 1px rgba(238, 239, 246, 0.32),
+    0 0 0 18px rgba(255, 255, 255, 0.08),
+    0 0 0 19px rgba(238, 239, 246, 0.18),
+    0 0 0 38px rgba(255, 255, 255, 0.04),
+    0 0 0 39px rgba(238, 239, 246, 0.11),
+    0 0 0 60px rgba(255, 255, 255, 0.018),
+    0 0 0 61px rgba(238, 239, 246, 0.055);
+  opacity: 0.72;
+  pointer-events: none;
+  transform: scale(1);
+  transform-origin: center;
+  animation: v5-circles-pulse 4.2s ease-in-out infinite;
+}
+@keyframes v5-circles-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.72;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.86;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v5 .v5-hero-rings {
+    animation: none;
+  }
+}
+
+/* Trust cards — breathing badge (nova-trust-outline-breathe 3.8s) plus
+   corner dot; compact grid card as on the WP hero. */
+.v5 .v5-trust-card {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 18px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(11, 13, 15, 0.025);
+}
+.v5 .v5-trust-card > span {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  color: var(--nc-color-ink);
+  border: 1.5px solid var(--nc-color-ink);
+  border-radius: 50%;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  animation: v5-trust-breathe 3.8s ease-in-out infinite;
+}
+.v5 .v5-trust-card > span::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: 5px;
+  bottom: 5px;
+  width: 7px;
+  height: 7px;
+  background: var(--nc-color-ink);
+  border-radius: 50%;
+}
+.v5 .v5-trust-card strong {
+  display: block;
+  margin: 0 0 2px;
+  color: #17191c;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 800;
+  text-wrap: balance;
+}
+.v5 .v5-trust-card small {
+  display: block;
+  color: #706f6f;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 200;
+}
+.v5 .v5-trust-card--onimage > span {
+  color: #fff;
+  border-color: #fff;
+  animation-name: v5-trust-breathe-white;
+}
+.v5 .v5-trust-card--onimage > span::after {
+  background: #fff;
+}
+.v5 .v5-trust-card--onimage strong {
+  color: #fff;
+}
+.v5 .v5-trust-card--onimage small {
+  color: rgba(255, 255, 255, 0.78);
+}
+@keyframes v5-trust-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(12, 13, 14, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(12, 13, 14, 0.11);
+  }
+}
+@keyframes v5-trust-breathe-white {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.12);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v5 .v5-trust-card > span {
+    animation: none;
+  }
+}
+
+/* Resource badge dot pulse — nova-resource-pulse 1.8s on the small
+   white dot inside the pill badge over the card images. */
+.v5 .v5-badge-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: v5-resource-pulse 1.8s ease-in-out infinite;
+}
+@keyframes v5-resource-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+  12% {
+    transform: scale(0.88);
+  }
+  23% {
+    transform: scale(1.3);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.14);
+  }
+  36% {
+    transform: scale(0.96);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+  }
+  49% {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0);
+  }
+  62% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v5 .v5-badge-dot {
+    animation: none;
+  }
+}
+
+/* Back-to-top with scroll-progress conic ring — ported from
+   #nova-back-to-top (WP). RTL: sits at the inline-end bottom corner. */
+.v5 .v5-back-to-top {
+  --v5-scroll-progress: 0;
+  position: fixed;
+  inset-inline-end: calc(22px + env(safe-area-inset-right, 0px));
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  background: conic-gradient(
+    from 215deg,
+    var(--nc-color-ink) calc(var(--v5-scroll-progress) * 1%),
+    rgba(12, 13, 14, 0.16) 0
+  );
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(18px) scale(0.92);
+  transition:
+    opacity 0.28s ease,
+    visibility 0.28s ease,
+    transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.28s ease;
+}
+.v5 .v5-back-to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+.v5 .v5-back-to-top::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #fff;
+}
+.v5 .v5-back-to-top:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.26);
+}
+.v5 .v5-back-to-top:active {
+  transform: translateY(-1px) scale(0.97);
+}
+.v5 .v5-back-to-top__percent {
+  position: relative;
+  z-index: 1;
+  color: var(--nc-color-ink);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.v5 .v5-back-to-top__arrow {
+  position: relative;
+  z-index: 1;
+  color: var(--nc-color-ink);
+  transition: transform 0.28s ease;
+}
+.v5 .v5-back-to-top:hover .v5-back-to-top__arrow {
+  transform: translateY(-3px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .v5 .v5-back-to-top {
+    transition: opacity 0.28s ease, visibility 0.28s ease;
+  }
+  .v5 .v5-back-to-top:hover {
+    transform: none;
+  }
+}
+/* Keep the floating button clear of the mobile quick-nav bar. */
+@media (max-width: 640px) {
+  .v5 .v5-back-to-top {
+    bottom: 84px;
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* Logo cursor-follow glow — ported from .nova-logo-tooltip (WP JS sets
+   --nova-tooltip-x/y; here the Logo component's own handler feeds
+   --v5-tooltip-x/y and a radial highlight follows the cursor). */
+.v5 .v5-logo-glow {
+  position: relative;
+}
+.v5 .v5-logo-glow::after {
+  content: "";
+  position: absolute;
+  inset: -8px -14px;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    60px 34px at var(--v5-tooltip-x, 50%) var(--v5-tooltip-y, 50%),
+    rgba(47, 83, 46, 0.16),
+    rgba(47, 83, 46, 0.05) 55%,
+    transparent 75%
+  );
+}
+.v5 .v5-logo-glow:hover::after {
+  opacity: 1;
 }
