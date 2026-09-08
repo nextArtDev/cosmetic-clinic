@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import DragScroller from './DragScroller'
 import Reveal from './Reveal'
 import { ArrowLeft } from './Icons'
+import BlobCta from './BlobCta'
 import type { Treatment } from '../lib/data'
 
 const DURATIONS = ['5s', '6.5s', '8s', '5s', '4.5s', '7s', '6s', '4s']
@@ -33,7 +34,8 @@ export default function Treatments({ items }: { items: Treatment[] }) {
               key={t.id}
               href="#enquire"
               data-cursor="view"
-              className="group relative flex w-[24rem] shrink-0 flex-col items-center text-center lg:w-[28rem]"
+              data-blob-cta-card
+              className="cards-item group relative flex w-[24rem] shrink-0 flex-col items-center text-center lg:w-[28rem]"
               style={{
                 animation: `v6-floatcard ${DURATIONS[i % DURATIONS.length]} ease ${
                   DELAYS[i % DELAYS.length]
@@ -42,6 +44,8 @@ export default function Treatments({ items }: { items: Treatment[] }) {
               whileHover={{ scale: 1.04 }}
               transition={{ duration: 0.5, ease: [0.15, 0.9, 0.34, 0.95] }}
             >
+              {/* gooey magnetic canvas — port of the original blob-cta */}
+              <BlobCta />
               {/* ring */}
               <span
                 aria-hidden

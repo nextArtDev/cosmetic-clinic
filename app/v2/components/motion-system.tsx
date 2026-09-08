@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import { MotionConfig } from 'framer-motion'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { SplitText } from 'gsap/SplitText'
 import Lenis from 'lenis'
 import { shabnamV2 } from '../fonts'
 
@@ -32,9 +33,13 @@ export function ShaninaShell({ children }: { children: ReactNode }) {
 
 export function MotionSystem({ children }: { children: ReactNode }) {
   const root = useRef<HTMLDivElement>(null)
+  // cleanups registered inside the gsap context (listeners, injected nodes)
+  const cleanupsRef = useRef<Array<() => void>>([])
+  // header open-state shared with the direction-aware scroll handler
+  const menuOpenRef = useRef(false)
 
   useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger)
+    gsap.registerPlugin(ScrollTrigger, SplitText)
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
     let disposed = false
     let context: gsap.Context | undefined
@@ -211,12 +216,237 @@ export function MotionSystem({ children }: { children: ReactNode }) {
             },
           },
         )
+
+        /* ---------------------------------------------------------
+         * Missing pieces ported from the reference site's main.js:
+         * line-masked title reveals, stagger-link char hover, form
+         * 3D tilt, floating services cursor, direction-aware header,
+         * availability blur-in, and the sand preloader curtain.
+         * ------------------------------------------------------- */
+
+        // 1) Line-masked reveals: section titles/paragraphs slide up
+        //    out of overflow-hidden line wrappers (ref: processAnimation /
+        //    onlineAnimation / reviewsAnimation in main.js).
+        gsap.utils
+          .toArray<HTMLElement>('[data-line-reveal]')
+          .forEach((element) => {
+            const split = new SplitText(element, {
+              type: 'lines',
+              linesClass: 'v2-line-wrap',
+            })
+            split.lines.forEach((line) => {
+              const inner = document.createElement('span')
+              inner.className = 'v2-line'
+              inner.style.display = 'block'
+              inner.innerHTML = line.innerHTML
+              line.innerHTML = ''
+              line.appendChild(inner)
+            })
+            gsap.from(split.lines.map((l) => l.firstChild), {
+              yPercent: 100,
+              opacity: 0,
+              duration: 0.5,
+              stagger: 0.1,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: element,
+                start: 'top 75%',
+                toggleActions: 'play none none reverse',
+              },
+            })
+          })
+
+        // About story slides swap with a masked line cascade + rotationX
+        // (ref: aboutAnimation). The About component dispatches
+        // 'v2:about-slide' on active change.
+        const aboutStory = root.current?.querySelector('.about-story')
+        if (aboutStory) {
+          const playAbout = (target: HTMLElement) => {
+            const blocks =
+              target.querySelectorAll<HTMLElement>('[data-line-reveal]')
+            blocks.forEach((block, i) => {
+              const split = new SplitText(block, {
+                type: 'lines',
+                linesClass: 'v2-line-wrap',
+              })
+              split.lines.forEach((line) => {
+                const inner = document.createElement('span')
+                inner.className = 'v2-line'
+                inner.style.display = 'block'
+                inner.innerHTML = line.innerHTML
+                line.innerHTML = ''
+                line.appendChild(inner)
+              })
+              gsap.fromTo(
+                split.lines.map((l) => l.firstChild),
+                { yPercent: 100, opacity: 0, rotationX: -45 },
+                {
+                  yPercent: 0,
+                  opacity: 1,
+                  rotationX: 0,
+                  duration: 1.2,
+                  stagger: 0.12,
+                  ease: 'power4.out',
+                  delay: i * 0.3,
+                },
+              )
+            })
+          }
+          const onAboutSlide = (event: Event) => {
+            const detail = (event as CustomEvent<HTMLElement>).detail
+            if (detail) playAbout(detail)
+          }
+          window.addEventListener('v2:about-slide', onAboutSlide)
+          cleanupsRef.current.push(() =>
+            window.removeEventListener('v2:about-slide', onAboutSlide),
+          )
+        }
+
+        // 2) stagger-link: chars roll up on hover, restore on leave
+        //    (ref: common() [stagger-link] handler — header book link,
+        //    footer links, submit button).
+        gsap.utils
+          .toArray<HTMLElement>('[data-stagger-link]')
+          .forEach((link) => {
+            const textEl = link.querySelector<HTMLElement>('[data-stagger-text]')
+            if (!textEl) return
+            const split = new SplitText(textEl, {
+              type: 'words, chars',
+              charsClass: 'v2-char',
+            })
+            const rollUp = () => {
+              gsap.killTweensOf(split.chars)
+              gsap.to(split.chars, {
+                duration: 0.4,
+                yPercent: -110,
+                ease: 'power4.inOut',
+                overwrite: true,
+                stagger: { amount: 0.1, from: 'start' },
+              })
+            }
+            const rollBack = () => {
+              gsap.killTweensOf(split.chars)
+              gsap.to(split.chars, {
+                duration: 0.4,
+                yPercent: 0,
+                ease: 'power4.inOut',
+                overwrite: true,
+                stagger: { amount: 0.1, from: 'end' },
+              })
+            }
+            link.addEventListener('mouseenter', rollUp)
+            link.addEventListener('mouseleave', rollBack)
+            cleanupsRef.current.push(() => {
+              link.removeEventListener('mouseenter', rollUp)
+              link.removeEventListener('mouseleave', rollBack)
+            })
+          })
+
+        // 3) Form 3D tilt: rises into place with 1200px perspective
+        //    (ref: formSection).
+        const bookingForm = root.current?.querySelector('.booking-form')
+        const bookingSection = root.current?.querySelector('.booking-section')
+        if (bookingForm && bookingSection) {
+          gsap.set(bookingSection, { perspective: '1200px' })
+          gsap.fromTo(
+            bookingForm,
+            { rotateX: -20, scale: 0.8 },
+            {
+              rotateX: 0,
+              scale: 1,
+              transformOrigin: 'center center',
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: bookingForm,
+                start: 'top 65%',
+                end: 'bottom 50%',
+                scrub: 1,
+              },
+            },
+          )
+        }
+
+        // 4) Floating services cursor: one gold circle follows the mouse
+        //    over the services stack, pops in with back.out (ref:
+        //    floatingButtons + hoverButton).
+        const services = root.current?.querySelector('.services')
+        if (services && window.matchMedia('(pointer: fine)').matches) {
+          const follow = document.createElement('div')
+          follow.className = 'v2-follow-cursor'
+          follow.setAttribute('aria-hidden', 'true')
+          services.appendChild(follow)
+          const xTo = gsap.quickTo(follow, 'x', { duration: 0.25, ease: 'power3.out' })
+          const yTo = gsap.quickTo(follow, 'y', { duration: 0.25, ease: 'power3.out' })
+          gsap.set(follow, { scale: 0, pointerEvents: 'none' })
+          const move = (event: PointerEvent) => {
+            const rect = services.getBoundingClientRect()
+            xTo(event.clientX - rect.left - follow.offsetWidth / 2)
+            yTo(event.clientY - rect.top - follow.offsetHeight / 2)
+          }
+          const show = () =>
+            gsap.to(follow, { scale: 1, duration: 0.3, ease: 'back.out(1.7)' })
+          const hide = () =>
+            gsap.to(follow, { scale: 0, duration: 0.25, ease: 'power2.in' })
+          services.addEventListener('pointermove', move)
+          services.addEventListener('pointerenter', show)
+          services.addEventListener('pointerleave', hide)
+          cleanupsRef.current.push(() => {
+            services.removeEventListener('pointermove', move)
+            services.removeEventListener('pointerenter', show)
+            services.removeEventListener('pointerleave', hide)
+            follow.remove()
+          })
+        }
+
+        // 5) Direction-aware header: shows scrolling up, hides scrolling
+        //    down (ref: common() header scroll handler).
+        const siteHeader = root.current?.querySelector('.site-header')
+        if (siteHeader) {
+          let lastY = window.scrollY
+          const onScrollDir = () => {
+            const y = window.scrollY
+            if (y > window.innerHeight) {
+              siteHeader.classList.toggle('is-visible', y < lastY || menuOpenRef.current)
+            } else {
+              siteHeader.classList.remove('is-visible')
+            }
+            lastY = y
+          }
+          window.addEventListener('scroll', onScrollDir, { passive: true })
+          cleanupsRef.current.push(() =>
+            window.removeEventListener('scroll', onScrollDir),
+          )
+        }
+
+        // 6) Availability feature cards blur-in (ref: textSection mobile
+        //    branch: opacity/scale/blur scrub).
+        gsap.utils
+          .toArray<HTMLElement>('.availability-features article')
+          .forEach((card) => {
+            gsap.fromTo(
+              card,
+              { opacity: 0, scale: 0.8, filter: 'blur(10px)' },
+              {
+                opacity: 1,
+                scale: 1,
+                filter: 'blur(0px)',
+                scrollTrigger: {
+                  trigger: card,
+                  start: 'top 85%',
+                  end: 'top 55%',
+                  scrub: 1,
+                },
+              },
+            )
+          })
       }, root)
       ScrollTrigger.refresh()
     })
 
     return () => {
       disposed = true
+      cleanupsRef.current.forEach((fn) => fn())
+      cleanupsRef.current = []
       context?.revert()
       gsap.ticker.remove(tick)
       lenis.destroy()

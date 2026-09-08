@@ -139,7 +139,7 @@ export function Flower(props: SVGProps<SVGSVGElement>) {
 }
 
 /* Wordmark — LIKHA's typographic logo becomes a Persian lockup for
-   درنا طب with the same hairline rules and letterpress feel. */
+   سیمای آرام with the same hairline rules and letterpress feel. */
 export function Wordmark({ className = '' }: { className?: string }) {
   return (
     <span className={`inline-flex flex-col items-center leading-none ${className}`}>
@@ -147,12 +147,12 @@ export function Wordmark({ className = '' }: { className?: string }) {
         className="display text-[3.2rem] text-ink md:text-[3.6rem]"
         style={{ paddingLeft: '0.5em' }}
       >
-        درنا طب
+        سیمای آرام
       </span>
       <span className="mt-[0.9rem] flex w-full items-center gap-[1rem]">
         <span className="h-px flex-1 bg-ink/40" />
         <span className="whitespace-nowrap text-[0.9rem] font-semibold text-ink/70">
-          قلب و ارتوپدی
+          مغز و اعصاب · روان
         </span>
         <span className="h-px flex-1 bg-ink/40" />
       </span>

@@ -14,9 +14,9 @@ import Footer from './components/Footer'
 import { treatments, doctors, quickLinks, reviews } from './lib/data'
 
 export const metadata: Metadata = {
-  title: 'کلینیک قلب و ارتوپدی درنا طب | v6',
+  title: 'کلینیک مغز و اعصاب و روان سیمای آرام | v6',
   description:
-    'نسخه آزمایشی طراحی v6: بازطراحی الگوی Likha برای کلینیک قلب و ارتوپدی. مسیر غیرفهرست‌شده.',
+    'نسخه آزمایشی طراحی v6: بازطراحی الگوی Likha برای کلینیک مغز و اعصاب و روان‌پزشکی. مسیر غیرفهرست‌شده.',
   robots: { index: false, follow: false },
 }
 

@@ -88,7 +88,7 @@ export default function Footer() {
           <Reveal className="lg:col-span-5" y={30} x={0} skew={2}>
             <h3 className="lk:text-cream">نامه‌های سلامتی</h3>
             <p className="body-sm mt-[1.6rem] max-w-[40rem] lk:text-cream/55">
-              گاه‌به‌گاه از دکترها — راهنمای پیشگیری، مقاله‌های علمی و خبرهای کلینیک.
+              گاه‌به‌گاه از دکترها — راهنمای سلامت ذهن، مقاله‌های علمی و خبرهای کلینیک.
               بدون اسپم، همیشه.
             </p>
           </Reveal>
@@ -147,7 +147,7 @@ export default function Footer() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/img-v6/logo.svg"
-                alt="درنا طب"
+                alt="سیمای آرام"
                 className="h-[12rem] w-[12rem] object-contain"
               />
               <p className="display mt-[3.2rem] max-w-[38rem] text-[3rem] leading-[4.4rem] lk:text-cream/90">
@@ -206,7 +206,7 @@ export default function Footer() {
 
         {/* Legal */}
         <div className="flex flex-col gap-[2rem] border-t lk:border-cream/10 pt-[4rem] md:flex-row md:items-center md:justify-between">
-          <p className="body-sm lk:text-cream/45">© کلینیک تخصصی درنا طب</p>
+          <p className="body-sm lk:text-cream/45">© کلینیک تخصصی سیمای آرام</p>
           <ul className="flex flex-wrap gap-x-[3.2rem] gap-y-[1.2rem]">
             {['تماس با ما', 'حریم خصوصی', 'قوانین و مقررات'].map((item) => (
               <li key={item}>

@@ -50,7 +50,7 @@ export default function Header({
         {/* center logo */}
         <Link
           href="/v6"
-          aria-label="کلینیک درنا طب — خانه"
+          aria-label="کلینیک سیمای آرام — خانه"
           data-cursor="discover"
           className="pointer-events-auto relative z-[70] shrink-0 transition-opacity duration-500"
           style={{ opacity: menuOpen ? 0 : 1 }}

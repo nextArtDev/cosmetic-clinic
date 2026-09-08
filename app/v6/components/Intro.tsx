@@ -62,7 +62,7 @@ export default function Intro() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/img-v6/logo.svg"
-                alt="درنا طب"
+                alt="سیمای آرام"
                 className="h-[13rem] w-[13rem] object-contain"
               />
             </motion.div>

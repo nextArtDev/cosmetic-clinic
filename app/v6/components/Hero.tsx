@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion'
 import { ArrowDown } from './Icons'
+import BlobCanvas from './BlobCanvas'
 import { useScrollTo } from './SmoothScroll'
 import { hero } from '../lib/data'
 
@@ -119,20 +120,18 @@ export default function Hero() {
             animate={ready ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 1.2, delay: 0.1, ease: EASE }}
           >
-            {/* morphing blob ring */}
-            <span
-              aria-hidden
-              className="blob-shape pointer-events-none absolute -inset-[3%] border lk:border-pink/60"
-            />
+            {/* soft rose wash behind everything (original blob layers) */}
             <span
               aria-hidden
               className="blob-shape pointer-events-none absolute -inset-[8%] lk:bg-gradient-to-br lk:from-rose/70 lk:via-blush/40 lk:to-transparent opacity-70"
               style={{ animationDuration: '34s' }}
             />
+            {/* mouse-reactive morphing ring — port of the paper.js canvas */}
+            <BlobCanvas className="!h-[110rem] !w-[110rem] max-lg:!hidden" />
             <motion.span
               aria-hidden
-              className="blob-shape pointer-events-none absolute inset-0 overflow-hidden"
-              style={{ animationDuration: '26s', x: mx, y: my }}
+              className="pointer-events-none absolute inset-0 overflow-hidden"
+              style={{ x: mx, y: my }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

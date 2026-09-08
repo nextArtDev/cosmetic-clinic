@@ -11,10 +11,9 @@ export default function QuickLinks({ links }: { links: QuickLink[] }) {
       <div className="container-wondr">
         <div className="mx-auto w-full max-w-[100rem]">
           <Reveal>
-            <h2 className="title-xl mx-auto w-[95%] text-center">
+            <h2 className="quicklinks-title title-xl mx-auto w-[95%] text-center">
               <a href="#doctors" data-cursor="discover" className="inline-block">
-                {hero.quickTitleA}{' '}
-                <span className="lk:text-pink">{hero.quickTitleAccent}</span>
+                {hero.quickTitleA} <span>{hero.quickTitleAccent}</span>
                 <br className="hidden md:block" /> {hero.quickTitleB}
               </a>
             </h2>

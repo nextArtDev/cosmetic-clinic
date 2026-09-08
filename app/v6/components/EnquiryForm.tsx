@@ -7,14 +7,14 @@ import { ArrowLeft, Star } from './Icons'
 import { site } from '../lib/data'
 
 const INTERESTS = [
-  'اکوکاردیوگرافی',
-  'آنژیوگرافی',
-  'هولتر ریتم قلب',
-  'پزشکی ورزشی قلب',
-  'آرتروسکوپی',
-  'تعویض مفصل زانو',
-  'ستون فقرات',
-  'مشاوره عمومی',
+  'نوار مغز (EEG)',
+  'نوار عصب و عضله',
+  'سردرد و میگرن',
+  'پیگیری صرع',
+  'روان‌درمانی (CBT)',
+  'ارزیابی ADHD',
+  'تنظیم دارو',
+  'طب خواب',
 ]
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
@@ -45,7 +45,7 @@ export default function EnquiryForm() {
       const json = (await res.json()) as { ok?: boolean; error?: string }
       if (!res.ok || !json.ok) throw new Error(json.error ?? 'خطایی رخ داد')
       setStatus('success')
-      setMessage('ممنون — تیم درنا طب در یک روز کاری با شما تماس می‌گیرد.')
+      setMessage('ممنون — تیم سیمای آرام در یک روز کاری با شما تماس می‌گیرد.')
       form.reset()
     } catch (err) {
       setStatus('error')

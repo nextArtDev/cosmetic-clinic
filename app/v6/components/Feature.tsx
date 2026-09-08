@@ -51,30 +51,30 @@ export default function Feature() {
           <div className="order-2 lg:order-1 lg:col-span-5 lg:col-start-2">
             <Reveal y={30} x={0} skew={2}>
               <span className="eyebrow-wide block lk:text-pink">
-                {site.doctorCardio} · {site.doctorOrtho}
+                {site.doctorNeuro} · {site.doctorPsych}
               </span>
             </Reveal>
 
             <Reveal delay={0.1} y={50} x={0} skew={3}>
               <h2 className="mt-[1.6rem] text-[4rem] leading-[6rem] md:text-[5.6rem] md:leading-[8rem]">
-                سلامتی یک حق است، نه امتیازی خاص
+                آرامش ذهن یک حق است، نه اثری لوکس
               </h2>
             </Reveal>
 
             <Reveal delay={0.2} y={40} x={0} skew={2}>
               <div className="mt-[3.2rem] space-y-[2.4rem]">
                 <p className="body-lg">
-                  با بیش از ۲۲ سال تجربه‌ی بالینی در بیمارستان‌های دانشگاهی و مطب‌های تخصصی،
-                  ایمنی و آرامش بیمار همیشه اولویت اول ما بوده است.
+                  با بیش از ۲۲ سال تجربه‌ی بالینی در بیمارستان‌های دانشگاهی و کلینیک‌های
+                  تخصصی، شنیدنِ واقعیِ بیمار همیشه اولویت اول ما بوده است.
                 </p>
                 <p className="body-sm lk:text-ink/70">
-                  هر دو متخصص از دانشکده‌ی پزشکی دانشگاه علوم پزشکی تهران فارغ‌التحصیل شده‌اند و
-                  فلوشیپ‌های تخصصی خود را در فرانسه و آلمان گذرانده‌اند؛ عضو انجمن قلب و عروق
-                  ایران و انجمن ارتوپدی و آسیب‌های ورزشی.
+                  هر دو متخصص بورد تخصصی خود را از دانشگاه‌های علوم پزشکی تهران و شهید
+                  بهشتی گرفته‌اند و فلوشیپ‌های تکمیلی را در مونیخ و لندن گذرانده‌اند؛
+                  عضو انجمن مغز و اعصاب ایران و انجمن روان‌پزشکی ایران.
                 </p>
                 <p className="body-sm lk:text-ink/70">
-                  مهم‌تر از همه، تمامی درمان‌های کم‌تهاجمی — از آنژیوپلاستی تا آرتروسکوپی —
-                  توسط خودِ متخصص‌ها و با پروتکل‌های روزِ اروپا انجام می‌شود.
+                  مهم‌تر از همه، درمان اینجا فقط نسخه نیست — از نوار مغز تا روان‌درمانی،
+                  همه‌چیز توسط خودِ متخصص‌ها و با پروتکل‌های روزِ جهان انجام می‌شود.
                 </p>
               </div>
             </Reveal>
@@ -120,7 +120,7 @@ export default function Feature() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/img-v6/image01.jpg"
-                    alt="تیم متخصص درنا طب"
+                    alt="تیم متخصص سیمای آرام"
                     className="h-full w-full scale-[1.04] object-cover"
                   />
                 </div>

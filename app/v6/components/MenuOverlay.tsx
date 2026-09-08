@@ -19,8 +19,8 @@ const GROUPS = [
   {
     category: 'درباره',
     links: [
-      { label: 'دکتر صادقی', href: '/v6/#doctors' },
-      { label: 'دکتر رستمی', href: '/v6/#doctors' },
+      { label: 'دکتر فرهادی', href: '/v6/#doctors' },
+      { label: 'دکتر موسوی', href: '/v6/#doctors' },
       { label: 'آدرس کلینیک', href: '/v6/#visit' },
     ],
   },

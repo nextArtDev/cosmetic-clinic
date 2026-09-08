@@ -48,9 +48,6 @@
 .v6 {
   --v6-header-h: 12.2rem;
 
-  /* 62.5% of the page rem → 1rem = 10px inside .v6 (matches the original
-     html{font-size:62.5%} trick without touching <html>). */
-  font-size: 62.5%;
   font-family: var(--font-v6-sans), 'Shabnam', 'Vazirmatn', Tahoma, ui-sans-serif, sans-serif;
   color: #231f20;
   line-height: 1.5;
@@ -70,9 +67,19 @@
 /* Base (gated: only while a /v6 route is mounted)                      */
 /* ------------------------------------------------------------------ */
 
+/* Original sets html{font-size:62.5%} (1rem=10px) — gated here so the
+   10px scale exists ONLY while a /v6 route is on screen. This is the
+   single document-level effect of /v6, same mechanism /v5 uses. */
 html[data-v6-active] {
+  font-size: 62.5%;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-v6-active] {
+    scroll-behavior: auto;
+  }
 }
 
 /* Lenis adds .lenis to <html> itself, so these must compound directly. */
@@ -573,7 +580,9 @@ html[data-v6-active] body {
 }
 
 /* ------------------------------------------------------------------ */
-/* Custom cursor                                                       */
+/* Custom cursor — faithful port of the wondr cursor states            */
+/* (trailing ring + pink dot on links + white morph-blob menu/discover */
+/*  + cta label with arrow)                                             */
 /* ------------------------------------------------------------------ */
 
 @media (hover: hover) and (pointer: fine) {
@@ -583,13 +592,93 @@ html[data-v6-active] body {
     cursor: none;
   }
 }
-.v6 .cursor-dot {
+@media (max-width: 1023px) {
+  .v6 .cursor {
+    display: none;
+  }
+}
+.v6 .cursor {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: -3.2rem;
+  left: -3.2rem;
+  height: 6.4rem;
+  width: 6.4rem;
   z-index: 9999;
   pointer-events: none;
-  mix-blend-mode: normal;
+  transition: all 0.9s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+  transform: translate(-100px, -100px);
+  will-change: transform;
+}
+/* The morphing blob — original used :after with border-radius morph. */
+.v6 .cursor::after {
+  content: '';
+  display: block;
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid #eaa098;
+  transition: all 0.4s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+}
+/* hover generic link → dot */
+.v6 .cursor.is-hover::after {
+  background-color: #eaa098;
+  transform: scale(0.2);
+}
+/* menu / discover → white morph-blob scale-up behind label */
+.v6 .cursor.is-menu::after,
+.v6 .cursor.is-discover::after {
+  background-color: #fdfcfc;
+  border-color: #fdfcfc;
+  border-radius: 40% 60% 54% 46% / 49% 60% 40% 51%;
+  transform: scale(2);
+  z-index: -1;
+}
+.v6 .cursor.is-discover::after {
+  transform: scale(1.5);
+}
+.v6 .cursor .cursor__label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.15, 0.9, 0.34, 0.95);
+  white-space: nowrap;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 2.4rem;
+  color: #231f20;
+}
+.v6 .cursor.is-menu .cursor__label,
+.v6 .cursor.is-discover .cursor__label {
+  opacity: 1;
+}
+/* cta → label offset to the side + arrow, ring fills white */
+.v6 .cursor.is-cta::after {
+  background-color: #fdfcfc;
+  border-color: #fdfcfc;
+}
+.v6 .cursor.is-cta .cursor__label {
+  opacity: 1;
+  transform: translate3d(0, -50%, 0);
+  /* RTL: label sits at the inline-start side (physical right = 150%). */
+  right: 150%;
+  left: auto;
+  width: 11rem;
+  font-size: 2rem;
+  color: #231f20;
+}
+.v6 .cursor .cursor__arrow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+  transition: all 0.3s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.v6 .cursor.is-cta .cursor__arrow {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 /* ------------------------------------------------------------------ */
@@ -670,13 +759,34 @@ html[data-v6-active] body {
   position: fixed;
   inset: 0;
   z-index: 55;
-  background: #faf2f0;
-  clip-path: inset(0 0 100% 0);
-  transition: clip-path 0.9s cubic-bezier(0.76, 0, 0.24, 1);
-  overflow-y: auto;
+  visibility: hidden;
+  pointer-events: none;
+}
+.v6 .menu-panel::before {
+  content: '';
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: #fdfcfc;
+  /* Original: horizontal scaleX wipe from inline-start; origin: right in RTL
+     mirrors origin: left of the LTR site. */
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1) 0.2s;
 }
 .v6 .menu-panel.open {
-  clip-path: inset(0 0 0% 0);
+  visibility: visible;
+  pointer-events: auto;
+}
+.v6 .menu-panel.open::before {
+  transform: scaleX(1);
+  transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+}
+/* Content sits above the ::before wipe and fades up after it. */
+.v6 .menu-panel > * {
+  position: relative;
+  z-index: 1;
+  min-height: 100%;
 }
 .v6 .menu-link {
   font-family: var(--font-v6-display), 'FarsiAdad', 'Shabnam', Tahoma, serif;
@@ -757,6 +867,68 @@ html[data-v6-active] body {
 @media (min-width: 992px) {
   .v6 .hero-arrow {
     animation: v6-scrolldown 4s ease infinite;
+  }
+}
+
+/* Hero blob canvas — mouse-reactive morphing ring around the hero image
+   (port of the original paper.js canvas .blob). Sits oversized behind the
+   photo; pointer events pass through. */
+.v6 .hero-blob-canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.15, 0.9, 0.34, 0.95) 0.6s;
+}
+.v6 .hero-blob-canvas.is-anim {
+  opacity: 1;
+}
+@media (max-width: 991px) {
+  .v6 .hero-blob-canvas {
+    height: 58rem !important;
+    width: 58rem !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Quicklinks title — outlined (text-stroke) with pink accent word      */
+/* ------------------------------------------------------------------ */
+
+.v6 .quicklinks-title,
+.v6 .quicklinks-title a {
+  -webkit-text-stroke: 1px #eaa098;
+  color: transparent;
+}
+.v6 .quicklinks-title span {
+  -webkit-text-stroke: initial;
+  color: #eaa098;
+}
+
+/* ------------------------------------------------------------------ */
+/* Gooey magnetic CTA canvas (cards) + SVG goo filter                  */
+/* ------------------------------------------------------------------ */
+
+.v6 .blob-cta {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 70rem;
+  width: 60rem;
+  pointer-events: none;
+  transform: translate3d(-50%, -50%, 0);
+  z-index: 1;
+}
+.v6 .cards-item:hover .blob-cta {
+  pointer-events: auto;
+}
+.v6 .blob-cta.gooey {
+  filter: url(#v6-goo);
+}
+@media (max-width: 991px) {
+  .v6 .blob-cta {
+    display: none;
   }
 }
 
@@ -879,3 +1051,9 @@ html[data-v6-active] body {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'ss01';
 }
+
+/* ------------------------------------------------------------------ */
+/* RTL: scrolldown arrow bounces from the inline-start edge           */
+/* (original: translateX(-50%); RTL keeps -50% since the arrow is      */
+/* centered physically — unchanged, defined for clarity)               */
+/* ------------------------------------------------------------------ */

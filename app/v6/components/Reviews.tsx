@@ -39,8 +39,7 @@ export default function Reviews({ items }: { items: Review[] }) {
         <Reveal delay={0.1} y={40} x={0} skew={3}>
           <h2 className="mt-[1.6rem] text-center text-[4rem] leading-[5.6rem] md:text-[5.6rem] md:leading-[8rem]">
             محبوبِ بیش از ۴٬۰۰۰ بیمار
-          </h2>
-        </Reveal>
+          </h2>        </Reveal>
 
         <div className="mx-auto mt-[6rem] max-w-[90rem]">
           <div className="relative min-h-[30rem] md:min-h-[26rem]">

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import DragScroller from './DragScroller'
 import Reveal from './Reveal'
+import BlobCta from './BlobCta'
 import type { Product } from '../lib/data'
 
 export default function MyPick({ items }: { items: Product[] }) {
@@ -14,7 +15,7 @@ export default function MyPick({ items }: { items: Product[] }) {
         </Reveal>
         <Reveal delay={0.1}>
           <p className="mx-auto mt-[0.8rem] w-[34rem] max-w-full text-center text-[1.4rem] font-bold leading-[2.2rem] lk:text-pink">
-            برگزیده‌ی کلینیک — قلب و ارتوپدی در یک خانه
+            برگزیده‌ی کلینیک — مغز و اعصاب و روان در یک خانه
           </p>
         </Reveal>
       </div>
@@ -29,10 +30,13 @@ export default function MyPick({ items }: { items: Product[] }) {
               key={p.id}
               href="#enquire"
               data-cursor="view"
-              className="group relative w-[26rem] shrink-0 lg:w-[32rem]"
+              data-blob-cta-card
+              className="cards-item group relative w-[26rem] shrink-0 lg:w-[32rem]"
               whileHover={{ y: -12 }}
               transition={{ duration: 0.6, ease: [0.15, 0.9, 0.34, 0.95] }}
             >
+              {/* gooey magnetic canvas — port of the original blob-cta */}
+              <BlobCta />
               <span
                 aria-hidden
                 className="blob-shape absolute right-1/2 top-0 h-[24rem] w-[24rem] translate-x-1/2 lk:bg-gradient-to-br lk:from-rose lk:via-cream/40 lk:to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-100 lg:h-[30rem] lg:w-[30rem]"

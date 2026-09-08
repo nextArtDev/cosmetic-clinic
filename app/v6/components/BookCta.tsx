@@ -8,7 +8,7 @@ export default function BookCta() {
   const [mini, setMini] = useState(false)
   const { scrollY } = useScroll()
 
-  useMotionValueEvent(scrollY, 'change', (v) => setMini(v > 220))
+  useMotionValueEvent(scrollY, 'change', (v) => setMini(v > 0))
 
   return (
     <>
