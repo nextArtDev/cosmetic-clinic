@@ -1,0 +1,238 @@
+/* =========================================================================
+   /v12 — THE GRIND frontend port (faithful recreation of
+   chat-clone/the-grind-website, thegrind.nl), Iranized for a Sports
+   Medicine specialist practice (طب ورزشی و توان‌بخشی). Fully isolated
+   from production routes:
+   - Second Tailwind build via `prefix(tg)`: every utility is tg:* and
+     every theme token compiles to --tg-* (production uses unprefixed
+     utilities/--color-*), so the two utility sets can never collide.
+     (Variant order verified: with prefix(tg), `md:tg:x` and `tg:md:x`
+     compile to the same .tg\:md\:x rule — tg: is written first here,
+     matching the /v10 convention.)
+   - No global element selectors: everything the original set on html/
+     body is gated on html[data-v12-active] (set by v12-shell while a
+     /v12 route is mounted, removed on unmount) and every component
+     rule is .v12-scoped. Custom props live on .v12, never :root.
+   - Fonts: --font-v12-sans (Shabnam) and --font-v12-display (FarsiAdad)
+     from app/v12/fonts.ts. The original Anton/Inter Google fonts are
+     never loaded — no page needs Latin display type.
+   - RTL: the original is LTR; flex/grid rows and physical edges are
+     mirrored where the composition demands it (arrows, slide
+     directions, marquee travel). Latin-only uppercase/letter-spacing
+     tricks are dropped (they break Persian joining); Persian renders
+     with Persian digits (۰۱۲۳۴۵۶۷۸۹).
+   ========================================================================= */
+
+@import 'tailwindcss' prefix(tg);
+
+@theme {
+  /* Keys are UNPREFIXED here on purpose: with prefix(tg), Tailwind compiles
+     --font-display -> --tg-font-display etc. Values resolve at .v12 scope. */
+  --font-display: var(--font-v12-display), 'FarsiAdad', 'Shabnam', Tahoma, sans-serif;
+  --font-sans: var(--font-v12-sans), 'Shabnam', 'Vazirmatn', Tahoma, ui-sans-serif, sans-serif;
+  --color-ink: #0a0a0a;
+  --color-paper: #f2f0eb;
+  --color-volt: #d7fe45;
+  --color-smoke: #171717;
+  --color-mist: #9c9a94;
+}
+
+/* ------------------------------------------------------------------ */
+/* Wrapper + variables (scoped — never :root)                          */
+/* ------------------------------------------------------------------ */
+
+.v12 {
+  /* With prefix(tg), @theme keys are authored UNPREFIXED (they compile to
+     --tg-*); the vars next/font attaches are referenced through the
+     compiled names. Shabnam/FarsiAdad resolve here for the whole subtree. */
+  --tg-font-sans: var(--font-v12-sans), 'Shabnam', 'Vazirmatn', Tahoma, ui-sans-serif, sans-serif;
+  --tg-font-display: var(--font-v12-display), 'FarsiAdad', 'Shabnam', Tahoma, sans-serif;
+  font-family: var(--tg-font-sans);
+  font-weight: 400;
+  color: var(--color-paper);
+  background: #0a0a0a;
+  min-height: 100svh;
+  max-width: 100vw;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base (gated: only while a /v12 route is mounted)                    */
+/* ------------------------------------------------------------------ */
+
+html[data-v12-active] {
+  background: #0a0a0a;
+  scrollbar-width: auto;
+}
+
+html[data-v12-active] body {
+  background: #0a0a0a;
+}
+
+/* The Preloader/Navbar lock scroll via overflow on <body> while a /v12
+   route is mounted; never touches production <body> otherwise. */
+html[data-v12-active] body {
+  cursor: default;
+}
+
+.v12 ::selection {
+  background: #d7fe45;
+  color: #0a0a0a;
+}
+
+/* Custom scrollbar (original's look, gated to the v12 subtree) */
+html[data-v12-active] ::-webkit-scrollbar {
+  width: 10px;
+}
+html[data-v12-active] ::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+html[data-v12-active] ::-webkit-scrollbar-thumb {
+  background: #2c2c2c;
+  border-radius: 8px;
+}
+html[data-v12-active] ::-webkit-scrollbar-thumb:hover {
+  background: #d7fe45;
+}
+
+/* ------------------------------------------------------------------ */
+/* Marquee animation (RTL: travel direction is inverted so the motion
+   still reads "forward" for a Persian audience; the original keyframes
+   are mirrored)                                                       */
+/* ------------------------------------------------------------------ */
+
+@keyframes v12-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50%);
+  }
+}
+
+.v12 .animate-marquee {
+  animation: v12-marquee var(--marquee-duration, 30s) linear infinite;
+}
+
+.v12 .marquee-reverse {
+  animation-direction: reverse;
+}
+
+.v12 .marquee-paused:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+/* ------------------------------------------------------------------ */
+/* Outlined display text                                               */
+/* ------------------------------------------------------------------ */
+
+.v12 .text-stroke {
+  -webkit-text-stroke: 1.5px rgba(242, 240, 235, 0.5);
+  color: transparent;
+}
+
+.v12 .text-stroke-volt {
+  -webkit-text-stroke: 1.5px #d7fe45;
+  color: transparent;
+}
+
+/* On light sections the outline inverts to ink */
+.v12 .text-stroke-ink {
+  -webkit-text-stroke: 1.5px rgba(10, 10, 10, 0.45);
+  color: transparent;
+}
+
+/* ------------------------------------------------------------------ */
+/* Subtle grain overlay                                                */
+/* ------------------------------------------------------------------ */
+
+.v12 .grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ------------------------------------------------------------------ */
+/* Ticker pulse for live dot                                           */
+/* ------------------------------------------------------------------ */
+
+@keyframes v12-pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(215, 254, 69, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(215, 254, 69, 0);
+  }
+}
+.v12 .pulse-dot {
+  animation: v12-pulse-dot 2s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ */
+/* Element resets the original relied on — scoped, not global          */
+/* ------------------------------------------------------------------ */
+
+.v12 h1,
+.v12 h2,
+.v12 h3,
+.v12 p,
+.v12 ul {
+  margin: 0;
+}
+
+.v12 ul {
+  padding: 0;
+  list-style: none;
+}
+
+.v12 img,
+.v12 svg {
+  display: block;
+  max-width: 100%;
+}
+
+.v12 button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.v12 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.v12 input {
+  font: inherit;
+}
+
+/* ------------------------------------------------------------------ */
+/* Persian numerals                                                    */
+/* ------------------------------------------------------------------ */
+
+.v12 .fa-num {
+  font-variant-numeric: normal;
+  font-feature-settings: normal;
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion                                                      */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .v12 .animate-marquee {
+    animation: none;
+  }
+  html[data-v12-active] {
+    scroll-behavior: auto;
+  }
+}
