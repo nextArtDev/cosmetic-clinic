@@ -275,8 +275,9 @@ export function BookingForm({
             disabled={status === 'sending'}
             whileHover={{ backgroundColor: '#ffd387' }}
             whileTap={{ scale: 0.985 }}
+            data-stagger-link
           >
-            <span>
+            <span data-stagger-text>
               {status === 'sending' ? 'در حال ارسال درخواست' : 'رزرو مشاوره'}
             </span>
             {status === 'sending' ? (

@@ -189,8 +189,10 @@ function Header() {
             href="#form"
             className="header-book"
             onClick={() => setOpen(false)}
+            data-stagger-link
           >
-            رزرو مشاوره <ArrowUpLeft size={17} />
+            <span data-stagger-text>رزرو مشاوره</span>{' '}
+            <ArrowUpLeft size={17} />
           </a>
           <button
             className="menu-toggle"
@@ -434,11 +436,20 @@ function About() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.45 }}
+              onAnimationComplete={() =>
+                window.dispatchEvent(
+                  new CustomEvent('v2:about-slide', {
+                    detail: undefined,
+                  }),
+                )
+              }
             >
-              <h3 className="eyebrow ">{slides[active].title}</h3>
+              <h3 className="eyebrow" data-line-reveal>
+                {slides[active].title}
+              </h3>
               <div className="fine-line" />
-              <h4>{slides[active].heading}</h4>
-              <p>{slides[active].text}</p>
+              <h4 data-line-reveal>{slides[active].heading}</h4>
+              <p data-line-reveal>{slides[active].text}</p>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -559,14 +570,14 @@ function Process() {
   return (
     <section className="process-section px-2!" id="process">
       <div className="process-intro">
-        <p data-reveal>
+        <p data-reveal data-line-reveal>
           هر مشاوره بر پایه رویکردی جامع بنا شده است؛ نه‌تنها مراقبت از پوست،
           بلکه آرامش عمومی شما را در نظر می‌گیرد.
         </p>
         <span className="eyebrow section-counter">( روند کار )</span>
-        <p data-reveal>
-          از نخستین گام‌ها تا پشتیبانی بعدی، هر مرحله برای مراقبتی شخصی و اثربخش
-          طراحی شده است.
+        <p data-reveal data-line-reveal>
+          از نخستین گام‌ها تا پشتیبانی بعدی، هر مرحله برای مراقبتی شخصی و
+          اثربخش طراحی شده است.
         </p>
       </div>
       <div dir="ltr" className="process-marquee" aria-label="روند مشاوره">
@@ -1026,7 +1037,9 @@ function FAQ() {
   return (
     <section className="faq-section" id="faq">
       <div className="faq-heading">
-        <h2 data-reveal>خوب است بدانید</h2>
+        <h2 data-reveal data-line-reveal>
+          خوب است بدانید
+        </h2>
         <span className="eyebrow">پرسش‌ها و پاسخ‌ها</span>
       </div>
       <div className="faq-list">
@@ -1196,7 +1209,7 @@ export function ShaninaSite() {
                 <span className="eyebrow">
                   سفر به سالم‌ترین پوست خود را آغاز کنید
                 </span>
-                <h2 data-reveal>
+                <h2 data-reveal data-line-reveal>
                   پوست سالم از
                   <br />
                   یک گفت‌وگو آغاز می‌شود.
@@ -1236,12 +1249,14 @@ export function ShaninaSite() {
         </main>
         <footer className="site-footer">
           <div className="footer-top">
-            <a href="#main" className="eyebrow">
-              بازگشت به آغاز <ArrowUpLeft size={17} />
+            <a href="#main" className="eyebrow" data-stagger-link>
+              <span data-stagger-text>بازگشت به آغاز</span>{' '}
+              <ArrowUpLeft size={17} />
             </a>
             <span>مراقبت تخصصی از پوست و زیبایی شما.</span>
-            <a href="#form" className="eyebrow">
-              شروع کنیم <ArrowUpLeft size={17} />
+            <a href="#form" className="eyebrow" data-stagger-link>
+              <span data-stagger-text>شروع کنیم</span>{' '}
+              <ArrowUpLeft size={17} />
             </a>
           </div>
           <a

@@ -35,8 +35,6 @@ export function MotionSystem({ children }: { children: ReactNode }) {
   const root = useRef<HTMLDivElement>(null)
   // cleanups registered inside the gsap context (listeners, injected nodes)
   const cleanupsRef = useRef<Array<() => void>>([])
-  // header open-state shared with the direction-aware scroll handler
-  const menuOpenRef = useRef(false)
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger, SplitText)
@@ -60,8 +58,30 @@ export function MotionSystem({ children }: { children: ReactNode }) {
     window.addEventListener('layout:changed', refresh)
     window.addEventListener('scroll:lock', lock)
 
+    // Sand preloader curtain (ref: simpleLoader). Covers first paint,
+    // lifts once fonts + split text are ready. Skipped under reduced
+    // motion and on reruns (dev overlays keep it mounted once).
+    const preloader = document.createElement('div')
+    preloader.className = 'v2-preloader'
+    preloader.setAttribute('aria-hidden', 'true')
+    document.body.appendChild(preloader)
+    const liftPreloader = () => {
+      gsap.to(preloader, {
+        opacity: 0,
+        duration: reduced.matches ? 0 : 0.5,
+        onComplete: () => {
+          preloader.style.pointerEvents = 'none'
+          preloader.remove()
+        },
+      })
+    }
+
     document.fonts.ready.then(() => {
-      if (disposed || !root.current || reduced.matches) return
+      if (disposed || !root.current || reduced.matches) {
+        liftPreloader()
+        return
+      }
+      liftPreloader()
       context = gsap.context(() => {
         const intro = gsap.timeline({ defaults: { ease: 'power3.out' } })
         intro.fromTo(
@@ -258,12 +278,13 @@ export function MotionSystem({ children }: { children: ReactNode }) {
 
         // About story slides swap with a masked line cascade + rotationX
         // (ref: aboutAnimation). The About component dispatches
-        // 'v2:about-slide' on active change.
+        // 'v2:about-slide' after each slide change lands.
         const aboutStory = root.current?.querySelector('.about-story')
         if (aboutStory) {
-          const playAbout = (target: HTMLElement) => {
-            const blocks =
-              target.querySelectorAll<HTMLElement>('[data-line-reveal]')
+          const playAbout = () => {
+            const blocks = aboutStory.querySelectorAll<HTMLElement>(
+              '[data-line-reveal]',
+            )
             blocks.forEach((block, i) => {
               const split = new SplitText(block, {
                 type: 'lines',
@@ -292,13 +313,9 @@ export function MotionSystem({ children }: { children: ReactNode }) {
               )
             })
           }
-          const onAboutSlide = (event: Event) => {
-            const detail = (event as CustomEvent<HTMLElement>).detail
-            if (detail) playAbout(detail)
-          }
-          window.addEventListener('v2:about-slide', onAboutSlide)
+          window.addEventListener('v2:about-slide', playAbout)
           cleanupsRef.current.push(() =>
-            window.removeEventListener('v2:about-slide', onAboutSlide),
+            window.removeEventListener('v2:about-slide', playAbout),
           )
         }
 
@@ -387,11 +404,11 @@ export function MotionSystem({ children }: { children: ReactNode }) {
             gsap.to(follow, { scale: 1, duration: 0.3, ease: 'back.out(1.7)' })
           const hide = () =>
             gsap.to(follow, { scale: 0, duration: 0.25, ease: 'power2.in' })
-          services.addEventListener('pointermove', move)
+          services.addEventListener('pointermove', move as EventListener)
           services.addEventListener('pointerenter', show)
           services.addEventListener('pointerleave', hide)
           cleanupsRef.current.push(() => {
-            services.removeEventListener('pointermove', move)
+            services.removeEventListener('pointermove', move as EventListener)
             services.removeEventListener('pointerenter', show)
             services.removeEventListener('pointerleave', hide)
             follow.remove()
@@ -399,14 +416,21 @@ export function MotionSystem({ children }: { children: ReactNode }) {
         }
 
         // 5) Direction-aware header: shows scrolling up, hides scrolling
-        //    down (ref: common() header scroll handler).
+        //    down (ref: common() header scroll handler). The expanded
+        //    nav being open keeps it visible regardless of direction.
         const siteHeader = root.current?.querySelector('.site-header')
         if (siteHeader) {
           let lastY = window.scrollY
           const onScrollDir = () => {
             const y = window.scrollY
+            const menuOpen =
+              !!siteHeader.getAttribute('aria-expanded') ||
+              !!root.current?.querySelector('#expanded-navigation')
             if (y > window.innerHeight) {
-              siteHeader.classList.toggle('is-visible', y < lastY || menuOpenRef.current)
+              siteHeader.classList.toggle(
+                'is-visible',
+                y < lastY || menuOpen,
+              )
             } else {
               siteHeader.classList.remove('is-visible')
             }
@@ -445,6 +469,7 @@ export function MotionSystem({ children }: { children: ReactNode }) {
 
     return () => {
       disposed = true
+      preloader.remove()
       cleanupsRef.current.forEach((fn) => fn())
       cleanupsRef.current = []
       context?.revert()
