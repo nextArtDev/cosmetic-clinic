@@ -1,0 +1,163 @@
+/* ==========================================================================
+   /v15 — Delvaux/maison frontend port
+   Fully isolated from production routes:
+   - NO Tailwind import at all. Every rule is .v15-scoped, or gated on
+     html[data-v15-active] (set by v15-shell while a /v15 route is mounted,
+     removed on unmount), so it can never touch production routes.
+   - Fonts: Cormorant Garamond + Vazirmatn from Google Fonts, loaded inside
+     this stylesheet. Custom props are --v15-* and live on .v15, never :root.
+   - RTL: the document subtree is dir="rtl", but all physical layout is LTR
+     where the source dictated it. Persian has no italic, so italic tricks are
+     neutralized; letter-spacing on Latin runs is kept.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Vazirmatn:wght@100..900&display=swap');
+
+/* ------------------------------------------------------------------ */
+/* Tokens (scoped to .v15 — never :root)                               */
+/* ------------------------------------------------------------------ */
+
+.v15 {
+  --v15-paper: #f1ecdf;
+  --v15-paper-2: #e7dfcc;
+  --v15-card: #ece5d3;
+  --v15-ink: #1c1712;
+  --v15-ink-2: #6d6452;
+  --v15-caramel: #97601e;
+  --v15-line: rgba(28, 23, 18, 0.14);
+  --v15-line-strong: rgba(28, 23, 18, 0.32);
+  --v15-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  background: var(--v15-paper);
+  color: var(--v15-ink);
+  font-family: 'Vazirmatn', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  overflow-x: clip;
+}
+
+
+/* ---------- utilities (hand-rolled "scoped tailwind layer") ---------- */
+
+.v15 .v15-latin { font-family: 'Cormorant Garamond', Georgia, serif; }
+.v15 .v15-ink { color: var(--v15-ink); }
+.v15 .v15-ink2 { color: var(--v15-ink-2); }
+.v15 .v15-paper-t { color: var(--v15-paper); }
+.v15 .v15-caramel { color: var(--v15-caramel); }
+.v15 .v15-bg { background: var(--v15-paper); }
+.v15 .v15-bg2 { background: var(--v15-paper-2); }
+.v15 .v15-bg-card { background: var(--v15-card); }
+.v15 .v15-bg-ink { background: var(--v15-ink); }
+.v15 .v15-bg-caramel { background: var(--v15-caramel); }
+.v15 .v15-bline { border-color: var(--v15-line); }
+
+.v15 ::selection { background: var(--v15-caramel); color: var(--v15-paper); }
+
+.v15 ::-webkit-scrollbar { width: 10px; }
+.v15 ::-webkit-scrollbar-track { background: var(--v15-paper-2); }
+.v15 ::-webkit-scrollbar-thumb { background: var(--v15-ink-2); border-radius: 99px; border: 3px solid var(--v15-paper-2); }
+
+@media (hover: hover) and (pointer: fine) {
+  .v15, .v15 * { cursor: none !important; }
+}
+.v15 :focus-visible { outline: 1px dashed var(--v15-caramel); outline-offset: 4px; }
+
+/* film grain overlay */
+
+.v15 .v15-grain {
+  position: fixed; inset: -50%; z-index: 30; pointer-events: none; opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: v15Grain 8s steps(10) infinite;
+}
+@keyframes v15Grain {
+  0%,100% { transform: translate(0,0); } 10% { transform: translate(-3%,-5%); }
+  30% { transform: translate(4%,3%); } 50% { transform: translate(-4%,6%); }
+  70% { transform: translate(6%,-2%); } 90% { transform: translate(-2%,4%); }
+}
+
+/* ---------- buttons ---------- */
+
+.v15 .v15-btn {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  border-radius: 999px; border: 1px solid var(--v15-line-strong);
+  padding: 1rem 2.25rem; font-size: 0.92rem; font-weight: 500; line-height: 1;
+  color: var(--v15-ink); background: transparent;
+  transition: color 0.45s var(--v15-ease), border-color 0.45s var(--v15-ease);
+}
+.v15 .v15-btn::before {
+  content: ''; position: absolute; inset: -1px; z-index: -1; border-radius: inherit;
+  background: var(--v15-ink);
+  transform: translateY(102%);
+  transition: transform 0.55s var(--v15-ease);
+}
+.v15 .v15-btn:hover { color: var(--v15-paper); border-color: var(--v15-ink); }
+.v15 .v15-btn:hover::before { transform: translateY(0); }
+
+.v15 .v15-btn--fill { background: var(--v15-ink); color: var(--v15-paper); border-color: var(--v15-ink); }
+.v15 .v15-btn--fill::before { background: var(--v15-caramel); }
+.v15 .v15-btn--fill:hover { border-color: var(--v15-caramel); }
+
+.v15 .v15-btn--light { color: var(--v15-paper); border-color: rgba(241,236,223,0.45); }
+.v15 .v15-btn--light::before { background: var(--v15-paper); }
+.v15 .v15-btn--light:hover { color: var(--v15-ink); border-color: var(--v15-paper); }
+
+/* ---------- underline link ---------- */
+
+.v15 .v15-uline { position: relative; display: inline-block; }
+.v15 .v15-uline::after {
+  content: ''; position: absolute; bottom: -3px; inset-inline-start: 0;
+  width: 100%; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.55s var(--v15-ease);
+}
+.v15 .v15-uline:hover::after { transform: scaleX(1); }
+
+/* ---------- ghost outline wordmark ---------- */
+
+.v15 .v15-ghost {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(241, 236, 223, 0.22);
+}
+
+/* ---------- marquee ---------- */
+
+.v15 .v15-marquee-track { animation: v15Marquee 36s linear infinite; }
+.v15 .v15-marquee-track--rev { animation-direction: reverse; }
+@keyframes v15Marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+@keyframes v15Spin { to { transform: rotate(360deg); } }
+.v15 .v15-spin-slow { animation: v15Spin 18s linear infinite; }
+
+@keyframes v15Pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.4; } }
+.v15 .v15-pulse-dot { animation: v15Pulse 1.8s ease-in-out infinite; }
+
+/* image zoom inside any overflow-hidden parent */
+
+.v15 .v15-zoom { transition: transform 1.1s var(--v15-ease); transform: scale(1.001); }
+.group:hover .v15 .v15-zoom,
+.v15 .group:hover .v15 .v15-zoom { transform: scale(1.07); }
+
+/* menu overlay links */
+
+.v15 .v15-menu-link { transition: color 0.4s var(--v15-ease), letter-spacing 0.4s var(--v15-ease); }
+.v15 .v15-menu-link:hover { color: var(--v15-caramel); letter-spacing: 0.02em; }
+
+/* product card quick-add reveal */
+
+.v15 .v15-quick {
+  transform: translateY(120%); opacity: 0;
+  transition: transform 0.5s var(--v15-ease), opacity 0.4s var(--v15-ease);
+}
+.v15 .group:hover .v15-quick,
+.v15 .v15-quick:focus-within { transform: translateY(0); opacity: 1; }
+@media (hover: none) {
+  .v15 .v15-quick { transform: none; opacity: 1; }
+}
+
+/* collection rows */
+
+.v15 .v15-row { transition: background 0.5s var(--v15-ease), color 0.5s var(--v15-ease), padding 0.5s var(--v15-ease); }
+.v15 .v15-row:hover { background: var(--v15-ink); color: var(--v15-paper); }
