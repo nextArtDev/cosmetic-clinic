@@ -5,6 +5,35 @@ Open `/v17`. A byte-exact port of the Persian "Privy" concept frontend from
 which itself is a concept reinterpretation of https://sobha-privy-collection.com/.
 Project names, specifications, geography and inquiries are demo content only.
 
+## Motion layer (added on top of the byte-exact port)
+
+The upstream port shipped only the basic entrance fades. The original site's
+signature motion system has since been recreated in `app/v17/anim/` and wired
+into `PrivyExperience.tsx`, adapted to the Persian/RTL content:
+
+- `anim/usePrivyMotion.ts` — one hook wiring the equivalents of the original's
+  plugin system: **Lenis smooth scroll** (Locomotive equivalent; pauses while
+  modal dialogs are open), **scroll reveal** (`data-reveal="title|subtitle|
+  fade-in|slide-in-…|zoom-in"`; masked line-by-line title reveals), **parallax
+  patterns** (`data-parallax="backgroundMove|imageMove|imageScale|sectionOut|
+  title"`), **themed section transitions** (`data-theme-section="light"` flips
+  the fixed header to ink over light sections), **hide-on-scroll header**
+  (`data-header`), and **magnetic hover** (`data-magnetic`).
+- `anim/Preloader.tsx` — ribbon-logo draw-in, progress meter and curtain lift
+  (the `preloader`/`preloaderIntro` plugins). The hero entrance is gated on its
+  completion via the `ready` state.
+- `anim/Cursor.tsx` — lagging gold ring + dot pointer follower that swells over
+  interactive elements (`cursor` plugin). Fine pointers only; invisible until
+  first pointermove.
+- The collection section became the original's **sticky slider**: pinned
+  horizontal pan on desktop (`collectionViewport`/`collectionTrack`, scroll
+  range measured in `PrivyExperience`), swipeable scroll-snap track on mobile.
+
+Everything honors `prefers-reduced-motion`: no preloader, no smooth scroll, no
+cursor, instant reveals. All state travels through data attributes
+(`data-pv-armed`, `data-pv-in`, `data-pv-theme`, `data-pv-hidden`) so the
+hashed CSS-Module scoping is preserved.
+
 ## Isolation (nothing outside these additions is modified)
 
 - `app/v17/**` — the whole experience. `PrivyExperience.tsx`, `data.ts`,
