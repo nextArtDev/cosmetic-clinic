@@ -1,0 +1,369 @@
+/* ============================================================
+   /v16 — Maya isolated theme stylesheet (route: /v16)
+   Ported from chat-clone/shpfy-in-v2-maya, hardened for a shared app:
+   1. A SECOND, route-only Tailwind v4 build: NO preflight/reset (the
+      root stylesheet already provides it), and source() scanning is
+      pinned to app/v16 only — so this sheet compiles exactly the
+      utilities used by the Maya components and nothing else. It is
+      imported exclusively by the /v16 layout, so these rules do not
+      exist on any other route.
+   2. Every theme token is maya-prefixed (--color-maya-*) and every
+      custom class is .maya-*; keyframes are maya-* only. Nothing is
+      written to :root, html, or body (the lenis pair below mirrors
+      rules the root stylesheet already ships).
+   3. Font is self-hosted from /maya/vazirmatn.woff2 (variable 100..900)
+      — no Google Fonts request.
+   It cannot and will not affect any other route.
+   ============================================================ */
+
+@layer maya16-theme, maya16-utilities;
+@import "tailwindcss/theme.css" layer(maya16-theme);
+@import "tailwindcss/utilities.css" layer(maya16-utilities) source(none);
+/* scan only this route's subtree (resolved relative to this stylesheet) */
+@source ".";
+
+@theme {
+  --font-maya: "Vazirmatn", "Vazir", Tahoma, ui-sans-serif, system-ui, sans-serif;
+
+  --color-maya-cream: #f2ede4;
+  --color-maya-parchment: #eae2d3;
+  --color-maya-sand: #ddd2bf;
+  --color-maya-fog: #cfc6b4;
+  --color-maya-ink: #16130e;
+  --color-maya-coal: #2a251d;
+  --color-maya-mute: #74695a;
+  --color-maya-clay: #9a6a3d;
+  --color-maya-clay-deep: #7d5228;
+  --color-maya-line: rgba(22, 19, 14, 0.14);
+  --color-maya-creamline: rgba(242, 237, 228, 0.22);
+
+  --animate-maya-spin: maya-spin 22s linear infinite;
+  --animate-maya-spin-slow: maya-spin 40s linear infinite;
+  --animate-maya-blink: maya-blink 1s steps(2, start) infinite;
+  --animate-maya-scrollhint: maya-scrollhint 1.8s ease-in-out infinite;
+  --animate-maya-bounce-soft: maya-bounce-soft 2.4s ease-in-out infinite;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/maya/vazirmatn.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* ---------- keyframes (maya-* only) ---------- */
+@keyframes maya-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes maya-spin-rev {
+  to { transform: rotate(-360deg); }
+}
+@keyframes maya-blink {
+  to { visibility: hidden; }
+}
+@keyframes maya-scrollhint {
+  0% { transform: translateY(-100%); }
+  55% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+@keyframes maya-slide-rtl {
+  from { transform: translateX(0); }
+  to { transform: translateX(50%); }
+}
+@keyframes maya-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes maya-bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* ---------- scoped root ---------- */
+.maya-root {
+  font-family: var(--font-maya);
+  background: var(--color-maya-cream);
+  color: var(--color-maya-ink);
+  min-height: 100svh;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.maya-root ::selection {
+  background: var(--color-maya-ink);
+  color: var(--color-maya-cream);
+}
+.maya-root img {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+/* minimal element resets scoped to the port (preflight is not loaded) */
+.maya-root :where(h1, h2, h3, h4, h5, h6, p, ul, li, figure, blockquote) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.maya-root :where(button, input, select, textarea) {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+}
+.maya-root :where(button) { cursor: pointer; }
+.maya-root :where(img) { display: block; max-width: 100%; }
+.maya-root :where(a) { color: inherit; text-decoration: none; }
+
+/* ---------- layout helpers ---------- */
+.maya-wrap {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+@media (min-width: 768px) {
+  .maya-wrap { padding-inline: 2.5rem; }
+}
+@media (min-width: 1280px) {
+  .maya-wrap { padding-inline: 3.5rem; }
+}
+
+/* ---------- typographic bits ---------- */
+.maya-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px currentColor;
+}
+.maya-outline-cream {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(242, 237, 228, 0.55);
+}
+
+/* underline grow link */
+.maya-linkline {
+  position: relative;
+  display: inline-block;
+}
+.maya-linkline::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -3px;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+[dir="rtl"] .maya-linkline::after { transform-origin: right center; }
+.maya-linkline:hover::after,
+.maya-linkline[data-active="true"]::after { transform: scaleX(1); }
+
+/* rolling text (hover swaps two stacked copies) */
+.maya-roll {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+.maya-roll > span {
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.maya-roll > span:last-child {
+  position: absolute;
+  inset: 0;
+  transform: translateY(105%);
+  color: var(--color-maya-clay);
+}
+.maya-roll-parent:hover .maya-roll > span:first-child { transform: translateY(-105%); }
+.maya-roll-parent:hover .maya-roll > span:last-child { transform: translateY(0); }
+
+/* ---------- buttons ---------- */
+.maya-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border-radius: 999px;
+  padding: 0.9rem 2.1rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  overflow: hidden;
+  transition: color 0.4s cubic-bezier(0.65, 0, 0.35, 1), border-color 0.4s, transform 0.3s;
+  will-change: transform;
+}
+.maya-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--maya-btn-fill, var(--color-maya-cream));
+  transform: translateY(102%);
+  transition: transform 0.55s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.maya-btn:hover::before { transform: translateY(0); }
+.maya-btn:active { transform: scale(0.97); }
+.maya-btn-dark {
+  background: var(--color-maya-ink);
+  color: var(--color-maya-cream);
+}
+.maya-btn-dark:hover { color: var(--color-maya-ink); }
+.maya-btn-ghost {
+  border: 1.5px solid var(--color-maya-line);
+  color: currentColor;
+  --maya-btn-fill: var(--color-maya-ink);
+}
+.maya-btn-ghost:hover { color: var(--color-maya-cream); border-color: var(--color-maya-ink); }
+.maya-btn-cream {
+  background: var(--color-maya-cream);
+  color: var(--color-maya-ink);
+  --maya-btn-fill: var(--color-maya-clay);
+}
+.maya-btn-cream:hover { color: var(--color-maya-cream); }
+.maya-btn[disabled] { opacity: 0.45; pointer-events: none; }
+
+/* icon button w/ badge */
+.maya-iconbtn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.25s;
+}
+.maya-iconbtn:hover { background: rgba(22, 19, 14, 0.07); }
+.maya-iconbtn:active { transform: scale(0.9); }
+.maya-iconbtn .maya-badge {
+  position: absolute;
+  top: -2px;
+  inset-inline-start: -2px;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding-inline: 0.25rem;
+  border-radius: 999px;
+  background: var(--color-maya-clay);
+  color: var(--color-maya-cream);
+  font-size: 0.68rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+/* chips & cards */
+.maya-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--color-maya-line);
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* separator diamond */
+.maya-diamond {
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.42rem;
+  background: currentColor;
+  transform: rotate(45deg);
+  border-radius: 1px;
+  flex: none;
+}
+
+/* ---------- ticker (announcement) ---------- */
+.maya-ticker { overflow: hidden; }
+.maya-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: maya-slide-rtl var(--maya-ticker-dur, 28s) linear infinite;
+}
+.maya-ticker:hover .maya-ticker-track { animation-play-state: paused; }
+
+/* ---------- marquee (gsap rows) ---------- */
+.maya-scrollrow { overflow: hidden; }
+.maya-scrollrow-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+/* ---------- orbit badge ---------- */
+.maya-orbit { animation: maya-spin 22s linear infinite; }
+.maya-orbit-item {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.maya-orbit-item > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  transform: rotate(var(--a)) translateY(calc(-1 * var(--r)));
+  pointer-events: auto;
+}
+.maya-orbit-item > span > i {
+  display: inline-block;
+  font-style: normal;
+  animation: maya-spin-rev 22s linear infinite;
+}
+
+/* ---------- misc ---------- */
+.maya-nobar { scrollbar-width: none; -ms-overflow-style: none; }
+.maya-nobar::-webkit-scrollbar { display: none; }
+
+.maya-caret {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  margin-inline-start: 2px;
+  background: var(--color-maya-clay);
+  vertical-align: -0.12em;
+  animation: maya-blink 1s steps(2, start) infinite;
+}
+
+.maya-glass {
+  background: rgba(242, 237, 228, 0.86);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* swatch dot */
+.maya-swatch {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(22, 19, 14, 0.18);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.maya-swatch:hover { transform: scale(1.15); }
+.maya-swatch[data-active="true"] { box-shadow: 0 0 0 2px var(--color-maya-cream), 0 0 0 3.5px var(--color-maya-ink); }
+
+/* headline mask lines */
+.maya-mask { overflow: hidden; display: block; }
+.maya-mask > * { display: inline-block; will-change: transform; }
+
+/* lenis compatibility classes — lenis only adds these while the /v16
+   MayaApp instance is alive and removes them on unmount. */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* reduced motion: kill the decorative loops inside the port only */
+@media (prefers-reduced-motion: reduce) {
+  .maya-root *, .maya-root *::before, .maya-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
