@@ -1,0 +1,5 @@
+/* Dedicated Tailwind v4 entry. No Preflight or unprefixed utilities. */
+@layer privy-theme, privy-utilities;
+@import "tailwindcss/theme.css" layer(privy-theme) prefix(pv);
+@import "tailwindcss/utilities.css" layer(privy-utilities) prefix(pv) source(none);
+@source "./PrivyExperience.tsx";
