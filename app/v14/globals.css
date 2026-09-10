@@ -1,0 +1,1919 @@
+/* =========================================================================
+   /v14 — thegrind.nl (Maciej Maćkowiak) frontend port, Iranized for a
+   Persian psychologist (دکتر آرش نیک‌آیین). Fully isolated from production
+   routes:
+   - NO Tailwind import at all (the original is 99% custom CSS; the few
+     utility classes it used were rewritten as scoped rules below). Every
+     rule is .v14-scoped, or gated on html[data-v14-active] (set by
+     v14-shell while a /v14 route is mounted, removed on unmount), so it
+     can never touch production routes. Custom props are --v14-* and live
+     on .v14, never :root.
+   - Fonts: --font-v14-sans (Shabnam) and --font-v14-serif (SD Golpayegani)
+     from app/v14/fonts.ts. Aestetico → Shabnam, Migra → Golpayegani.
+   - RTL: the document subtree is dir="rtl", but the horizontal 1368vw
+     choreography and every grid coordinate are physical LTR — exactly as
+     in the source. So the track/camera/frame and grid containers are
+     forced `direction: ltr` while every text block is restored to RTL.
+     Physical margins that created the original's staggered composition
+     are mirrored where reading order demands it. Persian has no italic,
+     so font-style:italic is neutralized; uppercase/letter-spacing tricks
+     are dropped (they break Persian joining).
+   - Split-text: Persian is cursive, so words (never letters) are the
+     animation units; the word spans still carry the `.letter` class the
+     original stagger hooks expect.
+   ========================================================================= */
+
+/* ------------------------------------------------------------------ */
+/* Tokens (scoped to .v14 — never :root)                               */
+/* ------------------------------------------------------------------ */
+
+.v14 {
+  --v14-tan: #ccb7a5;
+  --v14-text-yellow: #ffcf87;
+  --v14-main-green: #243d30;
+  --v14-o-mnie-main: #e8b587;
+  --v14-secondary-green: #395f3f;
+  --v14-dark-slate-grey-2: #275c70;
+  --v14-burlywood: #f1b47c;
+  --v14-deep-brown: #362312;
+  --v14-brighter-violet: #a596e3;
+  --v14-cadet-blue: #009e99;
+  --v14-blog-bg: #eae4df;
+  --v14-teal: #488185;
+  --v14-beach: #faf0d0;
+  --v14-thistle: #c2b5e8;
+  --v14-peru: #d97c25;
+  --v14-o-mnie-footer: #edcf73;
+  --v14-dark-slate-grey: #364f38;
+  --v14-darkest-green: #1d2620;
+  --v14-antique-white: #e8d9cc;
+  --v14-darker-violet: #796cc4;
+  --v14-mint: #dae0dc;
+  --v14-font-body: var(--font-v14-sans), 'Shabnam', Tahoma, Arial, sans-serif;
+  --v14-font-display: var(--font-v14-serif), 'SD Golpayegani', 'Shabnam', 'Palatino Linotype', serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base (gated: only while a /v14 route is mounted)                    */
+/* ------------------------------------------------------------------ */
+
+html[data-v14-active] {
+  overscroll-behavior-y: none;
+  -webkit-text-size-adjust: 100%;
+}
+html[data-v14-active] body {
+  background-color: var(--v14-main-green);
+  color: #f3f3f3;
+  overscroll-behavior: none;
+  font-family: var(--v14-font-body);
+  font-size: 1vw;
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0;
+  min-height: 100%;
+}
+html[data-v14-active] body.v14-no-scroll-transition,
+html[data-v14-active] body.v14-menu-open {
+  overflow: hidden;
+}
+
+/* The wrapper carries the same context as the gated body rule, so the
+   subtree is self-consistent even if navigation races the gate. */
+.v14 {
+  background-color: var(--v14-main-green);
+  color: #f3f3f3;
+  font-family: var(--v14-font-body);
+  font-size: 1vw;
+  font-weight: 400;
+  line-height: 1.4;
+  min-height: 100%;
+  max-width: 100vw;
+  overflow-x: clip;
+}
+
+.v14 h1 {
+  margin: 0;
+  font-family: var(--v14-font-display);
+  font-size: 7.4em;
+  font-weight: 400;
+  line-height: 0.89;
+}
+.v14 h2 {
+  max-width: none;
+  margin: 0;
+  font-family: var(--v14-font-display);
+  font-size: 5.24em;
+  font-weight: 400;
+  line-height: 1.24;
+}
+.v14 h3 {
+  margin: 0;
+  font-family: var(--v14-font-display);
+  font-size: 2.99em;
+  font-weight: 400;
+  line-height: 1.25;
+}
+.v14 p {
+  max-width: 65ch;
+  color: var(--v14-text-yellow);
+  text-wrap: pretty;
+  margin: 0;
+  font-size: 1.12em;
+  direction: rtl;
+}
+.v14 a {
+  color: #fff;
+  text-decoration: none;
+}
+.v14 ul {
+  margin: 0 0 10px;
+  padding: 0;
+}
+.v14 img {
+  max-width: 100%;
+  display: inline-block;
+  vertical-align: middle;
+  border: 0;
+}
+.v14 button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.v14 input {
+  font: inherit;
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1337px) {
+  .v14 .paragraph-standard,
+  .v14 .text-standard {
+    font-size: 0.936rem;
+  }
+}
+@media only screen and (min-width: 1490px) {
+  .v14 .paragraph-standard,
+  .v14 .text-standard {
+    font-size: 16px;
+  }
+  .v14 .paragraph-bigger {
+    font-size: 21px;
+  }
+}
+@media only screen and (min-width: 992px) and (max-width: 1174px) {
+  .v14 .paragraph-bigger {
+    font-size: 1.152rem;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Typography helpers                                                  */
+/* ------------------------------------------------------------------ */
+
+.v14 .paragraph-standard {
+  align-self: flex-end;
+  font-size: 1.1em;
+}
+.v14 .paragraph-standard.margin-top-small._66-proc {
+  align-self: center;
+  width: 66.6%;
+}
+.v14 .paragraph-standard.sa-rzeczy {
+  width: 50%;
+  color: var(--v14-main-green);
+  align-self: center;
+  margin-bottom: -66.5%;
+}
+.v14 .paragraph-standard.text-color-green.margin-adj {
+  margin-bottom: 0.4em;
+}
+.v14 .paragraph-standard.text-color-green.margin-top-small.dzieki-terapii {
+  margin-right: 11%;
+}
+.v14 .paragraph-bigger {
+  font-size: 1.43em;
+  line-height: 1.29;
+}
+.v14 .paragraph-bigger._66-procent {
+  align-self: flex-end;
+  width: 66.6%;
+}
+.v14 .paragraph-bigger.text-color-green.chce-ci {
+  margin-left: 11%;
+}
+.v14 .text-standard {
+  color: var(--v14-text-yellow);
+  font-size: 1.12em;
+  direction: rtl;
+}
+.v14 .text-standard.btn {
+  z-index: 1;
+  color: var(--v14-main-green);
+  text-align: center;
+  font-weight: 700;
+  position: relative;
+}
+.v14 .text-standard.btn.text-color-dark-slate {
+  color: var(--v14-dark-slate-grey-2);
+}
+.v14 .text-standard.nav {
+  z-index: 2;
+  color: var(--v14-burlywood);
+  position: relative;
+}
+.v14 .text-standard.nav-cta {
+  z-index: 2;
+  color: var(--v14-main-green);
+  font-weight: 700;
+  position: relative;
+}
+.v14 .text-standard.nav-cta.text-color-o-mnie-main {
+  color: var(--v14-o-mnie-main);
+}
+.v14 .text-standard.virginia {
+  color: var(--v14-deep-brown);
+  margin-bottom: 0;
+  margin-right: 25em;
+  position: absolute;
+  inset: auto 0% 3% auto;
+}
+.v14 ._14px-text {
+  color: var(--v14-text-yellow);
+  font-size: 14px;
+}
+.v14 .text-color-green {
+  color: var(--v14-main-green);
+}
+.v14 .text-color-dark-slate {
+  color: var(--v14-dark-slate-grey-2);
+}
+.v14 .text-color-vb-violet {
+  color: var(--v14-thistle);
+}
+.v14 .text-color-o-mnie-main-2 {
+  color: #e8b587;
+}
+/* Persian has no italic — neutralized instead of a synthetic slant. */
+.v14 .italic {
+  font-style: normal;
+}
+.v14 .margin-top-bottom-tiny {
+  margin-top: 1.45em;
+  margin-bottom: 1.45em;
+}
+.v14 .margin-top-tiny {
+  margin-top: 1.45em;
+}
+.v14 .margin-top-small {
+  margin-top: 3.63em;
+}
+.v14 .margin-bottom-xtiny {
+  margin-bottom: 0.99em;
+}
+
+/* Split-text helpers (Persian: words are the units) */
+.v14 .tricksword {
+  display: inline-block;
+  white-space: nowrap;
+}
+.v14 .letter {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* ------------------------------------------------------------------ */
+/* Layout: track / camera / frame                                      */
+/* The horizontal choreography is physical LTR — exactly like the       */
+/* source — so the GSAP x-transforms and grid coordinates stay valid.  */
+/* ------------------------------------------------------------------ */
+
+.v14 .page-wrapper,
+.v14 .main-wrapper {
+  overscroll-behavior: none;
+}
+.v14 .track,
+.v14 .camera,
+.v14 .frame,
+.v14 .grid-plain,
+.v14 section,
+.v14 .section-newsletter,
+.v14 .footer {
+  direction: ltr;
+}
+.v14 .track {
+  overscroll-behavior: none;
+  height: 1368vw;
+}
+.v14 .camera {
+  overscroll-behavior: none;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  overflow: hidden;
+}
+.v14 .frame {
+  overscroll-behavior: none;
+  display: flex;
+  position: fixed;
+  top: 0;
+  will-change: transform;
+}
+.v14 .container {
+  z-index: 1;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  display: flex;
+  position: relative;
+}
+.v14 .container.forest {
+  width: 100vw;
+  position: relative;
+  left: 0;
+}
+.v14 .grid-plain {
+  z-index: 1;
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
+  grid-template-rows: 13vh 13vh 13vh 13vh 13vh 13vh;
+  grid-template-columns: 13.65vw 13.65vw 13.65vw minmax(180px, 13.65vw) minmax(180px, 13.65vw) minmax(180px, 13.65vw) 13.65vw;
+  grid-auto-columns: 13.65vw;
+  width: 128.57vw;
+  height: 84.5vh;
+  padding-left: 5px;
+  padding-right: 5px;
+  position: relative;
+  display: grid;
+}
+.v14 .grid-plain.hero-main {
+  grid-template-columns: repeat(7, 13.65vw);
+  padding-left: 0;
+}
+.v14 .grid-plain.enter-forest {
+  z-index: 2;
+  grid-template-columns: repeat(35, 13.65vw);
+  width: 500vw;
+  position: absolute;
+}
+.v14 .grid-plain._5-columns {
+  grid-template-columns: repeat(12, 13.65vw);
+  width: 168vw;
+}
+.v14 .grid-plain._2-columns {
+  grid-template-columns: repeat(9, 13.65vw);
+  width: 128.6vw;
+}
+.v14 .grid-plain._4-columns {
+  grid-template-columns: repeat(11, 13.65vw);
+  width: 157.143vw;
+}
+.v14 .grid-plain.z-index-autp {
+  z-index: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* Navbar (row-reversed for RTL: logo right, CTA left)                 */
+/* ------------------------------------------------------------------ */
+
+.v14 .navbar-wrapper {
+  z-index: 2000;
+  align-items: center;
+  width: 100%;
+  height: 7.75vh;
+  display: flex;
+  flex-direction: row-reverse;
+  position: fixed;
+  inset: 0% 0% auto;
+}
+.v14 .logo-wrapper {
+  z-index: 2;
+  border: 1px solid var(--v14-text-yellow);
+  border-radius: 1px;
+  justify-content: center;
+  align-items: center;
+  width: 28.55vw;
+  flex: none;
+  height: 100%;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+.v14 .nav-logo {
+  width: 13.5em;
+  max-width: 200px;
+  height: auto;
+  color: var(--v14-brighter-violet);
+  margin-top: 0.35em;
+  position: relative;
+  z-index: 2;
+  font-family: var(--v14-font-display);
+}
+.v14 .nav-logo svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.v14 .navlink {
+  z-index: 2;
+  border: 1px solid var(--v14-text-yellow);
+  flex: none;
+  justify-content: center;
+  align-items: center;
+  width: 19.17%;
+  height: 100%;
+  margin-right: -1px;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+.v14 .navlink.w--current {
+  outline: 1px solid var(--v14-burlywood);
+  outline-offset: -4px;
+}
+.v14 .navlink.hide {
+  display: none;
+}
+.v14 .top-right-cta {
+  z-index: 2;
+  border: 1px solid var(--v14-text-yellow);
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  width: 14.25%;
+  height: 100%;
+  margin-right: -1px;
+  margin-left: 0;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+.v14 .nav-cta-background {
+  z-index: 1;
+  background-color: var(--v14-burlywood);
+  border-radius: 50%;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.v14 .gradient-nav {
+  background-image: linear-gradient(to right, var(--v14-cadet-blue), #3ca5a500);
+  width: 40%;
+  position: absolute;
+  inset: 0% auto 0% 0%;
+  pointer-events: none;
+}
+.v14 .gradient-nav.right-side {
+  background-image: linear-gradient(270deg, var(--v14-teal), #48818500);
+  inset: 0% -40% 0% auto;
+}
+.v14 .gradient-nav.left-side {
+  background-image: linear-gradient(to right, var(--v14-teal), #48818500);
+  left: -40%;
+}
+.v14 .gradient-nav.cta-navbar {
+  z-index: 2;
+}
+.v14 .navbar-brightness-background {
+  display: none;
+}
+.v14 .nav-background {
+  z-index: 1;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  background-color: transparent;
+  width: 100%;
+  height: 7.6vh;
+  position: fixed;
+  inset: 1px 0 auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* Social icons (fixed)                                                */
+/* ------------------------------------------------------------------ */
+
+.v14 .social-icons-wrapper {
+  z-index: 1000;
+  justify-content: space-around;
+  align-items: center;
+  width: 14.2em;
+  height: 9.25vh;
+  padding: 0 1.2em;
+  display: flex;
+  position: fixed;
+  inset: auto 0% 0% auto;
+}
+.v14 .side-link {
+  width: 23px;
+  height: 23px;
+  color: var(--v14-text-yellow);
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  transition: opacity 0.2s;
+  display: flex;
+}
+.v14 .side-link:hover {
+  opacity: 0.52;
+}
+.v14 .icon-1x1-small {
+  color: var(--v14-text-yellow);
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+.v14 .icon-1x1-small svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ------------------------------------------------------------------ */
+/* Page transition curtain (origin flipped for RTL)                    */
+/* ------------------------------------------------------------------ */
+
+.v14 .transition {
+  z-index: 9000;
+  justify-content: flex-start;
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  position: fixed;
+  inset: 0%;
+  pointer-events: none;
+}
+.v14 .transition.is-visible {
+  display: flex;
+}
+.v14 .page-courtain {
+  background-color: var(--v14-cadet-blue);
+  transform-origin: 0%;
+  width: 100%;
+  height: 100%;
+}
+
+/* ------------------------------------------------------------------ */
+/* Scroll progress bar                                                 */
+/* ------------------------------------------------------------------ */
+
+.v14 .scrollbar {
+  z-index: 5050;
+  background-color: var(--v14-dark-slate-grey-2);
+  height: 8px;
+  position: fixed;
+  inset: auto 0% 0%;
+}
+.v14 .scroll-item {
+  background-color: var(--v14-beach);
+  width: 1vw;
+  height: 100%;
+}
+.v14 .scroll-item.main {
+  background-color: var(--v14-brighter-violet);
+}
+
+/* ------------------------------------------------------------------ */
+/* CTA button                                                          */
+/* ------------------------------------------------------------------ */
+
+.v14 .cta-btn {
+  cursor: pointer;
+  border-radius: 50%;
+  justify-content: center;
+  align-items: center;
+  width: 20em;
+  height: 4.4em;
+  margin-bottom: 0;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+.v14 .cta-btn:focus-visible {
+  outline: 2px solid var(--v14-brighter-violet);
+  outline-offset: 0;
+}
+.v14 .cta-btn.margin-top-small.margin-10px-bottom {
+  margin-bottom: -10px;
+}
+.v14 .btn-background {
+  background-color: var(--v14-burlywood);
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  margin: auto;
+  position: absolute;
+  inset: 0%;
+}
+.v14 .btn-background.hoover-on {
+  background-color: var(--v14-cadet-blue);
+  top: 200%;
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero                                                                */
+/* ------------------------------------------------------------------ */
+
+.v14 .section-hero {
+  flex: none;
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  position: relative;
+}
+.v14 .section-hero.is-green {
+  border-bottom: 1px solid var(--v14-text-yellow);
+  border-right: 1px solid var(--v14-text-yellow);
+  background-color: var(--v14-main-green);
+}
+.v14 .hero-paragraph-wrapper {
+  align-items: flex-end;
+  padding-bottom: 1.5em;
+  padding-left: 4.2em;
+  padding-right: 4.2em;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+.v14 .gradient-courtain {
+  background-image: linear-gradient(#243d3000, #243d30 40%);
+  width: 100%;
+  height: 130%;
+  position: absolute;
+  inset: auto 0% 0%;
+  pointer-events: none;
+}
+.v14 .cta-hero-wrapper {
+  justify-content: center;
+  align-items: flex-end;
+  display: flex;
+}
+.v14 .hero-img-wrapper {
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 57.3vw;
+  height: 100%;
+  margin-left: 28.2vw;
+  display: flex;
+  position: relative;
+  left: 0.3%;
+  overflow: hidden;
+}
+.v14 .hero-img-back-wrapper {
+  z-index: 1;
+  padding-bottom: 1px;
+  position: absolute;
+  inset: 0% auto 0% 0%;
+}
+.v14 .hero-image-back {
+  z-index: 1;
+  object-fit: fill;
+  width: auto;
+  max-width: none;
+  height: 100%;
+  margin-bottom: 1px;
+}
+.v14 .hero-img-front-wrap {
+  z-index: 3;
+  position: absolute;
+  inset: 0% auto 0% 0%;
+}
+.v14 .hero-img-front {
+  z-index: 3;
+  object-fit: fill;
+  width: auto;
+  max-width: none;
+  height: 100%;
+  margin-bottom: -1px;
+}
+.v14 .h1-hero-wrapper {
+  z-index: 2;
+  position: relative;
+}
+.v14 .main-h1 {
+  z-index: 2;
+  width: 10em;
+  color: var(--v14-cadet-blue);
+  margin-top: -0.1em;
+  margin-left: 0.08em;
+  position: absolute;
+  left: 0;
+  text-align: right;
+}
+.v14 .main-h1.fade-up.tricks {
+  color: var(--v14-cadet-blue);
+  margin-top: 0.3em;
+  margin-left: 0.58em;
+  font-size: 7em;
+}
+.v14 .move-h1 {
+  margin-right: 5.2em;
+}
+.v14 .location-wrapper {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+.v14 .location-icon-wrapper {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+.v14 .promienie {
+  width: 5.28em;
+  height: 5.28em;
+}
+.v14 .promienie svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.v14 .iran-map {
+  z-index: 6;
+  width: 3.4em;
+  height: 3.4em;
+  margin: auto;
+  position: absolute;
+  inset: -0.9em 0% 0%;
+  color: var(--v14-text-yellow);
+}
+.v14 .iran-map svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.v14 .world {
+  z-index: 6;
+  width: 2.51em;
+  height: 2.51em;
+  margin: auto;
+  position: absolute;
+  inset: 0%;
+}
+.v14 .hero-line-kurtyna {
+  width: 1px;
+  height: 4.16em;
+  overflow: hidden;
+}
+.v14 ._1px-line {
+  background-color: var(--v14-text-yellow);
+  width: 1px;
+}
+.v14 ._1px-line.hero {
+  height: 100%;
+}
+.v14 .hero-icons-overlay {
+  z-index: 7;
+  position: absolute;
+  inset: 0%;
+}
+
+/* ------------------------------------------------------------------ */
+/* Forest (chapter 1 intro)                                            */
+/* ------------------------------------------------------------------ */
+
+.v14 .section-enter-forest {
+  z-index: 3;
+  background-color: var(--v14-main-green);
+  flex: none;
+  align-items: center;
+  width: 500vw;
+  height: 100vh;
+  margin-left: -1px;
+  margin-right: -100vw;
+  display: flex;
+  position: relative;
+}
+.v14 .enter-forest-img {
+  z-index: 0;
+  object-fit: cover;
+  width: 100vw;
+  max-width: none;
+  height: 100%;
+  position: absolute;
+}
+.v14 .enter-forrest-apla {
+  z-index: 1;
+  background-color: var(--v14-main-green);
+  opacity: 0.81;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  inset: 0%;
+}
+.v14 .enter-1st-para-wrap {
+  margin-right: 6.4em;
+}
+.v14 .enter-1st-para-wrap,
+.v14 .enter-2-para-wrap,
+.v14 .enter-3-para-wrap,
+.v14 .enter-4-para-wrap,
+.v14 .h2-forest {
+  direction: rtl;
+}
+.v14 .h2-forest {
+  color: #eec27d;
+}
+.v14 .h2-forest._1 {
+  position: relative;
+}
+.v14 .h2-forest._2 {
+  width: 8.7em;
+  margin-right: -8vw;
+  display: block;
+}
+.v14 .enter-2-para-wrap {
+  text-align: left;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+.v14 .enter-3-para-wrap,
+.v14 .enter-4-para-wrap {
+  display: block;
+}
+.v14 ._1-proces-terapii {
+  display: inline-block;
+}
+.v14 ._2-sie-w-siebie {
+  margin-right: 17vw;
+  display: inline-block;
+}
+.v14 ._3-i-kluczenie {
+  margin-right: 8vw;
+  display: inline-block;
+}
+.v14 ._4-jakbys-szukal {
+  display: block;
+}
+.v14 ._5-przez-ciemny-las {
+  margin-right: auto;
+  margin-left: -6vw;
+  display: inline-block;
+}
+.v14 ._6-ale-w-koncu {
+  display: inline-block;
+}
+.v14 ._7-staje-sie {
+  margin-right: 1.99em;
+  display: inline-block;
+}
+.v14 ._8-i-mozesz {
+  display: inline-block;
+}
+.v14 ._9-w-nim {
+  margin-right: 4.2em;
+  display: inline-block;
+}
+.v14 .path-lootie {
+  z-index: 1;
+  width: 500vw;
+  position: absolute;
+  inset: auto auto auto 0%;
+  overflow: visible;
+  pointer-events: none;
+}
+.v14 .path-lootie svg {
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Newsletter                                                          */
+/* ------------------------------------------------------------------ */
+
+.v14 .section-newsletter {
+  z-index: 2;
+  background-color: #243d30;
+  flex: none;
+  justify-content: center;
+  align-items: center;
+  width: 50vw;
+  height: 100vh;
+  margin-left: 50vw;
+  padding-top: 74px;
+  display: flex;
+  position: relative;
+  overflow: clip;
+  transform: translate(-50vw);
+}
+.v14 .mailing-wrapper {
+  z-index: 1;
+  gap: 20px;
+  color: #e8d9cc;
+  flex-flow: column;
+  width: 80%;
+  max-width: 31vw;
+  display: flex;
+  position: relative;
+  direction: rtl;
+  align-items: flex-start;
+}
+.v14 .newsletter-image {
+  z-index: 0;
+  object-fit: cover;
+  object-position: 50% 100%;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 7.75vh 0% 0%;
+}
+.v14 .newsletter_image-overlay {
+  background-color: #0b2c1b66;
+  position: absolute;
+  inset: 0%;
+}
+.v14 .h3.is-newsletter {
+  text-shadow: none;
+  margin-bottom: 15px;
+}
+.v14 .is-newsletter {
+  color: #faf0d0;
+  max-width: 42ch;
+  text-align: right;
+}
+.v14 .h3.is-newsletter,
+.v14 .paragraph-bigger.is-newsletter {
+  text-align: right;
+}
+.v14 .newsletter_list {
+  gap: 10px;
+  flex-flow: column;
+  margin-bottom: 25px;
+  padding-right: 20px;
+  display: flex;
+  list-style: disc;
+  direction: rtl;
+}
+.v14 .newsletter_list p {
+  max-width: none;
+}
+.v14 .mailing_embed-2 {
+  z-index: 1001;
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+}
+.v14 .ml-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
+  direction: rtl;
+}
+.v14 .ml-form-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.v14 .ml-input {
+  flex: 1;
+  min-width: 0;
+  background: #faf0d01a;
+  border: 1px solid #faf0d080;
+  color: #faf0d0;
+  padding: 12px 16px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+.v14 .ml-input::placeholder {
+  color: #faf0d099;
+}
+.v14 .ml-input:focus {
+  border-color: var(--v14-text-yellow);
+  background: #faf0d026;
+}
+.v14 .ml-submit {
+  background: var(--v14-burlywood);
+  color: var(--v14-main-green);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s;
+}
+.v14 .ml-submit:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+.v14 .ml-submit:active {
+  transform: translateY(0) scale(0.98);
+}
+.v14 .ml-submit[disabled] {
+  opacity: 0.6;
+  cursor: wait;
+}
+.v14 .ml-note {
+  font-size: 12px;
+  color: #faf0d0b3;
+  max-width: 42ch;
+}
+.v14 .ml-success {
+  color: var(--v14-text-yellow);
+  font-size: 14px;
+  direction: rtl;
+  text-align: right;
+}
+.v14 .ml-error {
+  color: #f1b47c;
+  font-size: 12px;
+  direction: rtl;
+  text-align: right;
+}
+
+/* ------------------------------------------------------------------ */
+/* Droga przez las                                                     */
+/* ------------------------------------------------------------------ */
+
+.v14 .section-droga-przez-las {
+  z-index: 1;
+  background-color: var(--v14-main-green);
+  flex: none;
+  align-items: center;
+  width: 268vw;
+  height: 100vh;
+  display: flex;
+  position: relative;
+}
+.v14 .droga-przez-wrap {
+  align-items: center;
+  padding-right: 11%;
+  display: flex;
+}
+.v14 .h3.text-color-vb-violet {
+  color: #bdaee8;
+}
+.v14 .flex-v-align-bottom {
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  display: flex;
+  direction: rtl;
+}
+.v14 .facture-wrapper {
+  justify-content: center;
+  width: 41.3em;
+  height: 102vh;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+.v14 .facture-img {
+  object-fit: cover;
+  flex: none;
+  width: 55vw;
+  max-width: none;
+  height: auto;
+}
+.v14 .headshot-cutter {
+  justify-content: center;
+  align-items: center;
+  width: 12em;
+  height: 19em;
+  margin: auto;
+  display: flex;
+  position: absolute;
+  inset: 0%;
+  overflow: hidden;
+}
+.v14 .headshot-img {
+  object-fit: fill;
+  width: 100%;
+  max-width: none;
+  height: auto;
+}
+.v14 .droga-przez-2nd-para-wrap {
+  flex-direction: column;
+  justify-content: center;
+  display: flex;
+  direction: rtl;
+}
+.v14 .cutter {
+  position: relative;
+  overflow: hidden;
+}
+.v14 .cutter.right-align-flex,
+.v14 .cutter.flex-center {
+  justify-content: center;
+  display: flex;
+}
+.v14 .sciezka-w-lesie-wrap {
+  justify-content: flex-end;
+  display: flex;
+  position: relative;
+  transform: translateY(6.5vh);
+}
+.v14 .las-sciezka-img {
+  object-fit: cover;
+  width: auto;
+  height: 100%;
+  margin-left: -5.3em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Second H2 (Virginia Satir)                                          */
+/* ------------------------------------------------------------------ */
+
+.v14 .section-second-h2 {
+  background-color: var(--v14-tan);
+  flex: none;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+}
+.v14 .second-h2-first-wrap {
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-bottom: -2.1%;
+  display: flex;
+  position: relative;
+  direction: rtl;
+}
+.v14 .h2.italic.ycie {
+  color: var(--v14-deep-brown);
+  text-align: center;
+  margin-top: -0.5em;
+  overflow: hidden;
+}
+.v14 .h2.italic.ale-jest {
+  color: var(--v14-deep-brown);
+  text-align: center;
+  overflow: hidden;
+}
+.v14 .h2.italic.sposob {
+  color: var(--v14-deep-brown);
+  text-align: center;
+  margin-top: 0.9em;
+  padding-right: 1.9em;
+  overflow: hidden;
+}
+.v14 .h2.italic.radzisz {
+  color: var(--v14-deep-brown);
+  text-align: right;
+  padding-right: 1.3em;
+  overflow: hidden;
+}
+.v14 .h2.italic.roznice {
+  color: var(--v14-deep-brown);
+  text-align: right;
+  padding-right: 0.7em;
+  overflow: hidden;
+}
+.v14 .second-h2-section-para-erap {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  direction: rtl;
+}
+
+/* ------------------------------------------------------------------ */
+/* Big picture + second content                                        */
+/* ------------------------------------------------------------------ */
+
+.v14 .section-second-big-picture {
+  background-color: var(--v14-tan);
+  flex: none;
+  align-items: center;
+  width: 100vw;
+  display: flex;
+}
+.v14 .mobile-big-picture-frame {
+  display: block;
+  min-height: 0;
+}
+.v14 ._2nd-big-img-cutter {
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+}
+.v14 .duzy-las-klif-img {
+  max-width: none;
+  height: 110%;
+}
+.v14 .h3.sposob {
+  z-index: 1;
+  width: 20vw;
+  color: var(--v14-dark-slate-grey-2);
+  padding-left: 10px;
+  padding-right: 10px;
+  position: relative;
+  direction: rtl;
+  text-align: right;
+}
+.v14 .h3-2nd-section-wrap {
+  position: relative;
+}
+.v14 .section-second-content {
+  background-color: var(--v14-tan);
+  flex: none;
+  align-items: center;
+  width: 128.6vw;
+  display: flex;
+}
+.v14 .two-cell-paragraph-wrapper {
+  align-items: flex-end;
+  display: flex;
+  direction: rtl;
+}
+.v14 .wydma-wrap {
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 33.4vh;
+  height: 50.5vh;
+  margin-bottom: -6em;
+  display: flex;
+  overflow: hidden;
+}
+.v14 .wydma-img {
+  object-fit: cover;
+  max-width: none;
+  height: 50.5vh;
+}
+.v14 .wchodzenie-na-wyspe-wrap {
+  justify-content: flex-start;
+  align-items: flex-end;
+  width: 52.5vh;
+  height: 79vh;
+  margin-top: -5.4em;
+  display: flex;
+  overflow: hidden;
+}
+.v14 .wejscie-na-wydme-img {
+  max-width: none;
+  height: 79vh;
+}
+.v14 .second-chapter-last-para-wrap {
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  width: 62.5%;
+  display: flex;
+  direction: rtl;
+}
+
+/* ------------------------------------------------------------------ */
+/* Chapter 3 hero (beach)                                              */
+/* ------------------------------------------------------------------ */
+
+.v14 .section-hero-3rd-chapter {
+  flex: none;
+  align-items: center;
+  width: 100vw;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+.v14 .chapter-3-img {
+  z-index: 1;
+  object-fit: cover;
+  object-position: 50% 0%;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  inset: 0% 0% auto;
+}
+.v14 .h1-3rd-chapter-1st-wrap {
+  z-index: 1;
+  flex-direction: column;
+  padding-top: 3.6em;
+  display: flex;
+  position: relative;
+  direction: rtl;
+}
+.v14 .h1-3rd-chapter-2nd-wrap {
+  z-index: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding-bottom: 0.1em;
+  display: flex;
+  position: relative;
+  direction: rtl;
+}
+.v14 .h2-cutter {
+  height: 6.5em;
+  overflow: hidden;
+}
+.v14 .h2-cutter.flex-right {
+  justify-content: flex-end;
+  align-items: center;
+  display: flex;
+}
+.v14 .h2-cutter.flex-left {
+  align-items: center;
+  width: 80%;
+  display: flex;
+}
+.v14 .negative-margin {
+  margin-left: -2vw;
+  margin-right: -2vw;
+}
+.v14 .h2.text-color-dark-slate.italic {
+  align-self: flex-end;
+}
+.v14 .h2.text-color-dark-slate.italic._2nd-line {
+  align-self: flex-start;
+  margin-right: 7%;
+}
+.v14 .h2.text-color-dark-slate.italic._3rd-line {
+  align-self: flex-start;
+  margin-right: 30%;
+}
+.v14 .h2.text-color-dark-slate.italic._4th-line {
+  align-self: flex-start;
+  margin-right: 0%;
+}
+.v14 .h2.text-color-dark-slate.italic._5th-line-copy {
+  align-self: flex-start;
+  margin-right: 21%;
+}
+.v14 .quote-autor-wrap {
+  align-items: center;
+  margin-bottom: 2%;
+  margin-left: 8%;
+  display: flex;
+  position: absolute;
+  inset: auto auto 0% 0%;
+}
+.v14 .big-gradient {
+  z-index: 1;
+  background-image: linear-gradient(135deg, var(--v14-tan) 35%, #ccb7a500 95%);
+  width: 400%;
+  height: 100%;
+  display: block;
+  position: absolute;
+  inset: auto 0% auto auto;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Chapter 3 main content                                              */
+/* ------------------------------------------------------------------ */
+
+.v14 .section-3rd-chapter-main-content {
+  background-color: var(--v14-beach);
+  flex: none;
+  align-items: center;
+  width: 157.143vw;
+  display: flex;
+}
+.v14 .big-txt-wrapper {
+  gap: 0;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 2fr 2fr 2fr 2fr 2fr;
+  grid-auto-columns: 1fr;
+  align-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 3.63em;
+  display: grid;
+}
+.v14 .left-column-big-txt {
+  justify-content: center;
+  align-items: flex-end;
+  height: 34%;
+  display: flex;
+  direction: rtl;
+}
+.v14 .h3._3rd--chapter {
+  width: 64%;
+  color: var(--v14-peru);
+  text-align: right;
+}
+.v14 .top-big-txt-wrap {
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-left: 6.79em;
+  display: flex;
+  direction: rtl;
+}
+.v14 .ga-ch3-para {
+  direction: rtl;
+  text-align: right;
+}
+.v14 .plecy-img-holder {
+  display: flex;
+  justify-content: center;
+}
+.v14 .back-imgae-wrap {
+  justify-content: center;
+  align-items: center;
+  width: 22em;
+  height: 32.5em;
+  margin-top: -10px;
+  margin-bottom: -10px;
+  display: flex;
+  overflow: hidden;
+}
+.v14 .plecy-img {
+  object-fit: cover;
+  flex: none;
+  width: 22em;
+  height: 32.5em;
+}
+.v14 .last-paragraph-wrap {
+  width: 17em;
+  margin-left: 8%;
+  direction: rtl;
+}
+.v14 .chapter-3-headshot-wrapper {
+  position: relative;
+}
+.v14 .chapt-3-headshot-img {
+  object-fit: cover;
+  max-width: none;
+  max-height: 100%;
+  margin-right: -9vw;
+  position: absolute;
+  right: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Footer                                                              */
+/* ------------------------------------------------------------------ */
+
+.v14 .footer {
+  background-color: var(--v14-teal);
+  flex-direction: column;
+  flex: none;
+  justify-content: flex-end;
+  width: 14.4vw;
+  margin-right: -0.2vw;
+  padding-left: 2.6em;
+  padding-right: 2.6em;
+  display: flex;
+}
+.v14 .footer-info-wrap {
+  margin-bottom: 20.5vh;
+  direction: rtl;
+}
+.v14 .footer-text {
+  color: var(--v14-text-yellow);
+  margin-top: 9vh;
+  font-size: 14px;
+}
+.v14 .footer-text.bold {
+  font-weight: 700;
+}
+.v14 .footer-link {
+  opacity: 1;
+  color: var(--v14-text-yellow);
+  margin-bottom: 0;
+  font-size: 14px;
+  text-decoration: underline;
+  transition: color 0.3s;
+  display: inline-block;
+}
+.v14 .footer-link:hover {
+  color: var(--v14-beach);
+}
+
+/* ------------------------------------------------------------------ */
+/* Cookie banner                                                       */
+/* ------------------------------------------------------------------ */
+
+.v14 .fs-cc-banner2_component {
+  z-index: 999;
+  color: #fff;
+  align-items: center;
+  width: auto;
+  height: 9.25vh;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  position: fixed;
+  inset: auto 0 0%;
+  justify-content: center;
+  pointer-events: none;
+}
+.v14 .fs-cc-banner2_container {
+  border: 1px solid var(--v14-burlywood);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  border-radius: 1px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  pointer-events: auto;
+  direction: rtl;
+}
+.v14 .fs-cc-banner2_text {
+  color: var(--v14-burlywood);
+  margin-left: 30px;
+  margin-right: 30px;
+  font-size: 13px;
+}
+.v14 .fs-cc-banner2_buttons-wrapper {
+  flex: none;
+  justify-content: flex-end;
+  align-items: center;
+  display: flex;
+}
+.v14 .fs-cc-banner2_button {
+  background-color: var(--v14-burlywood);
+  min-width: 120px;
+  color: var(--v14-main-green);
+  text-align: center;
+  cursor: pointer;
+  flex: 1;
+  padding: 8px 20px;
+  font-size: 12px;
+  transition: filter 0.2s;
+}
+.v14 .fs-cc-banner2_button:hover {
+  filter: brightness(1.08);
+}
+.v14 .fs-cc-banner2_button.fs-cc-button-alt {
+  border-right: 1px solid var(--v14-burlywood);
+  color: var(--v14-o-mnie-main);
+  background-color: transparent;
+  transition: background-color 0.2s, filter 0.2s;
+}
+.v14 .fs-cc-banner2_button.fs-cc-button-alt:hover {
+  background-color: #f1b47c1f;
+}
+/* Recolouring when the horizontal journey reaches the tan chapters (a-78 @56–58%) */
+.v14 .fs-cc-banner2_container,
+.v14 .fs-cc-banner2_text,
+.v14 .fs-cc-banner2_button {
+  transition: background-color 0.6s, color 0.6s, border-color 0.6s, filter 0.2s;
+}
+html[data-v14-active] body.v14-on-tan .fs-cc-banner2_container {
+  border-color: var(--v14-dark-slate-grey);
+}
+html[data-v14-active] body.v14-on-tan .fs-cc-banner2_text {
+  color: var(--v14-dark-slate-grey);
+}
+html[data-v14-active] body.v14-on-tan .fs-cc-banner2_button {
+  background-color: var(--v14-dark-slate-grey);
+  color: var(--v14-text-yellow);
+}
+html[data-v14-active] body.v14-on-tan .fs-cc-banner2_button.fs-cc-button-alt {
+  background-color: transparent;
+  color: var(--v14-dark-slate-grey);
+  border-color: var(--v14-dark-slate-grey);
+}
+.v14 .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Subpages (therapy / about / contact / newsletter)                   */
+/* ------------------------------------------------------------------ */
+
+.v14 .v14-sub-main {
+  direction: rtl;
+  display: flex;
+  min-height: 100vh;
+  min-height: 100svh;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 8vw;
+  padding-right: 8vw;
+  padding-bottom: 16vh;
+  padding-top: 18vh;
+}
+.v14 .v14-sub-title {
+  font-family: var(--v14-font-display);
+  font-size: clamp(3rem, 9vw, 9rem);
+  line-height: 1.2;
+  margin: 0;
+}
+.v14 .v14-sub-lead {
+  margin-top: 2em;
+  max-width: 52ch;
+  font-size: clamp(1.1rem, 1.6vw, 1.6rem);
+}
+.v14 .v14-sub-body {
+  margin-top: 1.5em;
+  max-width: 62ch;
+  font-size: clamp(1rem, 1.15vw, 1.2rem);
+}
+.v14 .v14-sub-form {
+  margin-top: 2.5em;
+}
+.v14 .v14-sub-form .ml-input {
+  color: #243d30;
+  border-color: #243d3080;
+  background: #243d301a;
+}
+.v14 .v14-sub-form .ml-input::placeholder {
+  color: #243d3099;
+}
+.v14 .v14-sub-form .ml-input:focus {
+  border-color: #243d30;
+  background: #243d3026;
+}
+.v14 .v14-sub-form .ml-note {
+  color: #243d30b3;
+}
+.v14 .v14-sub-form .ml-success {
+  color: inherit;
+}
+.v14 .v14-sub-form .ml-error {
+  color: #b3341f;
+}
+.v14 .v14-sub-actions {
+  margin-top: 3.5em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2em;
+  font-size: clamp(0.85rem, 1vw, 1rem);
+}
+.v14 .v14-sub-cta {
+  border-radius: 999px;
+  padding: 0.75em 2em;
+  font-weight: 700;
+  transition: transform 0.5s;
+}
+.v14 .v14-sub-cta:hover {
+  transform: translateY(-2px);
+}
+.v14 .v14-sub-back {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: opacity 0.3s;
+}
+.v14 .v14-sub-back:hover {
+  opacity: 0.6;
+}
+
+/* Grid placements — desktop (>= 992px). The grid containers are LTR, so
+   the original coordinates are kept verbatim. */
+@media screen and (min-width: 992px) {
+  .v14 .ga-hero-paragraph { grid-area: 3 / 1 / 6 / 3; }
+  .v14 .ga-hero-cta { grid-area: 6 / 1 / 7 / 3; }
+  .v14 .ga-hero-img { grid-area: 1 / 1 / 7 / 7; align-self: start; }
+  .v14 .ga-hero-h1 { grid-area: 2 / 2 / 3 / 3; }
+  .v14 .ga-hero-location { grid-area: 1 / 7 / 7 / 8; }
+
+  .v14 .ga-forest-1 { grid-area: 2 / 2 / 6 / 7; align-self: center; }
+  .v14 .ga-forest-2 { grid-area: 2 / 9 / 6 / 14; place-self: center; }
+  .v14 .ga-forest-3 { grid-area: 2 / 16 / 6 / 21; place-self: center; }
+  .v14 .ga-forest-4 { grid-area: 2 / 23 / 6 / 28; place-self: center; }
+
+  .v14 .ga-droga-h3 { grid-area: 2 / 2 / 4 / 5; }
+  .v14 .ga-droga-paras { grid-area: 3 / 3 / 6 / 5; }
+  .v14 .ga-droga-facture { grid-area: 1 / 6 / 7 / 9; align-self: center; }
+  .v14 .ga-droga-2nd { grid-area: 2 / 9 / 5 / 12; }
+  .v14 .ga-droga-sciezka { grid-area: 2 / 11 / 5 / 13; }
+
+  .v14 .ga-h2-first { grid-area: 1 / 2 / 7 / 7; align-self: center; }
+  .v14 .ga-h2-para { grid-area: 1 / 5 / 7 / 8; }
+
+  .v14 .ga-big-frame { grid-area: span 6 / span 5 / span 6 / span 5; }
+  .v14 .ga-big-h3 { grid-area: 2 / 6 / 3 / 8; place-self: end; }
+
+  .v14 .ga-2nd-two-cell { grid-area: 2 / 1 / 3 / 3; }
+  .v14 .ga-2nd-wydma { grid-area: 4 / 1 / 7 / 3; place-self: end start; }
+  .v14 .ga-2nd-wchodzenie { grid-area: 1 / 4 / 6 / 6; place-self: start center; }
+  .v14 .ga-2nd-last { grid-area: 2 / 6 / 6 / 10; justify-self: center; }
+
+  .v14 .ga-ch3-first { grid-area: 1 / 1 / 4 / 6; }
+  .v14 .ga-ch3-second { grid-area: 5 / 3 / 7 / 8; }
+
+  .v14 .ga-ch3-bigtxt { grid-area: 2 / 1 / 7 / 6; }
+  .v14 .ga-ch3-left-col { grid-area: 2 / 1 / 3 / 4; }
+  .v14 .ga-ch3-para { grid-area: 2 / 4 / 3 / 6; align-self: end; }
+  .v14 .ga-ch3-top { grid-area: 1 / 3 / 2 / 6; align-self: stretch; }
+  .v14 .ga-ch3-top-para { grid-area: 1 / 3 / 2 / 6; }
+  .v14 .ga-ch3-plecy { grid-area: 2 / 6 / 6 / 10; place-self: center; }
+  .v14 .ga-ch3-last { grid-area: 2 / 9 / 6 / 12; place-self: end center; }
+  .v14 .ga-ch3-headshot { grid-area: 2 / 1 / 5 / 2; }
+}
+
+/* Horizontal-scroll overflow containment — always on while a /v14 route
+   is mounted: the journey is horizontal at every viewport width. */
+html[data-v14-active] {
+  overflow-x: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v14 .letter,
+  .v14 .tricksword {
+    will-change: auto;
+  }
+}
+
+/* ================================================================== */
+/* v14 mobile-usability pass                                          */
+/* The desktop horizontal journey is the ONLY layout in v14. On phones */
+/* the 1vw type system would render ~4px, so the whole composition is */
+/* scaled up by a factor S applied to the 1vw root: 2.6x on portrait  */
+/* phones, 1.9x on small landscape, 1.5x on tablets/desktop-narrow -  */
+/* type, the em-sized images and the paddings all grow together,      */
+/* exactly like zooming the desktop site. Geometry (vw/vh grid) is    */
+/* untouched, so every keyframe and grid coordinate stays valid.      */
+/* Everything below is scoped to <= 991px, so desktop is byte-equal   */
+/* to v13's rendering.                                                */
+/* ================================================================== */
+
+@media (max-width: 991px) {
+
+  /* --- root scale: the zoom factor --- */
+  html[data-v14-active] body,
+  .v14 {
+    font-size: calc(1vw * 1.5);
+  }
+  @media (orientation: landscape) {
+    html[data-v14-active] body,
+    .v14 {
+      font-size: calc(1vw * 1.9);
+    }
+  }
+  @media (orientation: portrait) {
+    html[data-v14-active] body,
+    .v14 {
+      font-size: calc(1vw * 2.6);
+    }
+  }
+
+  /* --- tap targets & small labels: keep them physically readable --- */
+  .v14 .navlink,
+  .v14 .top-right-cta {
+    min-width: 64px;
+  }
+  .v14 ._14px-text {
+    font-size: max(13px, 1.1em);
+  }
+  .v14 .footer-text,
+  .v14 .footer-link {
+    font-size: max(12px, 1.1em);
+  }
+  .v14 .fs-cc-banner2_text {
+    font-size: max(12px, 1.1em);
+  }
+  .v14 .fs-cc-banner2_button {
+    font-size: max(12px, 1em);
+    min-width: 96px;
+    padding: 10px 18px;
+  }
+  .v14 .ml-input {
+    font-size: 16px; /* prevents iOS focus zoom */
+  }
+  .v14 .ml-submit {
+    font-size: max(12px, 1em);
+  }
+  .v14 .ml-note,
+  .v14 .ml-error {
+    font-size: max(11px, 1em);
+  }
+  .v14 .ml-success {
+    font-size: max(13px, 1.1em);
+  }
+
+  /* --- location column: shrink pictograms and give the tall stack */
+  /* breathing room --- */
+  .v14 .promienie {
+    width: 4.2em;
+    height: 4.2em;
+  }
+  .v14 .iran-map {
+    width: 2.9em;
+    height: 2.9em;
+  }
+  .v14 .world {
+    width: 2.2em;
+    height: 2.2em;
+  }
+  .v14 .hero-line-kurtyna {
+    height: 3em;
+  }
+  @media (max-height: 620px) {
+    .v14 .location-wrapper .margin-top-bottom-tiny {
+      margin-top: 0.7em;
+      margin-bottom: 0.7em;
+    }
+    .v14 .hero-line-kurtyna {
+      height: 2em;
+    }
+  }
+
+  /* --- hero photos: cap the wrapper so faces stay in frame --- */
+  .v14 .hero-img-wrapper {
+    width: min(57.3vw, 92vw);
+  }
+  .v14 .hero-img-front,
+  .v14 .hero-image-back {
+    max-height: 100%;
+  }
+
+  /* --- portrait phones: rebalance hero + cap oversized display type --- */
+  @media (orientation: portrait) {
+    .v14 .main-h1.fade-up.tricks {
+      font-size: 5.4em;
+      width: 9em;
+    }
+    .v14 .cta-btn {
+      width: 16em;
+      height: 3.8em;
+    }
+    .v14 .hero-paragraph-wrapper {
+      padding-left: 2.2em;
+      padding-right: 2.2em;
+    }
+
+    /* forest headline offsets were sized for the wide 500vw canvas */
+    .v14 ._2-sie-w-siebie {
+      margin-right: 8vw;
+    }
+    .v14 ._3-i-kluczenie {
+      margin-right: 4vw;
+    }
+    .v14 ._5-przez-ciemny-las {
+      margin-left: -3vw;
+    }
+    .v14 ._9-w-nim {
+      margin-right: 2em;
+    }
+    .v14 .h2-forest {
+      font-size: 0.92em;
+    }
+
+    /* chapter 2 quote + chapter 3 lines: cap display size so the
+       centered blocks wrap instead of spilling out of their cutters */
+    .v14 .h2.italic.ycie,
+    .v14 .h2.italic.ale-jest,
+    .v14 .h2.italic.sposob,
+    .v14 .h2.italic.radzisz,
+    .v14 .h2.italic.roznice {
+      font-size: 0.78em;
+    }
+    .v14 .h2-cutter {
+      height: 5.2em;
+    }
+    .v14 .h2.text-color-dark-slate.italic._1st-line,
+    .v14 .h2.text-color-dark-slate.italic._2nd-line,
+    .v14 .h2.text-color-dark-slate.italic._3rd-line,
+    .v14 .h2.text-color-dark-slate.italic._4th-line,
+    .v14 .h2.text-color-dark-slate.italic._5th-line-copy {
+      font-size: 0.8em;
+    }
+    .v14 .h3.text-color-vb-violet,
+    .v14 .h3._3rd--chapter,
+    .v14 .h3.sposob {
+      font-size: 0.9em;
+    }
+    .v14 .h3._3rd--chapter {
+      width: 80%;
+    }
+
+    /* em-sized photo cutters: cap against the 2.6x root */
+    .v14 .headshot-cutter {
+      width: min(12em, 34vw);
+      height: min(19em, 54vw);
+    }
+    .v14 .back-imgae-wrap {
+      width: min(22em, 60vw);
+      height: min(32.5em, 88vw);
+    }
+    .v14 .plecy-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .v14 .chapter-3-headshot-wrapper {
+      width: min(24vw, 40em);
+      height: min(34vw, 56em);
+    }
+
+    /* footer column and last paragraph: widen inside their cells */
+    .v14 .footer {
+      width: 24vw;
+    }
+    .v14 .last-paragraph-wrap {
+      width: 22em;
+    }
+    .v14 .top-big-txt-wrap {
+      padding-left: 2.5em;
+    }
+  }
+
+  /* subpage paddings */
+  @media (max-width: 767px) {
+    .v14 .v14-sub-main {
+      padding-left: 7vw;
+      padding-right: 7vw;
+    }
+  }
+}
