@@ -1,0 +1,7 @@
+/* Route-only Tailwind v4 entry for /v18. No preflight; all utilities and tokens are
+   prefixed (mel:). CSS Modules contain the visual styles, so navigation cannot
+   leak styling. Only the @source path differs from upstream (the feature files
+   live inside app/v18/ here instead of src/features/melius/). */
+@import "tailwindcss/theme.css" layer(melius-theme) prefix(mel);
+@import "tailwindcss/utilities.css" layer(melius-utilities) prefix(mel) source(none);
+@source "./MeliusExperience.tsx";
