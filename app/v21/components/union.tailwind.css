@@ -1,0 +1,5 @@
+/* Route-only Tailwind v4 entry. No preflight, no shared config, no global theme output.
+   Every emitted utility uses the union: prefix. */
+@import "tailwindcss/theme.css" theme(reference) prefix(union);
+@import "tailwindcss/utilities.css" layer(union-utilities) source(none) prefix(union);
+@source "./UnionExperience.tsx";
