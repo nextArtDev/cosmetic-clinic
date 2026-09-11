@@ -150,4 +150,10 @@ These are original-site features that were reviewed and skipped on purpose:
   pre-existing grain layers); mobile reports no horizontal overflow; the
   reduced-motion pass swaps the pin for `.pinStatic` (4 cards), hides the
   cursor layer and leaves the blur spans readable.
-- Production build (`next build`) and a `/v19` production smoke test.
+- Production build: `next build` reaches **`✓ Compiled successfully`** with the
+  whole route tree (including `/v19`) compiling for production. The build then
+  exits non-zero at the TypeScript gate, but **every error is pre-existing and
+  unrelated to `/v19`**: `lib/generated/prisma/**` are un-fetched Git LFS
+  pointer stubs (`git lfs pull` / `prisma generate` fixes them) plus a stale
+  `.next/dev/types/routes.d.ts`. Grepping the build log for `app/v19` returns
+  **zero** errors.
