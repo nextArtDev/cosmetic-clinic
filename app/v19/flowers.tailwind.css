@@ -1,0 +1,8 @@
+/* Route-only Tailwind v4 entry for /v19. No preflight; all utilities are
+   prefixed (fl:) and scanned only from the experience component (the module
+   CSS must not be scanned — its raw text would yield stray candidates).
+   Uses the repo-proven /v18 import form (layer + prefix) required by this
+   repo's Tailwind 4.3.3, so it cannot affect the application's utilities. */
+@import "tailwindcss/theme.css" layer(flowers-theme) prefix(fl);
+@import "tailwindcss/utilities.css" layer(flowers-utilities) prefix(fl) source(none);
+@source "./_components/FlowersExperience.tsx";
