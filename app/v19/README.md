@@ -11,7 +11,10 @@ messages are demo content only; the UI states this.
 - `app/v19/**` — the whole experience. `FlowersExperience.tsx`,
   `_lib/catalog.ts` and `FlowersExperience.module.css` are **verbatim copies**
   of upstream (relative imports keep working), with two behavior-preserving
-  lint adaptations in the component (see below). `flowers.tailwind.css` keeps
+  lint adaptations in the component (see below). `_components/FlowersMotion.tsx`
+  + `FlowersMotion.module.css` are the **new, additive** motion layer that
+  restores the original site's animations (see "Motion layer" below).
+  `flowers.tailwind.css` keeps
   the upstream contract (`fl:` prefix, `source(none)`, no Preflight) but uses
   the repo-proven /v18 import form (`layer(...) prefix(fl)`), because this
   repo's Tailwind 4.3.3 ignores the bare-import `prefix(fl)` and emits
@@ -85,6 +88,53 @@ AI-image filenames, then converted to WebP (sharp, max 1600px, q82):
 The original site reserves all rights on its imagery — same caveat as the
 upstream recreation; review before any public/production use.
 
+## Motion layer (`_components/FlowersMotion.*`)
+
+The upstream recreation kept the layout and copy but dropped most of the
+original's motion. This layer restores it. It is a **purely additive**
+pair of files — nothing in `FlowersExperience.tsx`'s markup contract changed,
+and every primitive is opt-in. All nine behaviours below were derived from
+the raw Tilda page (`static.tildacdn.com`, project 20781156 / page 112456266):
+46 inline scripts, 145 `data-animate-sbs-*` configs (25 distinct groups:
+29 intoview fade-in, 24 hover opacity-swap, 17 scroll/pin) and 31 live
+scroll screenshots were captured to establish ground truth.
+
+| primitive | original source | notes |
+| --- | --- | --- |
+| `NoiseOverlay` | `inline/40` (`noise.gif`, 70px tile, 15% opacity, fixed) | recreated as an inline SVG-turbulence tile — no binary asset needed |
+| `BlurText` | GSAP 3.11.4 + SplitType + ScrollTrigger (`inline/43`) | reveals on scroll-in with a blur+opacity stagger; **splits per word**, not per character, because Arabic-script glyphs lose their cursive joins when split |
+| `LinkSlide` | duplicated `data-content` label, `transform: translateY` on hover | measured live: mask `13px/13px` + `overflow:hidden`, duplicate label at `top:13px`, alt colour `#a72d25` |
+| `CursorLayer` | StringTune StringCursor, lerp `0.75` | hover preview follows `[data-flower-cursor]` / `[data-flower-cursor-label]`; **native cursor is preserved** (the original never sets `cursor:none`) |
+| `StickyHeader` | fixed 120px bar `rec1835390891`, slides in after ~82% of the first screen | includes logo, nav, preview thumbnail, scroll progress and cart |
+| `PinnedShowcase` | 4686px pinned cross-fade, `rec1825455681` | four full-bleed layers pinned over `count * 100vh`; per-layer opacity via `useTransform`, `fade = 0.45 / count` |
+| `ZoomLightbox` | tilda-zoom (8 zoomable images on the original) | one overlay for the route's three zoom hosts — story, space and product detail |
+| `Rule` | literal `11111111111` runs | **static** hairline — the original runs are not animated, so neither is this |
+| `useSmoothScroll` | SmoothScroll.js `{stepSize:80, animationTime:1400}` | Lenis 1.3.26 replacement, desktop fine-pointer + non-reduced only; returns a `scrollTo(id)` that anchors use |
+
+Two supporting details:
+
+- **`useSafeReducedMotion`** replaces `useReducedMotion()`. The latter reads
+  the media query during the first client render, so a reduced-motion visitor
+  hydrates against server HTML rendered with motion enabled (React logged a
+  mismatch for `scale(1.035)` and `autoPlay`). The wrapper reports `false` on
+  the server and first client render, then applies the real preference in an
+  effect — same shape as the existing cart-hydration effect.
+- **Reduced-motion fallbacks**: `PinnedShowcase` swaps to a `.pinStatic` grid
+  (absolute layers would otherwise collapse to zero height), `CursorLayer`
+  and the grain layer are hidden, and `useSmoothScroll` never initialises.
+
+### Deliberately *not* ported
+
+These are original-site features that were reviewed and skipped on purpose:
+
+- `cursor: none` — the original does **not** hide the native cursor, so
+  neither do we.
+- Tilda's animated marquee — the `11111111111` runs are static in the
+  original (see `Rule`).
+- Tilda cart modal (type 706) and tilda-slds product popups — the route
+  already ships its own cart/modal UI, and the upstream recreation never
+  wired them.
+
 ## Verification performed
 
 - `bun run typecheck`, scoped ESLint on `app/v19` + `app/api/flowers`.
@@ -93,3 +143,11 @@ upstream recreation; review before any public/production use.
   `POST /api/flowers/orders` returns `201` mock receipts and `400` on invalid
   payloads; `POST /api/flowers/contact` returns the mock acknowledgment;
   `git status` shows only the new additive paths.
+- **Motion layer** (headless Chromium, live dev server): desktop 1440×900,
+  mobile 390×844 and `prefers-reduced-motion: reduce` all render with **zero
+  console/page errors**; the grain, sticky header and pinned showcase appear
+  on `/v19` and are absent on `/`, `/v18` (`/v20` and `/v21` keep their own
+  pre-existing grain layers); mobile reports no horizontal overflow; the
+  reduced-motion pass swaps the pin for `.pinStatic` (4 cards), hides the
+  cursor layer and leaves the blur spans readable.
+- Production build (`next build`) and a `/v19` production smoke test.
