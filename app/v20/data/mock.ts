@@ -1,5 +1,14 @@
 import type { IranfitContent } from "./types";
 
+/** Shared demo clip + locally hosted posters.
+ *
+ *  Upstream embedded Pexels-hosted video files; on Iran networks those are
+ *  filtered, so every poster is served from `public/v20/media` and the video
+ *  element degrades gracefully to its poster (exactly as upstream shipped).
+ *  Swap `DEMO_VIDEO` for a self-hosted mp4/CDN URL when you go to production. */
+const DEMO_VIDEO =
+  "https://videos.pexels.com/video-files/6389576/6389576-uhd_3840_2160_25fps.mp4";
+
 /**
  * Mock content (fallback) — every string here is original Persian copy.
  * When Postgres tables are seeded, the loader prefers DB rows; otherwise
@@ -13,6 +22,9 @@ export const IRANFIT_MOCK: IranfitContent = {
       description:
         "با حرکات پایه و شدت کم شروع می‌کنیم تا مفاصل و عضلات آماده شوند. تمرکز این ماه روی فرم صحیح حرکات، تنفس و ساختن عادت روزانه است؛ همان چیزی که بیشتر آدم‌ها از آن غافل می‌شوند.",
       weeks: ["هفته ۱ · آشنایی و تست اولیه", "هفته ۲ · حرکات پایه", "هفته ۳ · افزایش تکرار", "هفته ۴ · سنجش پیشرفت"],
+      video: DEMO_VIDEO,
+      poster: "/v20/media/month-1.webp",
+      meta: "۲۴ جلسه · هر جلسه ۲۸ دقیقه",
     },
     {
       title: "ماه دوم — ساخت پایه",
@@ -20,6 +32,9 @@ export const IRANFIT_MOCK: IranfitContent = {
       description:
         "حالا بدن گرم است. با ترکیب حرکات ترکیبی و سوپرست‌ها، قدرت و استقامت‌ت را پله‌پله بالا می‌بریم. هر هفته یک چالش کوچک داریم تا انگیزه‌ات همیشه تازه بماند.",
       weeks: ["هفته ۵ · سوپرست مقدماتی", "هفته ۶ · مدار قدرتی", "هفته ۷ · تمرین با تایمر", "هفته ۸ · تست میان‌برنامه"],
+      video: DEMO_VIDEO,
+      poster: "/v20/media/month-2.webp",
+      meta: "۲۴ جلسه · هر جلسه ۳۲ دقیقه",
     },
     {
       title: "ماه سوم — شتاب",
@@ -27,6 +42,9 @@ export const IRANFIT_MOCK: IranfitContent = {
       description:
         "تمرین‌های اینتروال و HIIT وارد برنامه می‌شوند. شدت بالاتر، زمان کوتاه‌تر، نتیجه سریع‌تر. برنامه غذایی هم دقیق‌تر می‌شود تا بدن بهتر پاسخ بدهد.",
       weeks: ["هفته ۹ · اینتروال پایه", "هفته ۱۰ · HIIT خانگی", "هفته ۱۱ · ترکیب قدرت هوازی", "هفته ۱۲ · هفته ریکاوری فعال"],
+      video: DEMO_VIDEO,
+      poster: "/v20/media/month-3.webp",
+      meta: "۲۴ جلسه · هر جلسه ۳۵ دقیقه",
     },
     {
       title: "ماه چهارم — شکوفایی",
@@ -34,6 +52,9 @@ export const IRANFIT_MOCK: IranfitContent = {
       description:
         "روی شکل‌دهی عضلات تمرکز می‌کنیم؛ با تمرین‌های هدفمند برای هر ناحیه بدن و تکنیک‌های پیشرفته‌تر مثل تمپو و نگه‌داشت. اینجاست که دیگران هم تغییرت را می‌بینند.",
       weeks: ["هفته ۱۳ · بالاتنه تخصصی", "هفته ۱۴ · پایین‌تنه تخصصی", "هفته ۱۵ · مرکز بدن و تعادل", "هفته ۱۶ · تست عکس و اندازه"],
+      video: DEMO_VIDEO,
+      poster: "/v20/media/month-4.webp",
+      meta: "۲۴ جلسه · هر جلسه ۴۰ دقیقه",
     },
     {
       title: "ماه پنجم — متانویعت",
@@ -41,6 +62,9 @@ export const IRANFIT_MOCK: IranfitContent = {
       description:
         "هر جلسه یک ماجرای جدید: کیک‌باکسینگ، تمرین با کش، وزن بدن و حتی یوگای قدرتی. مغز و بدن هر دو بیدار می‌مانند و تمرین برایت تبدیل به سرگرمی می‌شود.",
       weeks: ["هفته ۱۷ · کیک‌باکسینگ مقدماتی", "هفته ۱۸ · تمرین با لوازم ساده", "هفته ۱۹ · یوگای قدرتی", "هفته ۲۰ · چالش ماهانه"],
+      video: DEMO_VIDEO,
+      poster: "/v20/media/month-5.webp",
+      meta: "۲۴ جلسه · هر جلسه ۳۸ دقیقه",
     },
     {
       title: "ماه ششم — سطح حرفه‌ای",
@@ -48,6 +72,9 @@ export const IRANFIT_MOCK: IranfitContent = {
       description:
         "برنامه شما به سمت ساختارهای تمرینی ورزشکاران حرفه‌ای می‌رود؛ با دوره‌بندی دقیق، ثبت رکوردها و تحلیل هفتگی پیشرفت در اپلیکیشن.",
       weeks: ["هفته ۲۱ · دوره‌بندی قدرت", "هفته ۲۲ · تست رکوردهای شخصی", "هفته ۲۳ · تمرین انفجاری", "هفته ۲۴ · ریکاوری و خواب"],
+      video: DEMO_VIDEO,
+      poster: "/v20/media/month-6.webp",
+      meta: "۲۴ جلسه · هر جلسه ۴۵ دقیقه",
     },
     {
       title: "ماه هفتم — چابکی و سرعت",
@@ -55,6 +82,9 @@ export const IRANFIT_MOCK: IranfitContent = {
       description:
         "تمرین‌های چابکی، واکنش و سرعت اضافه می‌شوند. بدن‌ت فقط خوش‌فرم نمی‌شود؛ سریع‌تر، چابک‌تر و آماده‌تر برای هر فعالیتی می‌شود.",
       weeks: ["هفته ۲۵ · تمرین واکنش", "هفته ۲۶ · چابکی و تعادل", "هفته ۲۷ · دوی اینتروال", "هفته ۲۸ · سنجش عملکرد"],
+      video: DEMO_VIDEO,
+      poster: "/v20/media/month-7.webp",
+      meta: "۲۴ جلسه · هر جلسه ۴۲ دقیقه",
     },
     {
       title: "ماه هشتم — سبک زندگی",
@@ -62,7 +92,75 @@ export const IRANFIT_MOCK: IranfitContent = {
       description:
         "در ماه آخر همه‌چیز را جمع‌بندی می‌کنیم: برنامه شخصی‌سازی‌شده بلندمدت، راهنمای سفر و دورهمی و قانون‌هایی ساده برای حفظ فرم بدنی برای همیشه.",
       weeks: ["هفته ۲۹ · برنامه بلندمدت", "هفته ۳۰ · تمرین در سفر", "هفته ۳۱ · جمع‌بندی دانش", "هفته ۳۲ · جشن قهرمانی"],
+      video: DEMO_VIDEO,
+      poster: "/v20/media/month-8.webp",
+      meta: "۲۴ جلسه · هر جلسه ۳۶ دقیقه",
     },
+  ],
+
+  programs: [
+    {
+      slug: "women",
+      title: "برنامه بانوان",
+      subtitle: "فرم‌دهی، قدرت و اعتماد‌به‌نفس",
+      meta: "۲۴ جلسه · خانگی و باشگاه · با مربی بانوان",
+      image: "/v20/media/program-women.webp",
+      video: DEMO_VIDEO,
+      poster: "/v20/media/program-women.webp",
+    },
+    {
+      slug: "men",
+      title: "برنامه آقایان",
+      subtitle: "حجم، قدرت و استقامت",
+      meta: "۲۴ جلسه · خانگی و باشگاه · با تجهیزات ساده",
+      image: "/v20/media/program-men.webp",
+      video: DEMO_VIDEO,
+      poster: "/v20/media/program-men.webp",
+    },
+  ],
+
+  beforeAfter: [
+    {
+      slug: "sara",
+      name: "سارا محمدی",
+      city: "تهران",
+      result: "۱۸ کیلو کاهش وزن در ۷ ماه",
+      duration: "۷ ماه با ایرون‌فیت",
+      quote:
+        "هیچ‌وقت فکر نمی‌کردم بدون باشگاه و بدون رژیم سخت بشه. تفاوت را اول در نفس‌کشیدنم حس کردم، بعد در آینه.",
+      image: "/v20/media/month-3.webp",
+    },
+    {
+      slug: "amirhossein",
+      name: "امیرحسین رضایی",
+      city: "مشهد",
+      result: "۹ کیلو عضله‌سازی خالص",
+      duration: "۸ ماه با ایرون‌فیت",
+      quote:
+        "شیفتی کار می‌کنم و ساعت تمرینم ثابت نیست؛ برنامه خودش را با من هماهنگ کرد، نه برعکس.",
+      image: "/v20/media/month-1.webp",
+    },
+    {
+      slug: "negar",
+      name: "نگار کریمی",
+      city: "اصفهان",
+      result: "۱۴ سانتی‌متر کاهش دور کمر",
+      duration: "۵ ماه با ایرون‌فیت",
+      quote:
+        "دو تا بچه دارم و وقت آزادم کم است. جلسه‌های ۳۰ دقیقه‌ای تو خونه زندگی‌ام را عوض کرد.",
+      image: "/v20/media/gallery-4.webp",
+    },
+  ],
+
+  gallery: [
+    { src: "/v20/media/gallery-1.webp", caption: "جلسه گروهی پایان هفته — تهران", wide: true },
+    { src: "/v20/media/gallery-3.webp", caption: "تمرین با دمبل در باشگاه محله" },
+    { src: "/v20/media/gallery-5.webp", caption: "تمرین با کش، بدون تجهیزات سنگین" },
+    { src: "/v20/media/month-2.webp", caption: "جلسه قدرتی بالاتنه", tall: true },
+    { src: "/v20/media/gallery-2.webp", caption: "هم‌تیمی‌های چالش ۳۰ روزه", wide: true },
+    { src: "/v20/media/month-6.webp", caption: "ثبت رکورد شخصی — هفته ۲۲" },
+    { src: "/v20/media/gallery-6.webp", caption: "کارگاه فرم صحیح حرکات" },
+    { src: "/v20/media/month-7.webp", caption: "تمرین چابکی روی زمین" },
   ],
 
   plans: [
@@ -116,6 +214,7 @@ export const IRANFIT_MOCK: IranfitContent = {
       city: "تهران",
       rating: 5,
       result: "۱۲ کیلو کاهش وزن در ۵ ماه",
+      avatar: "/v20/media/user-1.webp",
       quote:
         "از وقتی با ایرون‌فیت شروع کردم، تمرین از یک تکلیف خسته‌کننده تبدیل شده به مهم‌ترین ساعت روزم. برنامه غذایی با غذاهای خودمونی سازگار بود، همین باعث شد ادامه بدم.",
     },
@@ -124,6 +223,7 @@ export const IRANFIT_MOCK: IranfitContent = {
       city: "مشهد",
       rating: 5,
       result: "۸ کیلو عضله‌سازی در ۷ ماه",
+      avatar: "/v20/media/user-2.webp",
       quote:
         "کارم شیفتی است و هیچ‌وقت نمی‌تونستم باشگاه برم. حالا ساعت پنج صبح قبل از شیفت، با گوشی تمرینم را انجام می‌دم. کیفیت ویدیوها و توضیح مربی بی‌نظیره.",
     },
@@ -132,6 +232,7 @@ export const IRANFIT_MOCK: IranfitContent = {
       city: "اصفهان",
       rating: 5,
       result: "کاهش دور کمر ۱۴ سانتی‌متر",
+      avatar: "/v20/media/user-3.webp",
       quote:
         "به عنوان مامان دو تا بچه، بیرون رفتن از خونه سخت بود. برنامه‌های ۳۰ دقیقه‌ای تو خونه زندگی من را عوض کرد. حالا بچه‌ها هم باهام تمرین می‌کنند!",
     },
@@ -140,6 +241,7 @@ export const IRANFIT_MOCK: IranfitContent = {
       city: "شیراز",
       rating: 5,
       result: "دو ماراتن بدون آسیب‌دیدگی",
+      avatar: "/v20/media/user-1.webp",
       quote:
         "دونده استقامتی‌ام و تمرین تقویتی همیشه سردرگمم می‌کرد. برنامه دوره‌بندی‌شده ایرون‌فیت دقیقا فهمید چی نیاز دارم. رکورد ده کیلومترم را ۴ دقیقه بهتر کردم.",
     },
@@ -152,8 +254,7 @@ export const IRANFIT_MOCK: IranfitContent = {
       title: "برنامه قدرتی تابستان منتشر شد؛ مخصوص باشگاه و خانه",
       excerpt:
         "شش هفته تمرین هدفمند با امکان جایگزینی حرکات بر اساس وسایلی که در دسترس دارید؛ همراه با ویدیوی کامل هر جلسه.",
-      image:
-        "https://images.pexels.com/photos/17956264/pexels-photo-17956264.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200",
+      image: "/v20/media/news-1.webp",
       dateLabel: "۱۸ خرداد ۱۴۰۵",
     },
     {
@@ -162,8 +263,7 @@ export const IRANFIT_MOCK: IranfitContent = {
       title: "نسخه ۲.۰ اپلیکیشن ایرون‌فیت روی بازار و مایکت آمد",
       excerpt:
         "رابط تازه، پخش آفلاین ویدیوها، و تقویم تمرینی هوشمند که حالا با تقویم شمسی هماهنگ است.",
-      image:
-        "https://images.pexels.com/photos/31028213/pexels-photo-31028213.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200",
+      image: "/v20/media/news-2.webp",
       dateLabel: "۳ خرداد ۱۴۰۵",
     },
     {
@@ -172,8 +272,7 @@ export const IRANFIT_MOCK: IranfitContent = {
       title: "چالش ۳۰ روزه مهربانی با بدن؛ ثبت‌نام از اول مهر",
       excerpt:
         "هر روز یک تمرین کوتاه، یک نکته تغذیه و یک کار خوشحال‌کننده. مسابقه با جایزه وسایل ورزشی برای نفرات فعال.",
-      image:
-        "https://images.pexels.com/photos/32695898/pexels-photo-32695898.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200",
+      image: "/v20/media/news-3.webp",
       dateLabel: "۲۹ اردیبهشت ۱۴۰۵",
     },
     {
@@ -182,8 +281,7 @@ export const IRANFIT_MOCK: IranfitContent = {
       title: "گفت‌وگو با آرش کیانی درباره ریکاوری و خواب",
       excerpt:
         "چرا روز استراحت مهم‌تر از روز تمرین است؟ مربی تیم ایرون‌فیت پاسخ‌اش را در یک گفت‌وگوی اختصاصی می‌دهد.",
-      image:
-        "https://images.pexels.com/photos/7672106/pexels-photo-7672106.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200",
+      image: "/v20/media/gallery-6.webp",
       dateLabel: "۱۴ اردیبهشت ۱۴۰۵",
     },
     {
@@ -192,8 +290,7 @@ export const IRANFIT_MOCK: IranfitContent = {
       title: "راهنمای کامل پروتئین در سفره ایرانی",
       excerpt:
         "از قرمه‌سبزی تا کشک بادمجان؛ چطور با غذاهای محلی به نیاز روزانه پروتئین برسیم، بدون مکمل‌های گران.",
-      image:
-        "https://images.pexels.com/photos/4398348/pexels-photo-4398348.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200",
+      image: "/v20/media/nutrition.webp",
       dateLabel: "۲ اردیبهشت ۱۴۰۵",
     },
     {
@@ -202,8 +299,7 @@ export const IRANFIT_MOCK: IranfitContent = {
       title: "دوی صبحگاهی پارک ملت؛ جمعه‌ها ساعت ۷",
       excerpt:
         "هر جمعه یک صبح متفاوت در مشهد؛ دوره‌ای خودنمایی فردی نیست، آمدن و دویدن و شروع آخر هفته با انرژی است.",
-      image:
-        "https://images.pexels.com/photos/17706044/pexels-photo-17706044.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200",
+      image: "/v20/media/month-7.webp",
       dateLabel: "۲۷ فروردین ۱۴۰۵",
     },
   ],

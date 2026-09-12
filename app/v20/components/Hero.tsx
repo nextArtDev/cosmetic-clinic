@@ -2,7 +2,6 @@
 
 import { Play } from "lucide-react";
 import Magnetic from "./Magnetic";
-import { scrollToSection } from "../lib/anim";
 
 const STATS = [
   { count: 120, suffix: "هزار+", label: "کاربر فعال در سراسر ایران" },
@@ -10,12 +9,12 @@ const STATS = [
   { count: 4.9, suffix: "", label: "امتیاز کاربران از ۵", decimals: 1 },
 ] as const;
 
-export default function Hero({ onPlay }: { onPlay: () => void }) {
+export default function Hero({ onPlay, onStart }: { onPlay: () => void; onStart: () => void }) {
   return (
     <section id="hero" data-if-spy="۱" className="if-hero">
       <div className="if-hero-bg" aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/v20/media/hero.jpg" alt="" fetchPriority="high" />
+        <img src="/v20/media/hero.webp" alt="" fetchPriority="high" />
       </div>
 
       <span className="if-hero-side">قدرت · انضباط · سبک زندگی</span>
@@ -43,7 +42,7 @@ export default function Hero({ onPlay }: { onPlay: () => void }) {
 
           <div className="if-hero-actions">
             <Magnetic>
-              <button className="if-btn if-btn--solid" onClick={() => scrollToSection("#pricing")}>
+              <button className="if-btn if-btn--solid" onClick={onStart}>
                 شروع برنامه — ۷ روز رایگان
               </button>
             </Magnetic>

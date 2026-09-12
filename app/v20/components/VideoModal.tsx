@@ -9,11 +9,13 @@ export default function VideoModal({
   onClose,
   src,
   poster,
+  caption,
 }: {
   open: boolean;
   onClose: () => void;
   src: string;
   poster: string;
+  caption?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -62,7 +64,7 @@ export default function VideoModal({
               <X size={18} />
             </button>
             <video ref={videoRef} src={src} poster={poster} controls playsInline preload="metadata" />
-            <p className="if-modal-cap">نمونه‌ای از یک جلسه تمرین — هر جلسه با نریشن فارسی و زیرنویس حرکات</p>
+            {caption && <p className="if-modal-cap">{caption}</p>}
           </motion.div>
         </motion.div>
       )}

@@ -12,33 +12,58 @@ import Pricing from './Pricing'
 import AppSection from './AppSection'
 import Testimonials from './Testimonials'
 import Coach from './Coach'
+import Programs from './Programs'
+import BeforeAfter from './BeforeAfter'
 import News from './News'
 import CtaBand from './CtaBand'
 import Footer from './Footer'
 import ProgressRail from './ProgressRail'
 import BackToTop from './BackToTop'
 import VideoModal from './VideoModal'
+import QuizModal from './QuizModal'
 
-const DEMO_VIDEO = {
-  src: 'https://videos.pexels.com/video-files/6389576/6389576-uhd_3840_2160_25fps.mp4',
-  poster:
-    'https://images.pexels.com/videos/6389576/pexels-photo-6389576.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=630&w=1200',
+interface VideoSource {
+  src: string
+  poster: string
+  caption: string
 }
+
+const HERO_VIDEO: VideoSource = {
+  src: 'https://videos.pexels.com/video-files/6389576/6389576-uhd_3840_2160_25fps.mp4',
+  poster: '/v20/media/hero.webp',
+  caption: 'نمونه‌ای از یک جلسه تمرین — هر جلسه با نریشن فارسی و زیرنویس حرکات',
+}
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export default function Landing({ content }: { content: IranfitContent }) {
   const rootRef = useRef<HTMLDivElement>(null)
-  const [videoOpen, setVideoOpen] = useState(false)
+  const [video, setVideo] = useState<VideoSource | null>(null)
+  const [quizOpen, setQuizOpen] = useState(false)
+  // bumped on every open so the quiz dialog remounts with pristine state
+  const [quizKey, setQuizKey] = useState(0)
 
-  const openVideo = useCallback(() => setVideoOpen(true), [])
-  const closeVideo = useCallback(() => setVideoOpen(false), [])
+  const openVideo = useCallback((v: VideoSource) => setVideo(v), [])
+  const closeVideo = useCallback(() => setVideo(null), [])
+  const openQuiz = useCallback(() => {
+    setQuizKey((k) => k + 1)
+    setQuizOpen(true)
+  }, [])
+  const closeQuiz = useCallback(() => setQuizOpen(false), [])
 
   useEffect(() => {
     const root = rootRef.current
     if (!root) return
 
+    // All queries are scoped to `root` so nothing outside /v20 can ever be
+    // picked up, even if another route happens to reuse an `if-*` class.
+    const all = (sel: string) => Array.from(root.querySelectorAll<HTMLElement>(sel))
+
     const ctx = gsap.context(() => {
       /* ---- generic reveals ---- */
-      gsap.utils.toArray<HTMLElement>('[data-if-reveal]').forEach((el) => {
+      all('[data-if-reveal]').forEach((el) => {
         const delay = Number(el.dataset.ifDelay ?? 0)
         gsap.to(el, {
           opacity: 1,
@@ -51,7 +76,7 @@ export default function Landing({ content }: { content: IranfitContent }) {
       })
 
       /* ---- giant ghost numbers: slow parallax drift ---- */
-      gsap.utils.toArray<HTMLElement>('.if-ghost').forEach((el) => {
+      all('.if-ghost').forEach((el) => {
         gsap.fromTo(
           el,
           { yPercent: 22 },
@@ -108,7 +133,7 @@ export default function Landing({ content }: { content: IranfitContent }) {
         )
 
       /* ---- number counters ---- */
-      gsap.utils.toArray<HTMLElement>('[data-if-count]').forEach((el) => {
+      all('[data-if-count]').forEach((el) => {
         const target = Number(el.dataset.ifCount ?? '0')
         const decimals = Number(el.dataset.ifDecimals ?? '0')
         const obj = { v: 0 }
@@ -125,8 +150,8 @@ export default function Landing({ content }: { content: IranfitContent }) {
         })
       })
 
-      /* ---- coach / book image parallax ---- */
-      gsap.utils.toArray<HTMLElement>('[data-if-parallax]').forEach((el) => {
+      /* ---- coach / book / programme image parallax ---- */
+      all('[data-if-parallax]').forEach((el) => {
         gsap.fromTo(
           el,
           { y: 46 },
@@ -142,6 +167,31 @@ export default function Landing({ content }: { content: IranfitContent }) {
           },
         )
       })
+
+      /* ---- programme split cards: staggered lift-in ----
+         Skipped when the visitor prefers reduced motion: the cards have no
+         initial-hidden CSS, so simply not tweening them is the correct state. */
+      if (!prefersReducedMotion()) {
+        all('.if-program').forEach((el, i) => {
+          gsap.fromTo(
+            el,
+            { yPercent: 8, opacity: 0 },
+            {
+              yPercent: 0,
+              opacity: 1,
+              duration: 1.1,
+              delay: i * 0.12,
+              ease: 'power3.out',
+              scrollTrigger: { trigger: el.parentElement, start: 'top 85%' },
+            },
+          )
+        })
+      }
+
+      /* NOTE: the gallery tiles are NOT tweened here on purpose — they carry
+         `data-if-reveal` (+ per-tile `data-if-delay`) and are therefore already
+         staggered by the generic reveal above. A second tween would fight it
+         for the same `transform`. */
     }, root)
 
     return () => {
@@ -159,32 +209,39 @@ export default function Landing({ content }: { content: IranfitContent }) {
         پرش به محتوا
       </a>
 
-      <Nav />
+      <Nav onStart={openQuiz} />
       <ProgressRail />
 
       <main id="if-main">
-        <Hero onPlay={openVideo} />
+        <Hero onPlay={() => openVideo(HERO_VIDEO)} onStart={openQuiz} />
         <section dir="ltr">
           <Marquee />
         </section>
-        <Plans months={content.months} />
+        <Plans months={content.months} onSignup={openQuiz} />
         <Book />
+        <Coach gallery={content.gallery} />
+        <Programs
+          programs={content.programs}
+          onPlay={(p) => openVideo({ src: p.video, poster: p.poster, caption: `${p.title} — ${p.meta}` })}
+        />
         <Pricing plans={content.plans} />
+        <BeforeAfter items={content.beforeAfter} />
         <AppSection />
         <Testimonials items={content.testimonials} />
-        <Coach />
         <News posts={content.posts} />
-        <CtaBand />
+        <CtaBand onStart={openQuiz} />
       </main>
 
       <Footer />
       <BackToTop />
       <VideoModal
-        open={videoOpen}
+        open={video !== null}
         onClose={closeVideo}
-        src={DEMO_VIDEO.src}
-        poster={DEMO_VIDEO.poster}
+        src={video?.src ?? ''}
+        poster={video?.poster ?? ''}
+        caption={video?.caption}
       />
+      <QuizModal key={quizKey} open={quizOpen} onClose={closeQuiz} />
       <div className="if-grain" aria-hidden />
     </div>
   )

@@ -44,9 +44,9 @@ export default function Pricing({ plans }: { plans: IranfitPlan[] }) {
   }
 
   return (
-    <section id="pricing" data-if-spy="۴" className="if-section">
+    <section id="pricing" data-if-spy="۶" className="if-section">
       <span className="if-ghost" data-if-parallax>
-        ۰۴
+        ۰۶
       </span>
       <div className="if-container">
         <div style={{ textAlign: 'center' }}>
@@ -55,7 +55,7 @@ export default function Pricing({ plans }: { plans: IranfitPlan[] }) {
             style={{ justifyContent: 'center' }}
             data-if-reveal
           >
-            ۰۴ · تعرفه‌ها
+            ۰۶ · تعرفه‌ها
           </p>
           <h2 className="if-title" data-if-reveal data-if-delay="0.08">
             از امروز شروع کن، <em>از خودت که بگذری</em>

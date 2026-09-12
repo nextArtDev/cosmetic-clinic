@@ -22,15 +22,15 @@ const FEATS = [
 
 export default function AppSection() {
   return (
-    <section id="app" data-if-spy="۵" className="if-section if-app-section">
+    <section id="app" data-if-spy="۸" className="if-section if-app-section">
       <span className="if-ghost" data-if-parallax>
-        ۰۵
+        ۰۸
       </span>
       <div className="if-container">
         <div className="if-app-grid">
           <div>
             <p className="if-kicker" data-if-reveal>
-              ۰۵ · اپلیکیشن
+              ۰۸ · اپلیکیشن
             </p>
             <h2 className="if-title" data-if-reveal data-if-delay="0.08">
               تمرینت را <em>هر جا که رفتی</em>

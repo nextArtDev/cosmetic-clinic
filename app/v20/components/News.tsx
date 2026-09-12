@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowLeft, ArrowRight, CalendarDays } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CalendarDays, Newspaper } from 'lucide-react'
 import { gsap } from '../lib/anim'
 import type { IranfitPost } from '../data/types'
 
@@ -9,6 +9,7 @@ export default function News({ posts }: { posts: IranfitPost[] }) {
   const [idx, setIdx] = useState(0)
   const trackRef = useRef<HTMLDivElement>(null)
   const viewportRef = useRef<HTMLDivElement>(null)
+  const dragX = useRef<number | null>(null)
 
   const step = useCallback(() => {
     const track = trackRef.current
@@ -71,18 +72,18 @@ export default function News({ posts }: { posts: IranfitPost[] }) {
   return (
     <section
       id="news"
-      data-if-spy="۸"
+      data-if-spy="۱۰"
       className="if-section"
       style={{ paddingBottom: 0 }}
     >
       <span className="if-ghost" data-if-parallax>
-        ۰۸
+        ۱۰
       </span>
       <div className="if-container">
         <div className="if-news-head">
           <div>
             <p className="if-kicker" data-if-reveal>
-              ۰۸ · اخبار و رویدادها
+              ۱۰ · اخبار و رویدادها
             </p>
             <h2 className="if-title" data-if-reveal data-if-delay="0.08">
               می‌دانیم که توانایی‌های تو
@@ -90,23 +91,31 @@ export default function News({ posts }: { posts: IranfitPost[] }) {
               <em>بی‌پایان است</em>
             </h2>
           </div>
-          <div className="if-slider-btns" data-if-reveal data-if-delay="0.15">
-            <button
-              className="if-arrow"
-              aria-label="خبر قبلی"
-              onClick={() => go(idx - 1)}
-              disabled={idx === 0}
-            >
-              <ArrowRight size={19} />
-            </button>
-            <button
-              className="if-arrow"
-              aria-label="خبر بعدی"
-              onClick={() => go(idx + 1)}
-              disabled={idx >= max}
-            >
-              <ArrowLeft size={19} />
-            </button>
+          <div className="if-news-actions" data-if-reveal data-if-delay="0.15">
+            <div className="if-slider-btns">
+              <button
+                type="button"
+                className="if-arrow"
+                aria-label="خبر قبلی"
+                onClick={() => go(idx - 1)}
+                disabled={idx === 0}
+              >
+                <ArrowRight size={19} />
+              </button>
+              <button
+                type="button"
+                className="if-arrow"
+                aria-label="خبر بعدی"
+                onClick={() => go(idx + 1)}
+                disabled={idx >= max}
+              >
+                <ArrowLeft size={19} />
+              </button>
+            </div>
+            <a className="if-news-all" href="#news" onClick={(e) => e.preventDefault()}>
+              <Newspaper size={15} />
+              همه اخبار
+            </a>
           </div>
         </div>
       </div>
@@ -116,6 +125,22 @@ export default function News({ posts }: { posts: IranfitPost[] }) {
         ref={viewportRef}
         data-if-reveal
         data-if-delay="0.2"
+        onTouchStart={(e) => {
+          dragX.current = e.touches[0].clientX
+        }}
+        onTouchEnd={(e) => {
+          if (dragX.current === null) return
+          const dx = e.changedTouches[0].clientX - dragX.current
+          if (Math.abs(dx) > 46) go(dx > 0 ? idx - 1 : idx + 1)
+          dragX.current = null
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowLeft') go(idx + 1)
+          else if (e.key === 'ArrowRight') go(idx - 1)
+        }}
+        tabIndex={0}
+        aria-roledescription="کاروسل"
+        aria-label="اخبار و رویدادها"
       >
         <div className="if-news-track" ref={trackRef}>
           {posts.map((p) => (

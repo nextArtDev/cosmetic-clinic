@@ -54,7 +54,7 @@ export default function Book() {
             <span className="if-book-glow" aria-hidden />
             <div className="if-book-photo" aria-hidden>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/v20/media/nutrition.jpg" alt="" loading="lazy" />
+              <img src="/v20/media/nutrition.webp" alt="" loading="lazy" />
             </div>
             <div className="if-book" aria-label="جلد کتاب تغذیه قهرمانان">
               <div className="if-book-cover">
