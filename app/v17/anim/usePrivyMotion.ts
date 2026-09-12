@@ -152,7 +152,7 @@ function useReveal(root: RefObject<HTMLElement | null>, reduced: boolean) {
 
 type Pattern = (p: number) => string
 
-const PATTERNS: Record<string, Pattern> = {
+const PATTERNS: Record<string, Pattern | undefined> = {
   // full-bleed background drifts against the scroll and stays oversized
   backgroundMove: (p) => `translate3d(0, ${((0.5 - p) * 16).toFixed(3)}%, 0) scale(1.18)`,
   // in-flow image counter-moves for depth
