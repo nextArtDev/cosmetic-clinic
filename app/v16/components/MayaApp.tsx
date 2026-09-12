@@ -14,6 +14,9 @@ import type {
 } from "../lib/data";
 import { gsapSetup, setLenis } from "../lib/fx";
 import { StoreProvider } from "./Store";
+import { Preloader } from "./Preloader";
+import { ScrollBar, BackToTop } from "./Motion";
+import { MobileDock } from "./MobileDock";
 import { Header } from "./Header";
 import { Hero } from "./Hero";
 import { Trending } from "./Trending";
@@ -21,12 +24,14 @@ import { CollectionCarousel } from "./Carousel";
 import { Statement } from "./Statement";
 import { FeaturedTabs } from "./FeaturedTabs";
 import { Bundle } from "./Bundle";
+import { StackedCollection } from "./StackedCollection";
 import { Burst } from "./Burst";
 import { BestSellers } from "./BestSellers";
 import { VideoMarquee } from "./VideoMarquee";
 import { Testimonials } from "./Testimonials";
 import { MediaGrid, MediaWithText } from "./Showcase";
 import { Faq } from "./Faq";
+import { ScrollingText } from "./ScrollingText";
 import { Footer } from "./Footer";
 
 export type MayaData = {
@@ -34,6 +39,7 @@ export type MayaData = {
   collections: MayaCollection[];
   trending: MayaProduct[];
   bundleProducts: MayaProduct[];
+  stackedProducts: MayaProduct[];
   featuredTabs: Array<MayaFeaturedTab & { products: MayaProduct[] }>;
   testimonials: MayaTestimonial[];
   faqs: MayaFaq[];
@@ -104,6 +110,8 @@ export function MayaApp({ data }: { data: MayaData }) {
 
   return (
     <StoreProvider>
+      <Preloader />
+      <ScrollBar />
       <Header collections={data.collections} />
       <main>
         <Hero slides={data.heroSlides} />
@@ -112,6 +120,7 @@ export function MayaApp({ data }: { data: MayaData }) {
         <Statement collections={data.collections} />
         <FeaturedTabs tabs={data.featuredTabs} />
         <Bundle products={data.bundleProducts} />
+        <StackedCollection products={data.stackedProducts} />
         <Burst products={data.trending.length >= 5 ? data.trending : data.bundleProducts} />
         <BestSellers items={data.bestSellers} />
         <VideoMarquee />
@@ -119,8 +128,11 @@ export function MayaApp({ data }: { data: MayaData }) {
         <MediaGrid tiles={data.promoTiles} />
         <MediaWithText />
         <Faq items={data.faqs} />
+        <ScrollingText />
       </main>
       <Footer />
+      <MobileDock />
+      <BackToTop />
     </StoreProvider>
   );
 }

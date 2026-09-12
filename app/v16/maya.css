@@ -289,10 +289,16 @@
 .maya-ticker:hover .maya-ticker-track { animation-play-state: paused; }
 
 /* ---------- marquee (gsap rows) ---------- */
-.maya-scrollrow { overflow: hidden; }
+/* The marquee is a horizontal scroller, so its track must be laid out LTR
+   even though the page is RTL: with `direction: rtl` a `width: max-content`
+   track overflows to the LEFT of its `overflow: hidden` parent, and the
+   gsap `xPercent: 0 → -50` loop then walks it completely off-screen.
+   The Persian runs inside keep their own bidi ordering. */
+.maya-scrollrow { overflow: hidden; direction: ltr; }
 .maya-scrollrow-track {
   display: flex;
   width: max-content;
+  direction: ltr;
   will-change: transform;
 }
 

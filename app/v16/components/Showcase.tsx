@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 import { ArrowLeft, ArrowUpLeft } from "lucide-react";
 import type { MayaPromoTile } from "../lib/data";
 import { gsapSetup } from "../lib/fx";
-import { Reveal, SectionHead } from "./bits";
+import { SectionHead } from "./bits";
 import { useStore } from "./Store";
 
 /* ----------------------------- media grid ---------------------------- */
@@ -99,41 +99,35 @@ export function MediaWithText() {
   const ref = useRef<HTMLDivElement>(null);
   const { notify } = useStore();
 
+  /* Port of the theme's mediaWithTextSec() — this section ships
+     data-animation-type="square", so the two panels start fully off-canvas on
+     opposite sides and slide toward each other (−15% / +15%) as the section
+     scrolls in. The engine's timeline is NOT pinned here: it scrubs over the
+     wrapper's own entry (start "top+=10% bottom", end "bottom center"). */
   useLayoutEffect(() => {
     const { gsap } = gsapSetup();
     const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>("[data-duo]", ref.current!).forEach((el, i) => {
-        gsap.fromTo(
-          el,
-          { y: 90, autoAlpha: 0, rotate: i === 0 ? -2.5 : 2.5 },
-          {
-            y: 0,
-            autoAlpha: 1,
-            rotate: 0,
-            duration: 1.2,
-            ease: "power3.out",
-            delay: i * 0.16,
-            scrollTrigger: { trigger: ref.current, start: "top 72%", once: true },
+      const panels = gsap.utils.toArray<HTMLElement>("[data-duo]", ref.current!);
+      if (!panels.length) return;
+      gsap.set(panels, { xPercent: (i) => (i === 0 ? 100 : -100) });
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: ref.current,
+            start: "top+=10% bottom",
+            end: "bottom center",
+            scrub: 1.5,
+            invalidateOnRefresh: true,
           },
-        );
-        const img = el.querySelector("img");
-        gsap.fromTo(
-          img,
-          { scale: 1.22 },
-          {
-            scale: 1.08,
-            ease: "none",
-            scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
-          },
-        );
-      });
+        })
+        .to(panels, { xPercent: (i) => (i === 0 ? -15 : 15), ease: "none" });
     }, ref);
     return () => ctx.revert();
   }, []);
 
   return (
     <section className="maya-wrap pb-20 md:pb-28" aria-label="دو روایتِ مایا">
-      <div ref={ref} className="grid gap-4 sm:grid-cols-2 md:gap-6">
+      <div ref={ref} className="grid gap-4 overflow-hidden sm:grid-cols-2 md:gap-6">
         {DUO.map((d) => (
           <div
             key={d.id}

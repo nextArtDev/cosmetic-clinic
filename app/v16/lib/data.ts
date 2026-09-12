@@ -12,6 +12,9 @@ export type MayaProduct = {
   price: number; // toman
   compareAt?: number;
   image: string;
+  /** second media revealed on card hover, mirroring the reference
+      theme's `hovered-second-media` layer */
+  image2?: string;
   colors: string[]; // hex swatches
   sizes: string[];
   tag?: string;
@@ -62,6 +65,7 @@ const PRODUCTS: MayaProduct[] = [
     price: 1_890_000,
     compareAt: 2_400_000,
     image: "/maya/img/prod-1.webp",
+    image2: "/maya/img/col-1.jpg",
     colors: ["#d9cfbc", "#2a251d", "#8b8f7a"],
     sizes: ["S", "M", "L"],
     tag: "پرفروش",
@@ -73,6 +77,7 @@ const PRODUCTS: MayaProduct[] = [
     title: "شلوار جین آبی راسته",
     price: 2_340_000,
     image: "/maya/img/prod-2.webp",
+    image2: "/maya/img/col-3.jpg",
     colors: ["#33506e", "#16130e"],
     sizes: ["36", "38", "40"],
     collection: "summer-essentials",
@@ -84,6 +89,7 @@ const PRODUCTS: MayaProduct[] = [
     price: 3_120_000,
     compareAt: 3_900_000,
     image: "/maya/img/prod-3.webp",
+    image2: "/maya/img/col-4.jpg",
     colors: ["#c97b4a", "#e5d5b8", "#7a86a1"],
     sizes: ["M", "L", "XL"],
     tag: "حراج",
@@ -95,6 +101,7 @@ const PRODUCTS: MayaProduct[] = [
     title: "تیشرت سفید پنبه‌ای",
     price: 1_250_000,
     image: "/maya/img/prod-4.webp",
+    image2: "/maya/img/col-5.jpg",
     colors: ["#f4f1ea", "#16130e", "#b9b0a0"],
     sizes: ["S", "M", "L", "XL"],
     collection: "summer-essentials",
@@ -105,6 +112,7 @@ const PRODUCTS: MayaProduct[] = [
     title: "ست بهاری خنثی",
     price: 4_450_000,
     image: "/maya/img/prod-5.webp",
+    image2: "/maya/img/col-2.jpg",
     colors: ["#d9cfbc", "#a99f8c"],
     sizes: ["M", "L"],
     tag: "جدید",
@@ -117,6 +125,7 @@ const PRODUCTS: MayaProduct[] = [
     price: 2_180_000,
     compareAt: 2_760_000,
     image: "/maya/img/prod-6.webp",
+    image2: "/maya/img/col-6.jpg",
     colors: ["#33506e", "#8fa3b8"],
     sizes: ["36", "38", "40", "42"],
     collection: "sports-jacket",
@@ -127,6 +136,7 @@ const PRODUCTS: MayaProduct[] = [
     title: "ست روزمره روشن",
     price: 2_760_000,
     image: "/maya/img/prod-7.webp",
+    image2: "/maya/img/grid-2.webp",
     colors: ["#efe9dc", "#c4b393"],
     sizes: ["S", "M", "L"],
     collection: "summer-drift",
@@ -137,6 +147,7 @@ const PRODUCTS: MayaProduct[] = [
     title: "تیشرت نارنجی اورسایز",
     price: 1_140_000,
     image: "/maya/img/prod-8.webp",
+    image2: "/maya/img/grid-3.webp",
     colors: ["#d97f3e", "#16130e"],
     sizes: ["M", "L", "XL"],
     tag: "حراج",
@@ -358,8 +369,30 @@ const PROMO_TILES: MayaPromoTile[] = [
   },
 ];
 
+/* ---------------------- stacked featured collection ------------------- */
+/* Copy for the "featured_collection" section of the reference theme
+   (there: "ELEVATE YOUR WARDROBE TODAY"). */
+
+export const STACKED_COLLECTION = {
+  kicker: "کالکشن منتخب",
+  title: "امروز کمدت را ارتقا بده",
+  desc: "استایل‌های ترند برای هر موقعیت؛ از ضروری‌های روزمره تا قطعه‌های شاخص — کالکشن پرمیوم مایا را ببین و استایلت را به‌روز کن.",
+};
+
+/* ---------------------------- scrolling text -------------------------- */
+/* The big outlined marquee that sits above the footer. */
+
+export const SCROLLING_TEXT = {
+  lead: "استایل‌های محبوبت،",
+  accent: "با قیمت‌های بی‌نظیر!",
+};
+
 /* ------------------------------- getters ------------------------------- */
 /* Swap the bodies of these functions with Prisma queries when ready.     */
+
+export async function getStackedProducts(): Promise<MayaProduct[]> {
+  return PRODUCTS;
+}
 
 export async function getProducts(): Promise<MayaProduct[]> {
   return PRODUCTS;

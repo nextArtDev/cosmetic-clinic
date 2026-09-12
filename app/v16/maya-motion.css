@@ -1,0 +1,688 @@
+/* ============================================================
+   /v16 — Maya motion & chrome layer  (route: /v16 only)
+
+   Ports the reference theme's animation/UI layer that the first
+   pass left out:
+     · preloader + progress bar + edge-split reveal (preloader.css)
+     · custom scrollbar (#scrollbar / #scrollbar_thumb)
+     · mobile action dock (mobile-action-dock.css)
+     · rotating circular text (rotating-text / .rotate-infinite)
+     · scrolling-text marquee (scrolling-text / .marquee-x)
+     · stacked featured-collection cascade (featured-collection.css)
+     · the css-animations.css keyframe library, maya-prefixed
+     · pinned scroll-scrub stage helpers used by the sections
+
+   Every selector is scoped under .maya-root, every keyframe is
+   maya-*, so nothing here can reach another route.
+   ============================================================ */
+
+/* ---------------------------------------------------------------
+   1. keyframe library — ported from the reference css-animations.css
+   --------------------------------------------------------------- */
+@keyframes maya-slide-in-bottom {
+  0% { transform: translate3d(0, 100%, 0); opacity: 0; }
+  to { transform: translateZ(0); opacity: 1; }
+}
+@keyframes maya-slide-out-top {
+  0% { transform: translateZ(0); opacity: 1; }
+  to { transform: translate3d(0, -100%, 0); opacity: 0; }
+}
+@keyframes maya-slide-in-top {
+  0% { transform: translate3d(0, -100%, 0); opacity: 0; }
+  to { transform: translateZ(0); opacity: 1; }
+}
+@keyframes maya-fade-in {
+  0% { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes maya-scale-in-bounce {
+  0% { transform: scale3d(0, 0, 1); opacity: 0; }
+  50% { transform: scale3d(1.05, 1.05, 1); opacity: 1; }
+  to { transform: scaleZ(1); opacity: 1; }
+}
+@keyframes maya-scale-up {
+  0% { transform: scale3d(0.8, 0.8, 1); opacity: 0; }
+  to { transform: scaleZ(1); opacity: 1; }
+}
+@keyframes maya-pulse-scale {
+  0% { transform: scale3d(0.5, 0.5, 1); }
+  50% { transform: scaleZ(1); }
+  to { transform: scale3d(0.5, 0.5, 1); }
+}
+@keyframes maya-blink-soft {
+  0%, to { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+@keyframes maya-noise-shift {
+  0%, to { background-position: 0 0; }
+  12% { background-position: -12% 8%; }
+  24% { background-position: 15% -20%; }
+  36% { background-position: -18% 12%; }
+  48% { background-position: 10% -5%; }
+  62% { background-position: -7% 18%; }
+  74% { background-position: 20% -10%; }
+  86% { background-position: -14% 22%; }
+}
+
+.maya-anim-slide-in-bottom { animation: maya-slide-in-bottom 0.6s cubic-bezier(0.23, 1, 0.32, 1) both; }
+.maya-anim-slide-out-top { animation: maya-slide-out-top 0.5s ease-in both; }
+.maya-anim-fade-in { animation: maya-fade-in 0.5s ease-in both; }
+.maya-anim-scale-up { animation: maya-scale-up 0.5s ease-out both; }
+.maya-anim-pulse { animation: maya-pulse-scale 2.5s ease-in-out infinite; }
+.maya-anim-blink { animation: maya-blink-soft 2s ease-in-out infinite; }
+
+/* ---------------------------------------------------------------
+   2. preloader — progress bar (top) + full-screen veil
+   --------------------------------------------------------------- */
+.maya-progress-container {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  height: 4px;
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+}
+.maya-progress-bar {
+  width: 100%;
+  height: 100%;
+  background: var(--color-maya-clay);
+  will-change: transform;
+  transform: translateX(-100%);
+}
+[dir="rtl"] .maya-progress-bar { transform: translateX(100%); }
+
+.maya-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--maya-pre-text, #f2ede4);
+  background: var(--maya-pre-bg, rgba(22, 19, 14, 0.92));
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: transform 0.4s ease-in 0.3s, visibility 0s linear 0.7s;
+}
+.maya-preloader-word {
+  font-size: clamp(4rem, 13vw, 11rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  display: flex;
+  gap: 0.06em;
+}
+.maya-preloader-word > span {
+  display: inline-block;
+  animation: maya-fade-in 0.5s ease-in both;
+}
+.maya-preloader-tag {
+  position: absolute;
+  bottom: 2.5rem;
+  inset-inline: 0;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  opacity: 0.55;
+}
+.maya-preloader[data-state="leaving"] {
+  visibility: hidden;
+  transform: translateY(-100%);
+}
+
+/* edge-split panels that peel apart to reveal the page */
+.maya-edge-split {
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  pointer-events: none;
+}
+.maya-edge-split::before,
+.maya-edge-split::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: var(--maya-pre-bg, rgba(22, 19, 14, 0.92));
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: transform 0.6s ease, visibility 0s linear 0s;
+}
+.maya-edge-split::before { grid-area: 1 / 1 / -1 / 2; }
+.maya-edge-split::after { grid-area: 1 / 2 / -1 / 3; }
+.maya-edge-split[data-state="leaving"]::before,
+.maya-edge-split[data-state="leaving"]::after {
+  visibility: hidden;
+  transition: transform 0.6s ease, visibility 0s linear 0.7s;
+}
+.maya-edge-split[data-state="leaving"]::before { transform: translateX(-100%); }
+.maya-edge-split[data-state="leaving"]::after { transform: translateX(100%); }
+
+/* ---------------------------------------------------------------
+   3. custom scrollbar (#scrollbar / #scrollbar_thumb)
+   --------------------------------------------------------------- */
+.maya-scrollbar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 0;
+  width: 12px;
+  z-index: 70;
+  pointer-events: none;
+}
+.maya-scrollbar-thumb {
+  position: absolute;
+  inset-inline-end: 3px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--color-maya-ink);
+  opacity: 0.35;
+  will-change: transform, height;
+  pointer-events: auto;
+  cursor: grab;
+  transition: opacity 0.3s, width 0.3s;
+}
+.maya-scrollbar:hover .maya-scrollbar-thumb { opacity: 0.7; width: 5px; }
+.maya-scrollbar-thumb:active { cursor: grabbing; }
+.maya-scrollbar[data-dragging="true"] .maya-scrollbar-thumb { opacity: 0.9; width: 5px; }
+
+/* ---------------------------------------------------------------
+   4. mobile action dock
+   --------------------------------------------------------------- */
+.maya-dock {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 78;
+  display: none;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 0.25rem;
+  padding: 0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom));
+  background: rgba(242, 237, 228, 0.9);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--color-maya-line);
+  transform: translateY(110%);
+  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.maya-dock[data-visible="true"] { transform: translateY(0); }
+@media (max-width: 1023px) {
+  .maya-dock { display: flex; }
+}
+.maya-dock-btn {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.45rem 0.2rem;
+  border-radius: 1rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--color-maya-mute);
+  transition: color 0.3s, background 0.3s;
+}
+.maya-dock-btn[data-active="true"] { color: var(--color-maya-ink); }
+.maya-dock-btn:active { background: rgba(22, 19, 14, 0.06); }
+.maya-dock-btn .maya-dock-badge {
+  position: absolute;
+  top: 0.15rem;
+  inset-inline-start: 50%;
+  margin-inline-start: 0.35rem;
+  min-width: 1rem;
+  height: 1rem;
+  padding-inline: 0.2rem;
+  border-radius: 999px;
+  background: var(--color-maya-clay);
+  color: var(--color-maya-cream);
+  font-size: 0.6rem;
+  display: grid;
+  place-items: center;
+}
+
+/* ---------------------------------------------------------------
+   5. rotating circular text
+   --------------------------------------------------------------- */
+.maya-rotating {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.maya-rotating > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: maya-spin 24s linear infinite;
+}
+.maya-rotating text {
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  fill: currentColor;
+}
+.maya-rotating:hover > svg { animation-play-state: paused; }
+
+/* ---------------------------------------------------------------
+   6. scrolling-text marquee section
+   --------------------------------------------------------------- */
+.maya-scrolling-text {
+  overflow: hidden;
+  --maya-st-size: 90px;
+  --maya-st-gap: 20px;
+  --maya-st-speed: 15s;
+}
+.maya-scrolling-text-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  animation: maya-st-slide var(--maya-st-speed) linear infinite;
+}
+.maya-scrolling-text:hover .maya-scrolling-text-track { animation-play-state: paused; }
+@keyframes maya-st-slide {
+  from { transform: translateX(0); }
+  to { transform: translateX(50%); }
+}
+.maya-scrolling-text-item {
+  display: flex;
+  align-items: center;
+  gap: var(--maya-st-gap);
+  padding-inline-end: var(--maya-st-gap);
+  font-size: var(--maya-st-size);
+  font-weight: 900;
+  line-height: 1.1;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+}
+.maya-text-stroke {
+  color: transparent;
+  -webkit-text-stroke: 1.6px currentColor;
+}
+@media (max-width: 767px) {
+  .maya-scrolling-text { --maya-st-size: 50px; }
+}
+
+/* ---------------------------------------------------------------
+   7. stacked featured-collection cascade
+   --------------------------------------------------------------- */
+.maya-stacked-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--maya-cols, 6), minmax(0, 1fr));
+  gap: 34px 18px;
+}
+@media (max-width: 1023px) {
+  .maya-stacked-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 12px; }
+}
+@media (max-width: 639px) {
+  .maya-stacked-grid {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(72%, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(72%, 1fr));
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    scroll-snap-type: x mandatory;
+  }
+}
+/* the cascade: each column sits lower than the one before it */
+.maya-stacked-item {
+  opacity: 0;
+  will-change: transform, opacity;
+  transform: translateY(70px);
+  transition: opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+              transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.maya-stacked-item[data-in-view="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (min-width: 1024px) {
+  .maya-stacked-grid > .maya-stacked-item {
+    margin-top: calc(var(--maya-stack-i, 0) * 58px);
+  }
+}
+/* reduced motion / no-js fallback: everything visible */
+@media (prefers-reduced-motion: reduce) {
+  .maya-stacked-item { opacity: 1; transform: none; }
+}
+
+/* ---------------------------------------------------------------
+   8. pinned scroll-scrub stage
+   --------------------------------------------------------------- */
+.maya-pin-stage {
+  position: relative;
+  overflow: hidden;
+}
+.maya-pin-inner {
+  position: relative;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+}
+
+/* collection-carousel active caption flip (reference: the
+   `collections-carousel-image-text` rotationX/Z/Y bounce) */
+@keyframes maya-caption-flip {
+  0% { transform: translateY(0) rotateX(0deg) rotateZ(0deg) rotateY(0deg); }
+  34% { transform: translateY(-70px) rotateX(20deg) rotateZ(-10deg) rotateY(15deg); }
+  100% { transform: translateY(0) rotateX(0deg) rotateZ(0deg) rotateY(0deg); }
+}
+.maya-col-caption {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.maya-col-caption[data-flip] {
+  animation: maya-caption-flip 0.78s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* ---------------------------------------------------------------
+   9. product-card hover UX (second media, size rail, quick view)
+   --------------------------------------------------------------- */
+.maya-card-media {
+  position: relative;
+  overflow: hidden;
+}
+.maya-card-media > img,
+.maya-card-media > .maya-card-img2 {
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.maya-card-img2 {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+}
+.maya-card-media[data-hover="true"] > .maya-card-img1 { opacity: 0; transform: scale(1.05); }
+.maya-card-media[data-hover="true"] > .maya-card-img2 { opacity: 1; transform: scale(1.05); }
+
+/* ---------------------------------------------------------------
+   10. generic text reveal (chars / words driven by gsap)
+   --------------------------------------------------------------- */
+.maya-split > span {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* ---------------------------------------------------------------
+   11. back-to-top
+   --------------------------------------------------------------- */
+.maya-totop {
+  position: fixed;
+  inset-inline-end: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 76;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: var(--color-maya-cream);
+  color: var(--color-maya-ink);
+  box-shadow: 0 10px 30px -8px rgba(22, 19, 14, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(14px) scale(0.9);
+  transition: opacity 0.35s, transform 0.35s;
+}
+.maya-totop[data-visible="true"] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+@media (max-width: 1023px) {
+  .maya-totop { bottom: 4.75rem; }
+}
+
+/* ---------------------------------------------------------------
+   13. rich-text radial reveal (reference: `richText`)
+   The heading is painted with a radial gradient clipped to the text
+   and gsap scrubs --maya-reveal from 100% → 0%, wiping the accent
+   colour out from the bottom centre. Copied from the reference's
+   `--text-reveal-percentage` rule.
+   --------------------------------------------------------------- */
+.maya-rich-text {
+  color: transparent;
+  background-image: radial-gradient(
+    circle at center 100%,
+    var(--maya-reveal-hi, var(--color-maya-clay)) var(--maya-reveal, 100%),
+    var(--color-maya-ink) calc(var(--maya-reveal, 100%) + var(--maya-reveal, 100%) / 1.2)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* the converging collection thumbnail row */
+.maya-col-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: center;
+  gap: 0.75rem;
+}
+@media (max-width: 1023px) {
+  .maya-col-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
+  .maya-col-row > :nth-child(4) { grid-column: span 2; grid-row: 1; order: -1; }
+}
+.maya-col-thumb {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 3.6;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: var(--color-maya-parchment);
+  will-change: transform;
+}
+.maya-col-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.maya-col-thumb:hover img { transform: scale(1.08); }
+.maya-tooltip {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0.5rem;
+  margin-inline: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 999px;
+  background: var(--color-maya-cream);
+  color: var(--color-maya-ink);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s, transform 0.35s;
+  pointer-events: none;
+}
+.maya-col-thumb:hover .maya-tooltip { opacity: 1; transform: translateY(0); }
+
+/* ---------------------------------------------------------------
+   14. bundle masonry scrub (reference: `mixAndMatchBundle`)
+   --------------------------------------------------------------- */
+.maya-bundle-col { will-change: transform; }
+
+/* ---------------------------------------------------------------
+   15. hero banner overlay (story marquee + icon links)
+   --------------------------------------------------------------- */
+.maya-banner-overlay {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 12;
+  overflow: hidden;
+  background: var(--color-maya-ink);
+  color: var(--color-maya-cream);
+}
+.maya-banner-overlay-marquee {
+  overflow: hidden;
+  border-bottom: 1px solid rgba(242, 237, 228, 0.16);
+}
+.maya-banner-overlay-track {
+  display: flex;
+  width: max-content;
+  animation: maya-st-slide 32s linear infinite;
+}
+.maya-banner-overlay-track > span {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+.maya-banner-icons {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1px;
+  background: rgba(242, 237, 228, 0.16);
+}
+.maya-banner-icon {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 1.15rem 1rem;
+  background: var(--color-maya-ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-maya-cream);
+  transition: background 0.4s, color 0.4s;
+}
+.maya-banner-icon:hover {
+  background: var(--color-maya-clay);
+}
+.maya-banner-icon svg { flex: none; }
+
+/* ================================================================== */
+/* video with text overlay — port of `videoWithTextOverlay`            */
+/* ================================================================== */
+
+/* the theme pre-rotates the marquee list: .video-with-text-marquee-list{rotate:-4deg} */
+.maya-vt-list { rotate: -4deg; }
+.maya-vt-content {
+  opacity: 0.35;
+  filter: blur(7px);
+  transition: opacity 0.7s ease, filter 0.7s ease;
+}
+.maya-vt-content-active {
+  opacity: 1;
+  filter: blur(0);
+}
+/* hook the engine toggles at progress >= .5 (overlay-media-scrolled) */
+.maya-vt-scrolled [data-vt-radius] {
+  box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.65);
+}
+
+/* ================================================================== */
+/* featured collections tabs — pinned stage (port of                  */
+/* `featuredCollectionsList`: image slides in from xPercent −100)      */
+/* ================================================================== */
+
+.maya-ft-panel {
+  position: sticky;
+  top: 0;
+}
+.maya-ft-image {
+  will-change: transform;
+}
+/* the thin "fill" rule the engine scales 0 → 1 → 0 across the pin */
+.maya-ft-fill {
+  transform-origin: right center;
+  will-change: transform;
+}
+.maya-ft-desc-inner {
+  overflow: hidden;
+  will-change: width;
+}
+/* active tab becomes the wide white pill of the original */
+.maya-ft-pill {
+  position: relative;
+  isolation: isolate;
+}
+.maya-ft-pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 999px;
+  background: var(--color-maya-cream);
+  box-shadow: 0 18px 40px -22px rgba(22, 19, 14, 0.55);
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.maya-ft-pill[data-active="true"]::before {
+  opacity: 1;
+  transform: scale(1);
+}
+/* section-level state the engine toggles (tab-content-active / fade-out-text) */
+.maya-ft-pinned [data-ft-front] {
+  opacity: 0;
+  transform: translateY(-14px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.maya-ft-pinned [data-ft-reveal] {
+  opacity: 1;
+}
+
+/* ================================================================== */
+/* best selling products — pinned stage + rolling titles               */
+/* (port of `bestSellingProducts`)                                     */
+/* ================================================================== */
+
+.maya-bs-panel {
+  position: sticky;
+  top: 0;
+}
+.maya-bs-title {
+  display: block;
+  will-change: transform, opacity;
+}
+.maya-bs-row-inner {
+  will-change: transform;
+}
+/* 3D tilt hook for the count-down / counter box */
+.maya-bs-tilt {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* ================================================================== */
+/* mix & match bundle — masonry columns (port of `mixAndMatchBundle`)  */
+/* ================================================================== */
+
+.maya-bundle-masonry {
+  display: grid;
+  grid-template-columns: repeat(var(--masonry-column-count, 2), minmax(0, 1fr));
+  gap: var(--masonry-column-gap, 15px);
+  align-items: start;
+}
+.maya-bundle-clip {
+  overflow: hidden;
+}
+.maya-bundle-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--masonry-column-gap, 15px);
+  will-change: transform;
+}
+@media (max-width: 767px) {
+  .maya-bundle-clip { height: auto !important; }
+}

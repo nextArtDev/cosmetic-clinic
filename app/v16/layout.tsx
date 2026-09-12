@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./maya.css";
+import "./maya-motion.css";
 
 // /v16 layout — the port's own scoped stylesheet only. No shared chrome of
 // the production site renders here; every rule is .maya-* namespaced (see

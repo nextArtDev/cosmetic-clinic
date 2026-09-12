@@ -54,3 +54,6 @@ docker-engines/schema-engine
 release.tar*
 
 /seed-parts/
+
+# scratch: downloaded reference HTML/assets for the /v16 Maya parity work
+/.tmp-maya/

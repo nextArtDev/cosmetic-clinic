@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, Check, Package, Sparkles } from "lucide-react";
 import type { MayaProduct } from "../lib/data";
@@ -12,36 +12,74 @@ const MIN = 4;
 const MAX = 7;
 const DISCOUNT = 0.15;
 
+/* the theme exposes --masonry-column-count per breakpoint (2 → 5) */
+function pickColumns(w: number) {
+  if (w >= 1280) return 5;
+  if (w >= 1024) return 4;
+  if (w >= 768) return 3;
+  return 2;
+}
+
 export function Bundle({ products }: { products: MayaProduct[] }) {
   const { bundle, toggleBundle, clearBundle, addToCart, notify } = useStore();
-  const railRef = useRef<HTMLDivElement>(null);
+  const [cols, setCols] = useState(2);
+  const sectionRef = useRef<HTMLElement>(null);
+  const masonryRef = useRef<HTMLDivElement>(null);
 
-  /* cards settle from a scattered "pile" */
+  useLayoutEffect(() => {
+    const sync = () => setCols(pickColumns(window.innerWidth));
+    sync();
+    window.addEventListener("resize", sync);
+    return () => window.removeEventListener("resize", sync);
+  }, []);
+
+  /* round-robin the products into columns so each column can drift
+     independently (the engine's `.even-masonry` / `.odd-masonry`) */
+  const columns = useMemo(() => {
+    const out: MayaProduct[][] = Array.from({ length: cols }, () => []);
+    products.forEach((p, i) => out[i % cols].push(p));
+    return out;
+  }, [products, cols]);
+
+  /* ------------------------------------------------------------------
+     Port of the theme's mixAndMatchBundle().
+     The section ships data-animation-style="on-scroll": a 150% scrub
+     (no pin) where the even columns drift up over 1.2 and the odd
+     columns over 2, both starting together — so the columns lead/lag
+     each other as the grid passes through the viewport.
+     The engine also applies an absolute `y: -cardHeight/2`, but that is
+     compensation for a wrapper it shortens by the same amount; we don't
+     clip the grid, so the pure yPercent drift reads the same without
+     leaving a hole at the bottom of the section.
+     ------------------------------------------------------------------ */
   useLayoutEffect(() => {
     const { gsap } = gsapSetup();
+    const section = sectionRef.current;
+    const masonry = masonryRef.current;
+    if (!section || !masonry) return;
+
     const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>("[data-bundle-card]", railRef.current!).forEach((el, i) => {
-        gsap.fromTo(
-          el,
-          {
-            y: 70 + (i % 3) * 26,
-            rotate: i % 2 === 0 ? -4 - (i % 3) : 3 + (i % 3),
-            autoAlpha: 0,
-          },
-          {
-            y: 0,
-            rotate: 0,
-            autoAlpha: 1,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: { trigger: railRef.current, start: "top 78%", once: true },
-            delay: i * 0.07,
-          },
-        );
+      const even = gsap.utils.toArray<HTMLElement>('[data-masonry="even"]', masonry);
+      const odd = gsap.utils.toArray<HTMLElement>('[data-masonry="odd"]', masonry);
+      if (!even.length && !odd.length) return;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: "top top+=72",
+          end: "+=150%",
+          scrub: 1.5,
+          toggleActions: "play none none reverse",
+          invalidateOnRefresh: true,
+        },
       });
-    }, railRef);
+
+      if (even.length) tl.to(even, { yPercent: -10, duration: 1.2, ease: "none" });
+      if (odd.length) tl.to(odd, { yPercent: -10, duration: 2, ease: "none" }, "<");
+    }, sectionRef);
+
     return () => ctx.revert();
-  }, []);
+  }, [cols, products.length]);
 
   const count = bundle.length;
   const ready = count >= MIN;
@@ -50,7 +88,12 @@ export function Bundle({ products }: { products: MayaProduct[] }) {
   const need = Math.max(0, MIN - count);
 
   return (
-    <section id="maya-bundle" className="relative overflow-hidden py-20 md:py-28" aria-label="باندل بساز">
+    <section
+      id="maya-bundle"
+      ref={sectionRef}
+      className="relative overflow-hidden py-20 md:py-28"
+      aria-label="باندل بساز"
+    >
       <div className="maya-wrap">
         <SectionHead
           kicker="میکس و مچ"
@@ -58,70 +101,78 @@ export function Bundle({ products }: { products: MayaProduct[] }) {
           desc={`${fa(MIN)} تا ${fa(MAX)} قلم انتخاب کن و روی کل باندل ${fa(15)}٪ تخفیف بگیر؛ انتخاب‌ها را از نوار پایین مدیریت کن.`}
         />
 
-        {/* product rail */}
-        <div ref={railRef} className="maya-nobar -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 md:mx-0 md:gap-6 md:px-0">
-          {products.map((p) => {
-            const selected = bundle.some((x) => x.id === p.id);
-            return (
-              <div
-                key={p.id}
-                data-bundle-card
-                className={cn(
-                  "group w-56 flex-none snap-start overflow-hidden rounded-3xl border bg-white/40 transition-colors duration-300 md:w-64",
-                  selected ? "border-maya-clay shadow-[0_18px_44px_-18px_rgba(154,106,61,0.5)]" : "border-maya-line",
-                )}
-              >
-                <div className="relative aspect-[3/3.4] overflow-hidden bg-maya-parchment">
-                  <img
-                    src={p.image}
-                    alt={p.title}
-                    loading="lazy"
+        {/* masonry grid — even/odd columns drift at different rates */}
+        <div ref={masonryRef} className="maya-bundle-masonry" style={{ "--masonry-column-count": cols } as CSSProperties}>
+          {columns.map((col, j) => (
+            <div
+              key={j}
+              data-masonry={j % 2 === 0 ? "even" : "odd"}
+              className="maya-bundle-col"
+            >
+              {col.map((p) => {
+                const selected = bundle.some((x) => x.id === p.id);
+                return (
+                  <div
+                    key={p.id}
+                    data-bundle-card
                     className={cn(
-                      "size-full object-cover transition-all duration-700",
-                      selected ? "scale-[1.03]" : "group-hover:scale-[1.05]",
+                      "group overflow-hidden rounded-3xl border bg-white/40 transition-colors duration-300",
+                      selected ? "border-maya-clay shadow-[0_18px_44px_-18px_rgba(154,106,61,0.5)]" : "border-maya-line",
                     )}
-                  />
-                  <AnimatePresence>
-                    {selected && (
-                      <motion.span
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-maya-clay/15"
+                  >
+                    <div className="relative aspect-[3/3.4] overflow-hidden bg-maya-parchment">
+                      <img
+                        src={p.image}
+                        alt={p.title}
+                        loading="lazy"
+                        className={cn(
+                          "size-full object-cover transition-all duration-700",
+                          selected ? "scale-[1.03]" : "group-hover:scale-[1.05]",
+                        )}
                       />
-                    )}
-                  </AnimatePresence>
-                  <span
-                    className={cn(
-                      "absolute top-3 right-3 grid size-8 place-items-center rounded-full text-xs font-black transition-all duration-300",
-                      selected ? "bg-maya-clay text-maya-cream" : "bg-maya-cream/85 text-maya-ink backdrop-blur-sm",
-                    )}
-                  >
-                    {selected ? fa(bundle.findIndex((x) => x.id === p.id) + 1) : <Plus className="size-4" />}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-3 px-4 py-3.5">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold">{p.title}</p>
-                    <PriceTag price={p.price} className="mt-1 text-xs text-maya-mute" />
+                      <AnimatePresence>
+                        {selected && (
+                          <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-maya-clay/15"
+                          />
+                        )}
+                      </AnimatePresence>
+                      <span
+                        className={cn(
+                          "absolute top-3 right-3 grid size-8 place-items-center rounded-full text-xs font-black transition-all duration-300",
+                          selected ? "bg-maya-clay text-maya-cream" : "bg-maya-cream/85 text-maya-ink backdrop-blur-sm",
+                        )}
+                      >
+                        {selected ? fa(bundle.findIndex((x) => x.id === p.id) + 1) : <Plus className="size-4" />}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 px-4 py-3.5">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold">{p.title}</p>
+                        <PriceTag price={p.price} className="mt-1 text-xs text-maya-mute" />
+                      </div>
+                      <button
+                        onClick={() => toggleBundle(p)}
+                        aria-pressed={selected}
+                        className={cn(
+                          "grid size-10 flex-none place-items-center rounded-full transition-all duration-300 active:scale-85",
+                          selected
+                            ? "rotate-0 bg-maya-clay text-maya-cream"
+                            : "bg-maya-ink text-maya-cream hover:rotate-90 hover:bg-maya-clay",
+                        )}
+                        aria-label={selected ? `حذف ${p.title} از باندل` : `افزودن ${p.title} به باندل`}
+                      >
+                        {selected ? <Check className="size-4" /> : <Plus className="size-4" />}
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => toggleBundle(p)}
-                    aria-pressed={selected}
-                    className={cn(
-                      "grid size-10 flex-none place-items-center rounded-full transition-all duration-300 active:scale-85",
-                      selected
-                        ? "bg-maya-clay text-maya-cream rotate-0"
-                        : "bg-maya-ink text-maya-cream hover:bg-maya-clay hover:rotate-90",
-                    )}
-                    aria-label={selected ? `حذف ${p.title} از باندل` : `افزودن ${p.title} به باندل`}
-                  >
-                    {selected ? <Check className="size-4" /> : <Plus className="size-4" />}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
 

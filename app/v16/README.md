@@ -10,30 +10,80 @@ existing API endpoints are unchanged — `git status` shows only
 ## Animation stack (what makes it feel like the original)
 - **Lenis** smooth scroll (duration 1.15, expo easing) synced to
   **GSAP ScrollTrigger** via `gsap.ticker`; torn down cleanly on unmount.
+- **Global chrome** (`maya-motion.css` + `components/Motion.tsx`): the
+  theme's preloader with 4-phase colour flux and a progress bar, the
+  two-panel edge-split wipe, the thin custom scrollbar (drag-to-scroll),
+  the mobile action dock, a rotating circular-text badge and a
+  back-to-top button. Preloader + scrollbar are desktop-only, matching
+  the theme's own `max-width: 767px` bail-out.
 - **Hero**: autoplaying slide deck with masked line-reveal headlines,
-  crossfade + slow zoom media, scroll-scrub parallax on media and copy,
-  rotating orbit badge, animated slide counter and progress line.
+  crossfade + slow zoom media, rotating orbit badge, animated slide
+  counter and progress line — plus the `bannerSlider` pinned scrub
+  (200svh stage / sticky panel) that drives the marquee, slide fade,
+  media parallax, overlay rise and control fade-out.
 - **Trending**: staggered reveals, hover zoom, quick-view pill, hover
   size-rail, spring add-to-cart confirmation.
-- **Collection carousel**: scroll-scrub clip-path banner reveal,
-  parallax banner image, RTL-aware drag-to-scroll rail with progress.
-- **Statement**: word-by-word color-scrub manifesto, parallax collage
-  with clip-reveal cards, rotating sale orbit badge.
-- **Featured tabs**: autoplay accordion with animated progress bar,
-  typewriter line, clip-reveal image panel, popLayout product thumbs.
-- **Bundle**: cards settle from a scattered pile, sticky glass bar with
-  spring thumbnails and animated progress segments.
+- **Collection carousel**: `collectionCarousel` pinned scrub — the track
+  translates by `scrollWidth - innerWidth` with an RTL-aware sign while
+  the progress rule scales 0 → 1 and the active caption flips.
+- **Statement**: `richText` colour-based radial reveal — `--maya-reveal`
+  scrubs 100% → 0% while the SALE badge scales 20 → 1 and the collection
+  thumbnails converge from `(i - centre) * 55px`.
+- **Featured tabs**: `featuredCollectionsList` — the section pins for
+  250svh while the hero image slides in from `xPercent -100 / scale .7`,
+  the description rail grows to full width, a thin rule sweeps
+  `scaleX 0 → 1 → 0` and the active heading's characters reveal with
+  `rotationX: 90`. Autoplay accordion, typewriter line and popLayout
+  product thumbs are layered on top.
+- **Bundle**: `mixAndMatchBundle` — products are round-robined into
+  `--masonry-column-count` columns (2 → 5, responsive) and the even/odd
+  columns drift up over a 150% scrub at different durations (1.2 vs 2)
+  so they lead and lag each other. Sticky glass bar with spring
+  thumbnails and animated progress segments.
 - **Burst**: product chips fly out from the section center on enter,
   then follow the cursor with depth-weighted parallax.
-- **Best sellers**: rolling-text row titles, cursor-follow image preview.
-- **Video marquee**: three stacked infinite marquees with scroll-velocity
-  timeScale boost over a parallax, play-on-screen video.
+- **Best sellers**: `bestSellingProducts` — the section pins for 200svh
+  while the rows rise and the titles roll in on their X axis; the row
+  counter gets a 3D mousemove tilt. Rolling-text hover and cursor-follow
+  image preview sit on top.
+- **Video marquee**: `videoWithTextOverlay` with
+  `data-animation-type="tilt"` — the section pins for `height / 1.5`
+  while the media rotates to −4° and shrinks to 70%
+  (`media-width-large` → `--overlay-media-size: .7`), the radius media
+  animates its border-radius, the text marquee rises from
+  `yPercent 100 → 0`, and the content swaps to its active state at
+  progress ≥ 0.5. The marquee list is pre-rotated −4° like the theme's
+  `.video-with-text-marquee-list`.
 - **Testimonials**: drag carousel with snapping, autoplay and dots.
-- **Media grid / duo**: clip-path tile reveals, scrub image scale.
+- **Media grid / duo**: clip-path tile reveals; the duo uses
+  `mediaWithTextSec` with `data-animation-type="square"` — both panels
+  start fully off-canvas at `xPercent ±100` and slide toward each other
+  to `∓15%` across the section's entry (not pinned, per the engine).
+- **Scrolling text**: two duplicated runs looping at −50% for a seamless
+  marquee, the second half rendered as outlined stroke text.
+- **Stacked collection**: 6-column cascade with per-item offsets,
+  `ScrollTrigger.batch` staggering and second-image hover swaps.
 - **Footer**: velocity marquee, parallax watermark outline, animated
   newsletter form with success/error states.
 - Header hide-on-scroll-down glass morphing, mega menu with staggered
   items, springy mobile drawers, toasts, dock with layoutId pill.
+
+## Motion parity notes
+- The port is driven by the theme's own `engine.js`
+  (`gsapMayaaThemeExecution`): each section here reproduces the matching
+  `methodCalled` method, including its exact start/end offsets, `scrub`
+  value and target values. `data-animation-type` / `data-animation-style`
+  / `data-block-size` are read from the section attributes.
+- Pinning uses a tall stage + `position: sticky` panel rather than gsap's
+  own `pin: true`, because gsap pinning fights Lenis. The scroll distance
+  is kept equal to the engine's `end` offset (`+=150%`, `+=height/1.5`,
+  `+=height × 1.5`, …).
+- **RTL marquee fix**: `.maya-scrollrow` / `.maya-scrollrow-track` are
+  forced to `direction: ltr`. With `direction: rtl` a `width: max-content`
+  track overflows to the *left* of its `overflow: hidden` parent, and the
+  `xPercent: 0 → -50` loop then walks it entirely off-screen. Persian
+  runs inside keep their own bidi ordering.
+
 
 ## Boundaries
 - Route: `app/v16/` — layout mounts `#maya-root` (rtl/fa) + `maya.css`
