@@ -3,7 +3,7 @@
 import { useEffect, type RefObject } from 'react'
 import { gsap, ScrollTrigger, EASE } from '../lib/gsap'
 import type { PathController } from '../components/forest-path'
-import { TRACK_VW } from '../lib/assets'
+import { CONTENT_EM } from '../lib/assets'
 
 type Q = (sel: string) => HTMLElement[]
 type KF = [number, gsap.TweenVars]
@@ -239,10 +239,20 @@ function desktopScroll(root: HTMLElement, q: Q, path: RefObject<PathController |
   })
   const kf = keyframer(tl)
 
-  /* frame + progress bar */
+  /* frame + progress bar.
+     See CONTENT_EM. The frame's content is a fixed number of design units
+     wide; the desktop source travels 1368 because its viewport happens to
+     be 100 units (1368 + 100 = 1468). On a phone the viewport is far
+     narrower in design-units, so travelling a flat 1368 would strand the
+     final CTA/footer off-screen. Travel `content − viewport` instead;
+     desktop evaluates to the original 1368 units. `.track` mirrors this. */
+  const travelPx = () => {
+    const unit = parseFloat(getComputedStyle(frame).fontSize) || 1
+    return -(CONTENT_EM * unit - window.innerWidth)
+  }
   kf(frame, [
-    [0, { x: '0vw' }],
-    [100, { x: `-${TRACK_VW}vw` }],
+    [0, { x: 0 }],
+    [100, { x: () => travelPx() }],
   ])
   kf(scrollItem, [
     [0, { width: '0.5%' }],
@@ -320,8 +330,8 @@ function desktopScroll(root: HTMLElement, q: Q, path: RefObject<PathController |
 
   /* forest photo pinned while the text travels, then zooms and fades */
   kf(q('[data-forest-container]'), [
-    [7.3075, { x: '0vw' }],
-    [43.031, { x: '489vw' }],
+    [7.3075, { x: '0em' }],
+    [43.031, { x: '489em' }],
   ])
   op('[data-forest-apla]', [[27.75, 0.81], [39.775, 0]])
   kf(q('[data-forest-img]'), [
@@ -332,12 +342,12 @@ function desktopScroll(root: HTMLElement, q: Q, path: RefObject<PathController |
 
   /* newsletter + droga grid hold still while the forest dissolves */
   kf(q('[data-droga-grid]'), [
-    [35.557, { x: '0vw' }],
-    [42.8645, { x: '100vw' }],
+    [35.557, { x: '0em' }],
+    [42.8645, { x: '100em' }],
   ])
   kf(q('[data-section-newsletter]'), [
-    [35.557, { x: '-35vw' }],
-    [42.8645, { x: '65vw' }],
+    [35.557, { x: '-35em' }],
+    [42.8645, { x: '65em' }],
   ])
 
   /* droga parallax */

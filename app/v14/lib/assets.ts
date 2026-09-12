@@ -51,5 +51,10 @@ export const NAV_ITEMS = [
   { label: 'تماس', href: '/v14/tamas' },
 ]
 
-/** Desktop horizontal track length (vw) — mirrors `.track{height:1368vw}` */
-export const TRACK_VW = 1368
+/**
+ * The horizontal frame is a fixed number of design units wide (the sum of
+ * the section widths in globals.css, ~1468). Desktop travels 1368 of them
+ * because its viewport is 100 units; the hook travels the whole content so
+ * narrow phones can reach the final CTA/footer. Mirrors `.track`'s height.
+ */
+export const CONTENT_EM = 1468
