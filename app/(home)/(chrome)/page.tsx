@@ -28,6 +28,7 @@ import AdvancedBodyCarousel from '@/components/Home/body-carousel/pot/AdvancedBo
 import { ServicesIndex } from '@/components/Home/ServicesIndex'
 import BeforeAfterSlider from '@/components/Home/BeforAfterScrollSlider'
 import BeforeAfterRevealSlider from '@/components/Home/BeeforeAfterReveal'
+import MaskRevealCompare from '@/components/Home/MaskRevealCompare'
 
 import TestimonialsSwiper from '@/components/Home/marquee/TestimonialSwiper'
 import { getFeaturedReviews, getReviewStats } from '@/lib/reviews'
@@ -145,26 +146,6 @@ export default async function Home() {
               : undefined
           }
         />
-        {/* <section className="overflow-x-hidden">
-        <Hero />
-      </section> */}
-        {/* <section className="flex min-h-svh items-center justify-center overflow-hidden bg-[#020508] py-6">
-        <HoloBeautyConsole
-          beforeSrc="/images/doctors/1.jpeg"
-          afterSrc="/images/doctors/2.jpeg"
-          headerText="SIM-09 // LIPO-SCAN"
-          captionText="Beauty Surgery Simulation"
-        />
-      </section>
-      <section className="flex min-h-screen items-center justify-center bg-[radial-gradient(1200px_600px_at_50%_-10%,#ffffff, #dfe7ee_60%,#cfd9e2)] py-16">
-        <HoloGlassCard
-          imageSrc="/images/doctors/2.jpeg"
-          badgeText="SCAN 04"
-          sideLines={['Patient:', 'Tx Oncology']}
-          footerText="Biotechnology"
-          brandText="ADERTI ADLAB"
-        />
-      </section> */}
 
         {/* <section className="relative">
           <ServicesIndex items={items} />
@@ -237,9 +218,42 @@ export default async function Home() {
           priority
         />
         <div className="relative h-full w-full py-10">
-          {/* <ScrollSlider /> */}
           <BeforeAfterSlider />
         </div>
+        <MaskRevealCompare
+          before={{
+            src: '/images/b-a/belfa1-b.webp',
+            alt: 'بیمار قبل از لیفت صورت',
+          }}
+          after={{
+            src: '/images/b-a/belfa1-a.webp',
+            alt: 'بیمار بعد از عمل بینی',
+          }}
+          marqueeText="قبل و بعد"
+          title="عمل بینی"
+          tags={['جراحی', '۶ ماه پس از عمل']}
+          shape="squircle"
+          startMask={8}
+          endMask={340}
+          scrollVh={240}
+        />
+        <MaskRevealCompare
+          before={{
+            src: '/images/b-a/Submental-before-r.webp',
+            alt: 'بیمار قبل از لیفت صورت',
+          }}
+          after={{
+            src: '/images/b-a/Submental-after.webp',
+            alt: 'بیمار بعد از لیفت صورت',
+          }}
+          marqueeText="قبل و بعد"
+          title="لیپوساکشن"
+          tags={['جراحی', '۶ ماه پس از عمل']}
+          shape="diamond"
+          startMask={18}
+          endMask={340}
+          scrollVh={240}
+        />
         {/* <section className="flex min-h-screen items-center justify-center px-4 py-10">
           <GlassShieldShowcase
             imageSrc={'/images/lips.webp'}

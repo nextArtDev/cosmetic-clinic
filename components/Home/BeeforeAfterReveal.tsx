@@ -9,6 +9,10 @@ import gsap from 'gsap'
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
+// See the matching note in BeforAfterScrollSlider: stop ScrollTrigger from
+// recomputing pin bounds when the mobile address bar shows/hides.
+ScrollTrigger.config({ ignoreMobileResize: true })
+
 /**
  * ─────────────────────────────────────────────────────────────────────────
  *  BeforeAfterRevealSlider — pinned scroll reveal, single before/after pair
@@ -154,6 +158,7 @@ export default function BeforeAfterRevealSlider({
   className,
 }: BeforeAfterRevealSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const pinnedRef = useRef<HTMLDivElement>(null)
   const leftWrapRef = useRef<HTMLDivElement>(null)
   const rightWrapRef = useRef<HTMLDivElement>(null)
   const leftImgRef = useRef<HTMLImageElement>(null)
@@ -165,11 +170,16 @@ export default function BeforeAfterRevealSlider({
 
   const reduceMotion = usePrefersReducedMotion()
 
-  // Mobile: halve the pinned runway (220vh of scroll-jail reads as broken
-  // on touch) and let svh handle browser-chrome resize. Desktop unchanged.
+  // Mobile: halve the pinned RUNWAY (220vh of scroll-jail reads as broken on
+  // touch), not the section height. The sticky stage eats 100 of those vh, so
+  // the runway is `scrollVh - 100` — halving `scrollVh` itself didn't halve
+  // the runway, it all but deleted it (220vh -> 110vh leaves a 10vh runway,
+  // i.e. ~45px on a phone: the whole wipe finished inside one thumb flick and
+  // then sat frozen for the rest of the pin). Scale only the part that's
+  // actually scrolled through.
   const isCompact = useMediaQuery('(max-width: 767px)')
   const effectiveScrollVh = isCompact
-    ? Math.max(60, Math.round(scrollVh * 0.5))
+    ? 100 + Math.max(30, Math.round((scrollVh - 100) * 0.5))
     : scrollVh
 
   // Scroll-linked motion is easier to tolerate than autoplay, but the
@@ -232,8 +242,21 @@ export default function BeforeAfterRevealSlider({
       const st = ScrollTrigger.create({
         trigger: containerRef.current,
         start: 'top top',
-        end: 'bottom bottom',
-        scrub: reduceMotion ? true : 0.6,
+        // Measured pin distance, not 'bottom bottom' — see the long comment
+        // in BeforAfterScrollSlider. ScrollTrigger treats the viewport as
+        // 100vh (large viewport on mobile) while the stage is 100svh, so
+        // 'bottom bottom' silently truncated the scrub on phones.
+        end: () => {
+          const section = containerRef.current
+          const pinned = pinnedRef.current
+          if (!section || !pinned) return 'bottom bottom'
+          return `+=${Math.max(1, section.offsetHeight - pinned.offsetHeight)}`
+        },
+        invalidateOnRefresh: true,
+        // NOTE: `scrub` is intentionally absent. scrub only smooths an
+        // ATTACHED animation — with a bare onUpdate it is inert, so the wipe
+        // is 1:1 with the scroll position. That's exactly what we want on
+        // touch: any added easing here would just be more perceived lag.
         onUpdate: (self) => {
           const revealProgress = Math.min(1, self.progress / revealHoldAt)
           applyClip(revealProgress * finalBoundary)
@@ -284,7 +307,10 @@ export default function BeforeAfterRevealSlider({
       className={`max-w-lg mx-auto relative w-full rounded-[22px] bg-transparent shadow-[0_40px_90px_-25px_rgba(0,0,0,0.9)] mix-blend-darken ${className ?? ''}`}
       style={{ height: `${effectiveScrollVh}vh` }}
     >
-      <div className="sticky top-0 h-svh w-full overflow-hidden">
+      <div
+        ref={pinnedRef}
+        className="sticky top-0 h-svh w-full overflow-hidden"
+      >
         {/* left half */}
         <div
           ref={leftWrapRef}

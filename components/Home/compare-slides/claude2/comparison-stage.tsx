@@ -120,7 +120,7 @@ export function ComparisonStage({
   const scrollYProgress = useTransform<number, number>(
     [pinnedProgress, passProgress],
     ([pinnedValue, passValue]) =>
-      pinned ? pinnedValue : clamp01((passValue - 0.32) / 0.34),
+      pinned ? pinnedValue : clamp01((passValue - 0.29) / 0.34),
   )
 
   const { preview, isHolding, start, end } = useHoldPreview(scrollYProgress)
@@ -211,7 +211,7 @@ export function ComparisonStage({
             />
           </div>
 
-        {/* jeweler's-case frame: hairline bevel, then the vitrine itself */}
+          {/* jeweler's-case frame: hairline bevel, then the vitrine itself */}
           <div className="rounded-[22px] bg-[linear-gradient(150deg,var(--cc-accent-soft)_0%,var(--cc-accent)_30%,var(--cc-accent-deep)_52%,var(--cc-accent)_74%,var(--cc-accent-soft)_100%)] p-[1.5px] shadow-[0_36px_100px_-32px_rgba(0,0,0,0.55)]">
             {/* Firefox ignores border-radius clipping from overflow:hidden for
                 composited descendants (the WebGL canvas) — the corners and the

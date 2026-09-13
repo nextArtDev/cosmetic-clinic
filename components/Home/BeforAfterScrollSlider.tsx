@@ -8,6 +8,16 @@ import gsap from 'gsap'
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
+// Mobile browsers fire resize when the address bar shows/hides mid-scroll.
+// ScrollTrigger already defaults this to true on touch-only devices, but
+// not on hybrid touch+mouse ones — and reacting to that resize recomputes
+// the pin bounds while the user is scrubbing, which is the classic cause of
+// a pinned section jumping on phones. Module-wide, side-effect-free.
+ScrollTrigger.config({ ignoreMobileResize: true })
+
+/** Compact (phone) breakpoint — kept in sync with the reveal slider. */
+const COMPACT_QUERY = '(max-width: 767px)'
+
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
@@ -41,15 +51,17 @@ interface BeforeAfterSliderProps {
 const settings = {
   /** lerp while the seam follows the page scroll (lower = smoother) */
   smoothness: 0.06,
+  /** Phones get a much snappier lerp. The mobile runway is only ~2–3 finger
+   *  flicks long, so a ~0.8s catch-up reads as "the slider is lagging". */
+  smoothnessCompact: 0.16,
   /** lerp while the user is dragging (snappier) */
   dragSmoothing: 0.45,
   /** how far the page must scroll before it takes control back after a drag */
   releaseDragHold: 0.02,
   keyboardStep: 0.05,
-  /** auto-demo on first view: sweep to AFTER, hold, glide back in sync */
+  /** auto-demo on first view: sweep to AFTER, hold, then hand back to scroll */
   introDuration: 1.1,
   introHold: 0.5,
-  introReturn: 0.7,
 }
 
 const demoCase: BeforeAfterCase = {
@@ -75,6 +87,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
   scrollLength,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
+  const pinnedRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const afterRef = useRef<HTMLDivElement>(null)
   const dividerRef = useRef<HTMLDivElement>(null)
@@ -103,6 +116,18 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
 
   const introTweenRef = useRef<gsap.core.Animation | null>(null)
   const introPlayedRef = useRef(false)
+
+  /** Live phone-vs-desktop flag, read inside the RAF loop (no re-renders). */
+  const compactRef = useRef(false)
+  useEffect(() => {
+    const mq = window.matchMedia(COMPACT_QUERY)
+    const sync = () => {
+      compactRef.current = mq.matches
+    }
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
 
   /* ------------------- render loop + measuring ------------------- */
 
@@ -163,7 +188,9 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
         ? 1
         : pos.current.dragging
           ? settings.dragSmoothing
-          : settings.smoothness
+          : compactRef.current
+            ? settings.smoothnessCompact
+            : settings.smoothness
       pos.current.current += (pos.current.target - pos.current.current) * s
       if (Math.abs(pos.current.target - pos.current.current) < 0.0001) {
         pos.current.current = pos.current.target
@@ -199,6 +226,11 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
     if (
       introPlayedRef.current ||
       pos.current.introPlaying ||
+      // Phones: the whole runway is only a few finger-flicks long, so a
+      // self-running ~1.6s demo finishes long after the user has already
+      // scrolled past — it reads as "the slider is stuck / changes too
+      // late". The bottom bar already tells touch users to drag.
+      compactRef.current ||
       (typeof window !== 'undefined' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches)
     )
@@ -206,30 +238,25 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
     introPlayedRef.current = true
     pos.current.introPlaying = true
     // Auto-demo: sweep the seam to full AFTER so the result is seen
-    // immediately, then glide back to the scroll-synced position — so the
-    // user's first swipe scrubs forward instead of fighting the demo.
+    // immediately, hold, then hand control back to the page scroll.
     const tl = gsap.timeline({
       onComplete: () => {
         introTweenRef.current = null
         pos.current.introPlaying = false
-        // hand control back to page scroll from where it is now
-        pos.current.progressAtDrag = pos.current.scrollProgress
-        pos.current.dragHold = true
+        // Hand back to the LIVE scroll position. Tweening to a
+        // `scrollProgress` captured when the return tween *started* parked
+        // the seam at a stale value — by the time it resolved, the page had
+        // moved on. Reading it here and letting the RAF lerp glide there
+        // gets the same easing for free and always ends where the page is.
+        pos.current.target = clamp01(pos.current.scrollProgress)
+        pos.current.dragHold = false
       },
     })
     tl.fromTo(
       pos.current,
       { target: 0 },
       { target: 1, duration: settings.introDuration, ease: 'power2.inOut' },
-    ).to(
-      pos.current,
-      {
-        target: () => clamp01(pos.current.scrollProgress),
-        duration: settings.introReturn,
-        ease: 'power3.inOut',
-      },
-      `+=${settings.introHold}`,
-    )
+    ).to(pos.current, { target: 1, duration: settings.introHold })
     introTweenRef.current = tl
   }, [])
 
@@ -242,7 +269,22 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
       const st = ScrollTrigger.create({
         trigger: containerRef.current,
         start: 'top top',
-        end: 'bottom bottom',
+        // Measure the real pin distance instead of 'bottom bottom'.
+        // ScrollTrigger resolves the viewport as 100vh — the LARGE viewport
+        // on mobile (it measures a 100vh probe div, not window.innerHeight,
+        // specifically to ignore address-bar resize). The pinned stage is
+        // 100svh, which is shorter by exactly the browser-chrome height. So
+        // 'bottom bottom' ends the scrub early and leaves a dead zone at the
+        // end of the pin on every phone. Deriving the end from the two real
+        // element heights makes the scrub range equal the pin range exactly,
+        // whatever the unit mismatch happens to be on that device.
+        end: () => {
+          const section = containerRef.current
+          const pinned = pinnedRef.current
+          if (!section || !pinned) return 'bottom bottom'
+          return `+=${Math.max(1, section.offsetHeight - pinned.offsetHeight)}`
+        },
+        invalidateOnRefresh: true,
         onEnter: (self) => {
           // first time the section pins, demo the slider automatically
           if (self.progress < 0.2 && !pos.current.dragging) playIntro()
@@ -357,7 +399,13 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
       {/* Pinned stage — sticky while the outer section scrolls past.
           dvh (not vh) so mobile URL bars can't make the stage taller than
           the visible viewport → the seam always finishes before unpinning. */}
-      <div className="sticky top-0 h-dvh w-full overflow-hidden rounded-[22px]">
+      {/* svh, not dvh: a dvh stage resizes while the address bar animates,
+          which changes the pin length mid-scrub and desyncs the seam from
+          the scroll. svh is constant, so the geometry above stays valid. */}
+      <div
+        ref={pinnedRef}
+        className="sticky top-0 h-svh w-full overflow-hidden rounded-[22px]"
+      >
         <div
           ref={stageRef}
           className="absolute inset-0 cursor-ew-resize select-none  "

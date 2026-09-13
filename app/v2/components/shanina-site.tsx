@@ -191,8 +191,7 @@ function Header() {
             onClick={() => setOpen(false)}
             data-stagger-link
           >
-            <span data-stagger-text>رزرو مشاوره</span>{' '}
-            <ArrowUpLeft size={17} />
+            <span data-stagger-text>رزرو مشاوره</span> <ArrowUpLeft size={17} />
           </a>
           <button
             className="menu-toggle"
@@ -576,8 +575,8 @@ function Process() {
         </p>
         <span className="eyebrow section-counter">( روند کار )</span>
         <p data-reveal data-line-reveal>
-          از نخستین گام‌ها تا پشتیبانی بعدی، هر مرحله برای مراقبتی شخصی و
-          اثربخش طراحی شده است.
+          از نخستین گام‌ها تا پشتیبانی بعدی، هر مرحله برای مراقبتی شخصی و اثربخش
+          طراحی شده است.
         </p>
       </div>
       <div dir="ltr" className="process-marquee" aria-label="روند مشاوره">
@@ -1255,8 +1254,7 @@ export function ShaninaSite() {
             </a>
             <span>مراقبت تخصصی از پوست و زیبایی شما.</span>
             <a href="#form" className="eyebrow" data-stagger-link>
-              <span data-stagger-text>شروع کنیم</span>{' '}
-              <ArrowUpLeft size={17} />
+              <span data-stagger-text>شروع کنیم</span> <ArrowUpLeft size={17} />
             </a>
           </div>
           <a
