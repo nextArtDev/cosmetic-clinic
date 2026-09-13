@@ -55,3 +55,5 @@ export function cn(...parts: Array<string | false | null | undefined>) {
 /* ---------- mix ---------- */
 export const EASE_EXPO = [0.76, 0, 0.24, 1] as const;
 export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
+/* the theme's accordion / details easing: cubic-bezier(0.4, 0, 0.2, 1) */
+export const EASE_STANDARD = [0.4, 0, 0.2, 1] as const;

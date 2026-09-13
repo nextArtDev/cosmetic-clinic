@@ -258,20 +258,31 @@
   place-items: center;
   flex: none;
 }
-.maya-rotating > svg {
+/* Port of `.rich-text-circular-text` + `.rotate-infinite`.
+   The theme lays the string on a circle by absolutely positioning each
+   character at `left: 50%` and giving it `transform-origin: 0 var(--diameter)/2`,
+   so rotating it by θ swings it onto a circle of radius `--diameter / 2`
+   centred on the box. The wrapper then spins forever at 40s/linear. */
+.maya-rotating-text {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  animation: maya-spin 24s linear infinite;
-}
-.maya-rotating text {
+  margin: 0;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  fill: currentColor;
+  color: currentColor;
+  animation: maya-spin 40s linear infinite;
 }
-.maya-rotating:hover > svg { animation-play-state: paused; }
+.maya-rotating-text > span {
+  position: absolute;
+  left: 50%;
+  font-size: 1.2em;
+  transform-origin: 0 calc(var(--diameter) / 2);
+}
+.maya-rotating:hover .maya-rotating-text { animation-play-state: paused; }
 
 /* ---------------------------------------------------------------
    6. scrolling-text marquee section
@@ -353,6 +364,8 @@
 /* reduced motion / no-js fallback: everything visible */
 @media (prefers-reduced-motion: reduce) {
   .maya-stacked-item { opacity: 1; transform: none; }
+  /* theme parity: `html.no-animation .rich-text-circular-text { display: none }` */
+  .maya-rotating-text { display: none; }
 }
 
 /* ---------------------------------------------------------------
@@ -685,4 +698,94 @@
 }
 @media (max-width: 767px) {
   .maya-bundle-clip { height: auto !important; }
+}
+
+/* ================================================================== */
+/* trending products — port of the theme's trending-products.css       */
+/*                                                                     */
+/* The section is a SINGLE row of narrow tiles filling the container,   */
+/* with the giant split heading sitting BEHIND them in the same grid    */
+/* row (it shows through the gaps between tiles). Below 768px the       */
+/* heading is hidden and the tiles become a scroll-snap carousel,       */
+/* exactly like the original's `.mobile-swipe` variant.                 */
+/* ================================================================== */
+
+.maya-trending-wrapper {
+  position: relative;
+}
+.maya-trending-front,
+.maya-trending-back {
+  display: none;
+}
+
+/* mobile: horizontal snap carousel */
+.maya-trending-tiles {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(85%, 1fr);
+  justify-content: flex-start;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 15px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.maya-trending-tiles::-webkit-scrollbar { display: none; }
+.maya-trending-tile { scroll-snap-align: center; }
+
+@media (min-width: 768px) {
+  .maya-trending-wrapper {
+    display: grid;
+    align-items: center;
+    grid-template-areas: "main-front main-back";
+  }
+  /* in RTL the first column is the right one, so `end`/`start` here
+     means "toward the centre" for both halves */
+  .maya-trending-front {
+    grid-area: main-front;
+    justify-self: end;
+  }
+  .maya-trending-back {
+    grid-area: main-back;
+    justify-self: start;
+  }
+  .maya-trending-front,
+  .maya-trending-back {
+    display: inline-block;
+    width: max-content;
+    font-size: clamp(60px, 7.65vw, 110px);
+    line-height: 1.5;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    will-change: transform;
+  }
+  /* the tiles span both text columns and sit on top of them */
+  .maya-trending-tiles {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    width: 100%;
+    overflow: visible;
+    padding-bottom: 0;
+    scroll-snap-type: none;
+    pointer-events: none;
+  }
+  .maya-trending-tile {
+    flex: 0 1 calc(20% - 5px);
+    scroll-snap-align: none;
+    pointer-events: auto;
+  }
+}
+
+@media (min-width: 1200px) {
+  .maya-trending-tiles { gap: 20px; }
+  .maya-trending-tile { flex: 0 1 calc(20% - 20px); }
 }

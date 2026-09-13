@@ -9,7 +9,7 @@
    gsap reveals, the custom scrollbar and the back-to-top button.
    ============================================================ */
 
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ArrowUp } from "lucide-react";
 import { getLenis, scrollToTarget } from "../lib/fx";
 
@@ -30,16 +30,23 @@ export function useReducedMotionSafe(): boolean {
 }
 
 /* ------------------------------------------------------------------ */
-/* RotatingText — circular text on an SVG path, spinning forever        */
+/* RotatingText — circular text, spinning forever                       */
+/*                                                                      */
+/* Port of the theme's <rotating-text> custom element. It does NOT use   */
+/* an SVG textPath: it splits the string into characters and rotates     */
+/* each one by a fixed step around a point `--diameter / 2` below it,    */
+/* which lays the whole string out on a circle. The container then       */
+/* spins with the theme's `.rotate-infinite` (40s linear infinite).      */
 /* ------------------------------------------------------------------ */
 
 export function RotatingText({
   text,
-  size = 176,
+  size = 170,
   children,
   className,
-  duration = 24,
+  duration = 40,
   reverse = false,
+  dir = "rtl",
 }: {
   text: string;
   size?: number;
@@ -47,26 +54,30 @@ export function RotatingText({
   className?: string;
   duration?: number;
   reverse?: boolean;
+  /** reading direction of `text` — decides which way the string wraps the circle */
+  dir?: "rtl" | "ltr";
 }) {
-  const raw = useId();
-  const id = `maya-rot${raw.replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  const r = size / 2 - 14;
+  const chars = Array.from(text);
+  /* The theme hardcodes `rotate(index * 10.5deg)`, which wraps LTR text
+     clockwise from the top. That reads backwards for Persian, so we keep
+     the same geometry but walk the circle the other way for RTL. */
+  const step = ((dir === "rtl" ? -1 : 1) * 360) / Math.max(chars.length, 1);
   return (
-    <div className={`maya-rotating ${className ?? ""}`} style={{ width: size, height: size }}>
-      <svg
-        viewBox={`0 0 ${size} ${size}`}
+    <div
+      className={`maya-rotating ${className ?? ""}`}
+      style={{ width: size, height: size, "--diameter": `${size}px` } as CSSProperties}
+    >
+      <p
+        className="maya-rotating-text"
         aria-hidden="true"
         style={{ animationDuration: `${duration}s`, animationDirection: reverse ? "reverse" : "normal" }}
       >
-        <defs>
-          <path id={id} d={`M ${size / 2},${size / 2} m -${r},0 a ${r},${r} 0 1,1 ${r * 2},0 a ${r},${r} 0 1,1 -${r * 2},0`} />
-        </defs>
-        <text style={{ fontSize: size * 0.085 }}>
-          <textPath href={`#${id}`} startOffset="0">
-            {text}
-          </textPath>
-        </text>
-      </svg>
+        {chars.map((c, i) => (
+          <span key={`${c}-${i}`} style={{ transform: `rotate(${i * step}deg)` }}>
+            {c === " " ? "\u00A0" : c}
+          </span>
+        ))}
+      </p>
       {/* absolute so percentage-sized children resolve against the root box */}
       <div className="absolute inset-0 z-10 grid place-items-center">{children}</div>
     </div>

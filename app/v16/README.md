@@ -21,8 +21,14 @@ existing API endpoints are unchanged — `git status` shows only
   counter and progress line — plus the `bannerSlider` pinned scrub
   (200svh stage / sticky panel) that drives the marquee, slide fade,
   media parallax, overlay rise and control fade-out.
-- **Trending**: staggered reveals, hover zoom, quick-view pill, hover
-  size-rail, spring add-to-cart confirmation.
+- **Trending**: `trendingProduct` (`data-animation-type="style-1"`) — the
+  heading is split into two halves and every product card is parked as a
+  3D deck (`opacity 0, scale .5, rotationY 70`, all stacked on one x with
+  a 10px depth step, `perspective: 1000`). A single `scrub: 1.5` timeline
+  (`top top += 55vh` → `bottom bottom -= 35%`, no pin) flies the two title
+  halves out to `∓innerWidth / 2` while the deck converges to its resting
+  row (`x 0, rotationY 0, scale 1, opacity 1, z 0`). Hover zoom,
+  quick-view pill, hover size-rail and spring add-to-cart sit on top.
 - **Collection carousel**: `collectionCarousel` pinned scrub — the track
   translates by `scrollWidth - innerWidth` with an RTL-aware sign while
   the progress rule scales 0 → 1 and the active caption flips.
@@ -40,8 +46,14 @@ existing API endpoints are unchanged — `git status` shows only
   columns drift up over a 150% scrub at different durations (1.2 vs 2)
   so they lead and lag each other. Sticky glass bar with spring
   thumbnails and animated progress segments.
-- **Burst**: product chips fly out from the section center on enter,
-  then follow the cursor with depth-weighted parallax.
+- **Burst**: the original section is a bare decorative cannon — an
+  `aria-hidden` `<burst-efects data-effect="school-pride">` whose only job
+  is to fire the engine's `sideConfetti` (two edge cannons, `startVelocity
+  80`, particles `#ffff00` / `#bb0000` / `#ffffff`, star + heart shapes).
+  Reproduced dependency-free on a `<canvas>` in `components/Confetti.tsx`
+  (own particle loop; no `canvas-confetti`). The product chips fly out
+  from the section center on enter and then follow the cursor with
+  depth-weighted parallax.
 - **Best sellers**: `bestSellingProducts` — the section pins for 200svh
   while the rows rise and the titles roll in on their X axis; the row
   counter gets a 3D mousemove tilt. Rolling-text hover and cursor-follow
@@ -59,12 +71,18 @@ existing API endpoints are unchanged — `git status` shows only
   `mediaWithTextSec` with `data-animation-type="square"` — both panels
   start fully off-canvas at `xPercent ±100` and slide toward each other
   to `∓15%` across the section's entry (not pinned, per the engine).
+- **Collapsible content**: the theme's `<accordion-details>` custom
+  element — open is `height 300ms` with the content fading in over
+  `250ms` from `translateY`, close is `250ms`, all on
+  `cubic-bezier(0.4, 0, 0.2, 1)`, single-open per container.
 - **Scrolling text**: two duplicated runs looping at −50% for a seamless
   marquee, the second half rendered as outlined stroke text.
 - **Stacked collection**: 6-column cascade with per-item offsets,
   `ScrollTrigger.batch` staggering and second-image hover swaps.
 - **Footer**: velocity marquee, parallax watermark outline, animated
-  newsletter form with success/error states.
+  newsletter form with success/error states, and the theme's
+  `<details is="accordion-details">` link columns — forced open on
+  desktop, collapsible on mobile.
 - Header hide-on-scroll-down glass morphing, mega menu with staggered
   items, springy mobile drawers, toasts, dock with layoutId pill.
 
@@ -83,6 +101,24 @@ existing API endpoints are unchanged — `git status` shows only
   track overflows to the *left* of its `overflow: hidden` parent, and the
   `xPercent: 0 → -50` loop then walks it entirely off-screen. Persian
   runs inside keep their own bidi ordering.
+- **Rotating circular text** is a port of the `<rotating-text>` element,
+  *not* an SVG `textPath`: each character is absolutely positioned at
+  `left: 50%` with `transform-origin: 0 calc(var(--diameter) / 2)` and
+  rotated by its index, which lays the string on a circle; the wrapper
+  then spins on `40s linear infinite` (the theme's `.rotate-infinite`).
+  The theme's hardcoded `index * 10.5deg` step only closes the circle for
+  its own 34-character English string, so the step here is derived from
+  the character count instead, and — because `10.5deg` assumes LTR — the
+  orbit is walked counter-clockwise for RTL so the string reads in its
+  natural direction. Hidden under `prefers-reduced-motion`, matching the
+  theme's `html.no-animation` bail-out.
+- **Known framing deviation**: `trendingProduct`'s
+  `top top += 55vh` → `bottom bottom -= 35%` window was tuned for the
+  original's short (349px) horizontal strip. The Iranized section is a
+  4×2 grid and therefore much taller, so the same expressions finish the
+  scrub with the section's top already scrolled off. The offsets are kept
+  verbatim for parity; the animation still completes while the landed row
+  is on screen.
 
 
 ## Boundaries

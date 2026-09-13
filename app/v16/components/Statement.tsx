@@ -108,7 +108,7 @@ export function Statement({ collections }: { collections: MayaCollection[] }) {
               cell.kind === "badge" ? (
                 <div key="badge" className="grid place-items-center">
                   <div ref={badgeRef} data-badge className="will-change-transform">
-                    <RotatingText text="حراج • تا ۵۰٪ تخفیف • فقط این هفته • " size={148} duration={22}>
+                    <RotatingText text="حراج • تا ۵۰٪ تخفیف • فقط این هفته • " size={170} duration={40}>
                       <div className="grid size-[62%] place-items-center rounded-full bg-maya-clay text-maya-cream shadow-xl">
                         <div className="text-center leading-none">
                           <p className="text-[9px] font-bold opacity-80">تا</p>

@@ -7,15 +7,12 @@ import {
   ArrowLeft,
   Check,
   Loader2,
-  Home,
-  Search,
-  ShoppingBag,
   Heart,
-  User,
   Camera,
   Send,
   AtSign,
   Aperture,
+  ChevronDown,
 } from "lucide-react";
 import { cn, fa, gsapSetup, scrollToTarget, EASE_EXPO } from "../lib/fx";
 import { useStore } from "./Store";
@@ -126,72 +123,67 @@ function BackToTop() {
   );
 }
 
-/* ------------------------------ mobile dock ------------------------------ */
+/* -------------------------------- footer -------------------------------- */
 
-function MobileDock() {
-  const { cartCount, setCartOpen, setSearchOpen } = useStore();
-  const [active, setActive] = useState(0);
+/* Footer link column. The theme uses
+   `<details is="accordion-details" data-footer-accordions>` whose
+   handleResize() opens it on desktop and closes it on mobile; the
+   desktop-open state is enforced in CSS so there is no post-mount flash. */
+function FooterColumn({
+  head,
+  links,
+  onLink,
+}: {
+  head: string;
+  links: string[];
+  onLink: (label: string) => void;
+}) {
+  const [collapsed, setCollapsed] = useState(true);
 
-  const items = [
-    { icon: Home, label: "خانه", onClick: () => scrollToTarget(0) },
-    { icon: Search, label: "جستجو", onClick: () => setSearchOpen(true) },
-    { icon: ShoppingBag, label: "سبد", onClick: () => setCartOpen(true), badge: cartCount },
-    { icon: Heart, label: "علاقه", onClick: () => scrollToTarget("#maya-bestsellers"), badge: 3 },
-    { icon: User, label: "حساب", onClick: () => scrollToTarget("#maya-faq") },
-  ];
+  useEffect(() => {
+    const sync = () => {
+      if (window.innerWidth <= 768) setCollapsed(true);
+    };
+    sync();
+    window.addEventListener("resize", sync);
+    return () => window.removeEventListener("resize", sync);
+  }, []);
 
   return (
-    <nav
-      className="fixed inset-x-3 bottom-3 z-[75] rounded-3xl border border-maya-line bg-maya-cream/90 p-1.5 shadow-[0_18px_44px_-16px_rgba(22,19,14,0.4)] backdrop-blur-xl lg:hidden"
-      aria-label="دسترسی سریع"
-      style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}
-    >
-      <ul className="flex items-stretch justify-between">
-        {items.map((item, i) => {
-          const Icon = item.icon;
-          const isActive = active === i;
-          return (
-            <li key={item.label} className="flex-1">
-              <button
-                onClick={() => {
-                  setActive(i);
-                  item.onClick();
-                }}
-                className="relative flex w-full flex-col items-center gap-1 rounded-2xl py-2"
-              >
-                {isActive && (
-                  <motion.span
-                    layoutId="maya-dock-pill"
-                    transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                    className="absolute inset-0 rounded-2xl bg-maya-ink"
-                  />
-                )}
-                <span className={cn("relative transition-colors", isActive ? "text-maya-cream" : "text-maya-mute")}>
-                  <Icon className="size-5" />
-                  {!!item.badge && (
-                    <span
-                      className={cn(
-                        "absolute -top-1.5 -right-2 grid size-4 place-items-center rounded-full text-[9px] font-black",
-                        isActive ? "bg-maya-clay text-maya-cream" : "bg-maya-ink text-maya-cream",
-                      )}
-                    >
-                      {fa(item.badge)}
-                    </span>
-                  )}
-                </span>
-                <span className={cn("relative text-[10px] font-bold transition-colors", isActive ? "text-maya-cream" : "text-maya-mute")}>
-                  {item.label}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+    <div>
+      <button
+        type="button"
+        onClick={() => setCollapsed((c) => !c)}
+        aria-expanded={!collapsed}
+        className="flex w-full items-center justify-between gap-4 text-right md:pointer-events-none"
+      >
+        <span className="text-xs font-black text-maya-sand">{head}</span>
+        <ChevronDown
+          className={cn(
+            "size-4 flex-none text-maya-cream/60 transition-transform duration-300 md:hidden",
+            !collapsed && "rotate-180",
+          )}
+        />
+      </button>
+      <div className="maya-footer-col-body" data-collapsed={collapsed}>
+        <div className="min-h-0 overflow-hidden">
+          <ul className="space-y-3 pt-5">
+            {links.map((l) => (
+              <li key={l}>
+                <button
+                  onClick={() => onLink(l)}
+                  className="maya-linkline text-sm font-semibold text-maya-cream/70 hover:text-maya-cream"
+                >
+                  {l}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }
-
-/* -------------------------------- footer -------------------------------- */
 
 export function Footer() {
   const { notify } = useStore();
@@ -249,28 +241,20 @@ export function Footer() {
             <Newsletter />
           </div>
 
-          {/* link columns */}
+          {/* link columns — collapsible on mobile, always open on desktop
+              (the theme's `<details is="accordion-details" data-footer-accordions>`) */}
           {[
             ["لینک‌های سریع", QUICK_LINKS],
             ["پشتیبانی", SUPPORT_LINKS],
           ].map(([head, links]) => (
-            <div key={head as string}>
-              <p className="mb-5 text-xs font-black text-maya-sand">{head}</p>
-              <ul className="space-y-3">
-                {(links as string[]).map((l) => (
-                  <li key={l}>
-                    <button
-                      onClick={() =>
-                        l === "جستجو" ? scrollToTarget("#maya-trending") : notify(`نسخه نمایشی — صفحه «${l}» به‌زودی`)
-                      }
-                      className="maya-linkline text-sm font-semibold text-maya-cream/70 hover:text-maya-cream"
-                    >
-                      {l}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <FooterColumn
+              key={head as string}
+              head={head as string}
+              links={links as string[]}
+              onLink={(l) =>
+                l === "جستجو" ? scrollToTarget("#maya-trending") : notify(`نسخه نمایشی — صفحه «${l}» به‌زودی`)
+              }
+            />
           ))}
 
           {/* social + payments */}
@@ -330,7 +314,6 @@ export function Footer() {
         </div>
       </footer>
 
-      <MobileDock />
       <BackToTop />
     </>
   );

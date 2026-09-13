@@ -103,12 +103,16 @@ export function Hero({ slides }: { slides: MayaHeroSlide[] }) {
       aria-label="معرفی فروشگاه مایا"
     >
       <div
-        className="sticky top-0 flex h-[100svh] min-h-[640px] flex-col overflow-hidden"
+        className="sticky top-0 h-[100svh] min-h-[640px] overflow-hidden"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
-        {/* stage: media + copy */}
-        <div className="relative min-h-0 flex-1">
+        {/* stage: media + copy. The stage fills the whole hero — rather than
+            giving the controls their own flex row — so the media runs behind
+            the control band and the marquee overlay, like the theme's
+            `d-media-fixed`. Previously the media stopped above the controls
+            and left a bare strip of section background under the photo. */}
+        <div className="relative h-full">
           <div data-hero-media className="absolute inset-0 will-change-transform">
             <AnimatePresence initial={false}>
               <motion.div
@@ -133,7 +137,7 @@ export function Hero({ slides }: { slides: MayaHeroSlide[] }) {
             <div className="absolute inset-0 bg-gradient-to-b from-maya-ink/55 via-maya-ink/20 to-maya-ink/70" />
           </div>
 
-          <div className="maya-wrap relative z-10 flex h-full flex-col justify-end pb-16 pt-32">
+          <div className="maya-wrap relative z-10 flex h-full flex-col justify-end pb-32 pt-32">
             <div data-hero-slide-content className="max-w-3xl">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div key={slide.id}>
@@ -198,13 +202,13 @@ export function Hero({ slides }: { slides: MayaHeroSlide[] }) {
             </div>
           </div>
 
-          {/* orbit badge — desktop corner */}
-          <div data-hero-orbit className="absolute bottom-16 left-10 z-10 hidden lg:block xl:left-16">
+          {/* orbit badge — desktop corner (offset clears the control band) */}
+          <div data-hero-orbit className="absolute bottom-[132px] left-10 z-10 hidden lg:block xl:left-16">
             <OrbitBadge words={["ظرافت", "سبک", "تجمل", "همیشگی"]} />
           </div>
 
           {/* scroll hint */}
-          <div className="pointer-events-none absolute bottom-6 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 lg:flex">
+          <div className="pointer-events-none absolute bottom-[94px] left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 lg:flex">
             <span className="text-[10px] font-bold text-maya-cream/60">اسکرول کنید</span>
             <span className="relative block h-10 w-px overflow-hidden bg-maya-cream/25">
               <span className="absolute inset-x-0 h-full animate-[maya-scrollhint_1.8s_ease-in-out_infinite] bg-maya-cream" />
@@ -212,8 +216,8 @@ export function Hero({ slides }: { slides: MayaHeroSlide[] }) {
           </div>
         </div>
 
-        {/* controls row — sits above the overlay */}
-        <div data-hero-controls className="relative z-10 pb-6">
+        {/* controls row — absolutely placed so the media runs behind it */}
+        <div data-hero-controls className="absolute inset-x-0 bottom-0 z-10 pb-6">
           <div className="maya-wrap flex items-end justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="flex items-end gap-1 text-sm font-black tabular-nums">

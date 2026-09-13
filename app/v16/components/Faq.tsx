@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, Headset, Clock3, ShieldCheck } from "lucide-react";
 import type { MayaFaq } from "../lib/data";
-import { cn, EASE_EXPO } from "../lib/fx";
+import { cn, EASE_STANDARD } from "../lib/fx";
 import { Reveal, SectionHead } from "./bits";
 import { useStore } from "./Store";
 
@@ -84,13 +84,18 @@ export function Faq({ items }: { items: MayaFaq[] }) {
                   <AnimatePresence initial={false}>
                     {isOpen && (
                       <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.45, ease: EASE_EXPO }}
+                        initial={{ height: 0 }}
+                        animate={{ height: "auto", transition: { duration: 0.3, ease: EASE_STANDARD } }}
+                        exit={{ height: 0, transition: { duration: 0.25, ease: EASE_STANDARD } }}
                         className="overflow-hidden"
                       >
-                        <p className="max-w-2xl pb-7 pl-14 text-sm leading-8 text-maya-mute">{f.a}</p>
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0, transition: { duration: 0.25, ease: EASE_STANDARD } }}
+                          className="max-w-2xl pb-7 pl-14 text-sm leading-8 text-maya-mute"
+                        >
+                          {f.a}
+                        </motion.p>
                       </motion.div>
                     )}
                   </AnimatePresence>

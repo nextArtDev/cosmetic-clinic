@@ -6,6 +6,7 @@ import type { MayaProduct } from "../lib/data";
 import { fa, gsapSetup } from "../lib/fx";
 import { useStore, PriceTag } from "./Store";
 import { Reveal } from "./bits";
+import { ConfettiBurst } from "./Confetti";
 
 /* chip placement presets (percent of section box — desktop) */
 const SPOTS = [
@@ -85,6 +86,10 @@ export function Burst({ products }: { products: MayaProduct[] }) {
       className="relative overflow-hidden bg-maya-ink py-24 text-maya-cream md:py-36"
       aria-label="استایل‌های ترند"
     >
+      {/* the theme's burst_effects section exists purely to fire a
+          confetti cannon when its top crosses the viewport top */}
+      <ConfettiBurst effect="school-pride" duration={1000} triggerPosition="top" triggerOnce />
+
       {/* soft radial glow */}
       <div
         aria-hidden

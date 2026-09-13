@@ -327,6 +327,32 @@
 .maya-nobar { scrollbar-width: none; -ms-overflow-style: none; }
 .maya-nobar::-webkit-scrollbar { display: none; }
 
+/* Footer link columns. The theme renders them as
+   `<details is="accordion-details" data-footer-accordions>` and its
+   AccordionDetails.handleResize() opens them on desktop and closes them
+   on mobile. We reproduce that with a grid-rows disclosure so the
+   desktop state is enforced by CSS (no post-mount flash), using the same
+   300ms / cubic-bezier(0.4, 0, 0.2, 1) the theme animates with. */
+.maya-footer-col-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition:
+    grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.maya-footer-col-body[data-collapsed="true"] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+@media (min-width: 769px) {
+  .maya-footer-col-body,
+  .maya-footer-col-body[data-collapsed="true"] {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
 .maya-caret {
   display: inline-block;
   width: 3px;
