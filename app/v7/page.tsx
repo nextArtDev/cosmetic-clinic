@@ -3,9 +3,9 @@ import { V7Shell } from './components/v7-shell'
 import DoctorSite from './components/doctor-site'
 
 export const metadata: Metadata = {
-  title: 'لیزر مو و پوست | دکتر آرمان گریگوری — v7',
+  title: 'لیزر مو و پوست | دکتر آرمان حسینی — v7',
   description:
-    'نسخه آزمایشی طراحی v7: بازآفرینی ساختار گریگوریاک برای یک متخصص لیزر مو و پوست در تهران. مسیر غیرفهرست‌شده و مستقل از سایت اصلی.',
+    'نسخه آزمایشی طراحی v7: بازآفرینی ساختار حسینیاک برای یک متخصص لیزر مو و پوست در تهران. مسیر غیرفهرست‌شده و مستقل از سایت اصلی.',
   robots: { index: false, follow: false },
 }
 

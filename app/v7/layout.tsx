@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import './globals.css'
+import './animations.css'
 
-// /v7 is a self-contained frontend port (Dr. Grigoriak design recreation,
+// /v7 is a self-contained frontend port (Dr. Grigoriak design recreation , https://grigoriak.doctor/
 // chat-clone/grigoriak, Iranized for a laser specialist). It deliberately
 // renders NO shared chrome (no Navbar/Footer/Toaster markup) so nothing
 // outside this subtree can style or script it. There is no Tailwind import

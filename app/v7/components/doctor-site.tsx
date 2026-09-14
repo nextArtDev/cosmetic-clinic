@@ -6,7 +6,6 @@ import {
   AnimatePresence,
   motion,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
@@ -27,11 +26,25 @@ import {
   results,
   faqs,
   principles,
+  comparisons,
   type OverlayState,
   type ConsultationLocation,
 } from '../lib/site-content'
 import { getLenis } from '../lib/lenis'
-import { Logo, Reveal, MaskReveal, ImageReveal, Parallax, SwapText } from './ui'
+import {
+  Logo,
+  Reveal,
+  MaskReveal,
+  ImageReveal,
+  Parallax,
+  SwapText,
+  SplitText,
+  TitleSettle,
+  DrawOutline,
+  MouseField,
+  useReducedMotionSettled,
+} from './ui'
+import { BeforeAfterCompare, BeforeAfterWipe } from './before-after'
 import SiteOverlays from './site-overlays'
 
 const ease = [0.22, 1, 0.36, 1] as const
@@ -41,19 +54,23 @@ const heroFade = (delay: number) => ({
   show: { opacity: 1, y: 0, transition: { duration: 0.9, ease, delay } },
 })
 
-function Preloader() {
+function Preloader({ reducedMotion }: { reducedMotion: boolean }) {
   return (
     <motion.div
       className="v7-preloader"
-      exit={{ y: '-100%' }}
+      exit={reducedMotion ? { opacity: 0, transition: { duration: 0 } } : { y: '-100%' }}
       transition={{ duration: 0.95, ease: [0.76, 0, 0.24, 1] }}
       aria-hidden="true"
     >
       <motion.div
         className="v7-preloader__inner"
-        exit={{ opacity: 0, y: -26, transition: { duration: 0.35, ease: 'easeIn' } }}
+        exit={{
+          opacity: 0,
+          y: -26,
+          transition: { duration: reducedMotion ? 0 : 0.35, ease: 'easeIn' },
+        }}
       >
-        <span className="v7-preloader__mark">گریگوری</span>
+        <span className="v7-preloader__mark">حسینی</span>
         <span className="v7-preloader__sub">متخصص لیزر مو و پوست</span>
       </motion.div>
       <motion.div
@@ -79,8 +96,11 @@ export default function DoctorWebsite() {
   const [resultIndex, setResultIndex] = useState(0)
   const [activePrinciple, setActivePrinciple] = useState(0)
   const [activeFaq, setActiveFaq] = useState(-1)
-  const [contactLocation, setContactLocation] = useState<ConsultationLocation>('تهران')
-  const reducedMotion = useReducedMotion()
+  const [contactLocation, setContactLocation] =
+    useState<ConsultationLocation>('تهران')
+  // Gated until after mount: see `useReducedMotionSettled`. The preloader
+  // branch below is the piece that would otherwise desync hydration.
+  const reducedMotion = useReducedMotionSettled()
   const heroRef = useRef<HTMLElement>(null)
   const prevScrollRef = useRef(0)
   const { scrollY, scrollYProgress } = useScroll()
@@ -113,8 +133,12 @@ export default function DoctorWebsite() {
   // Reduced motion skips the show — loaded flips on the next tick.
   useEffect(() => {
     window.scrollTo(0, 0)
-    if (!reducedMotion) document.documentElement.setAttribute('data-v7-loading', '')
-    const timer = window.setTimeout(() => setLoaded(true), reducedMotion ? 0 : 2050)
+    if (!reducedMotion)
+      document.documentElement.setAttribute('data-v7-loading', '')
+    const timer = window.setTimeout(
+      () => setLoaded(true),
+      reducedMotion ? 0 : 2050,
+    )
     return () => {
       window.clearTimeout(timer)
       document.documentElement.removeAttribute('data-v7-loading')
@@ -136,30 +160,47 @@ export default function DoctorWebsite() {
         const target = document.getElementById(id)
         if (!target) return
         const lenis = getLenis()
-        if (lenis && !reducedMotion) lenis.scrollTo(target, { offset: -72, duration: 1.25 })
-        else target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' })
+        if (lenis && !reducedMotion)
+          lenis.scrollTo(target, { offset: -72, duration: 1.25 })
+        else
+          target.scrollIntoView({
+            behavior: reducedMotion ? 'auto' : 'smooth',
+            block: 'start',
+          })
       }, 320)
     },
     [reducedMotion],
   )
   const service = services[activeService]
   const filteredResults =
-    resultFilter === 'all' ? results : results.filter((item) => item.service === resultFilter)
+    resultFilter === 'all'
+      ? results
+      : results.filter((item) => item.service === resultFilter)
   const visibleResults = Array.from(
     { length: Math.min(filteredResults.length, 3) },
-    (_, index) => filteredResults[(resultIndex + index) % filteredResults.length],
+    (_, index) =>
+      filteredResults[(resultIndex + index) % filteredResults.length],
   )
   const heroState = loaded ? 'show' : 'hidden'
 
   return (
     <>
-      <AnimatePresence>{!loaded && !reducedMotion && <Preloader />}</AnimatePresence>
+      <AnimatePresence>
+        {!loaded && !reducedMotion && <Preloader reducedMotion={reducedMotion} />}
+      </AnimatePresence>
       <div id="v7-content">
-        <motion.div className="page-progress" style={{ scaleX: scrollYProgress }} />
+        <motion.div
+          className="page-progress"
+          style={{ scaleX: scrollYProgress }}
+        />
         <motion.header
           className={`site-header ${scrolled ? 'is-scrolled' : ''} ${headerHidden ? 'is-hidden' : ''}`}
           initial={reducedMotion ? false : { opacity: 0, y: -16 }}
-          animate={loaded || reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -16 }}
+          animate={
+            loaded || reducedMotion
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: -16 }
+          }
           transition={{ duration: 0.8, ease, delay: 0.9 }}
         >
           <button
@@ -174,10 +215,17 @@ export default function DoctorWebsite() {
             </span>
             <span>منو</span>
           </button>
-          <a className="header-logo" href="#home" aria-label="صفحه اصلی دکتر گریگوری">
+          <a
+            className="header-logo"
+            href="#home"
+            aria-label="صفحه اصلی دکتر حسینی"
+          >
             <Logo />
           </a>
-          <button className="header-book text-button" onClick={() => setOverlay({ type: 'appointment' })}>
+          <button
+            className="header-book text-button"
+            onClick={() => setOverlay({ type: 'appointment' })}
+          >
             <span>
               <SwapText text="رزرو نوبت" />
             </span>
@@ -207,7 +255,11 @@ export default function DoctorWebsite() {
               <motion.div
                 className="hero-photo"
                 animate={{ scale: paused || reducedMotion ? 1 : [1, 1.035, 1] }}
-                transition={{ duration: 20, ease: 'easeInOut', repeat: Infinity }}
+                transition={{
+                  duration: 20,
+                  ease: 'easeInOut',
+                  repeat: Infinity,
+                }}
               >
                 <Image
                   src="/v7/images/hero.webp"
@@ -226,7 +278,7 @@ export default function DoctorWebsite() {
               animate={heroState}
             >
               <span>
-                آرمان گریگوری
+                آرمان حسینی
                 <br />
                 <span className="muted">متخصص لیزر مو و پوست</span>
               </span>
@@ -250,48 +302,62 @@ export default function DoctorWebsite() {
                     }
               }
             >
-              <MaskReveal play={loaded} delay={0.15} className="hero-h1-mask">
+              <TitleSettle play={loaded} delay={0.12} className="hero-h1-mask">
                 <h1>زیباییِ تو</h1>
-              </MaskReveal>
+              </TitleSettle>
               <motion.div
                 className="hero-statement"
-                variants={heroFade(0.6)}
+                variants={heroFade(0.5)}
                 initial={reducedMotion ? false : 'hidden'}
                 animate={heroState}
               >
                 <span className="little-star" aria-hidden="true">
                   ✧
                 </span>
-                <p>
-                  بی‌نقص،
-                  <br />
-                  تا آخرین جزئیات
-                </p>
+                <SplitText
+                  as="p"
+                  text={'بی‌نقص،\nتا آخرین جزئیات'}
+                  play={loaded}
+                  delay={0.7}
+                  stagger={0.075}
+                />
               </motion.div>
             </motion.div>
             <motion.div
               className="hero-bottom"
               initial={reducedMotion ? false : 'hidden'}
               animate={heroState}
-              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 0.75 } } }}
+              variants={{
+                hidden: {},
+                show: {
+                  transition: { staggerChildren: 0.12, delayChildren: 0.75 },
+                },
+              }}
             >
               <motion.div className="hero-description" variants={heroFade(0)}>
                 <span className="eyebrow">زیبایی، شخصی است.</span>
-                <p>رویکرد ما هم همین‌طور.</p>
+                <SplitText
+                  as="p"
+                  text="رویکرد ما هم همین‌طور."
+                  play={loaded}
+                  delay={1}
+                />
               </motion.div>
               <motion.a
-                className="hero-discover"
+                className="hero-next"
                 href="#doctor"
                 aria-label="آشنایی با پزشک"
                 variants={heroFade(0)}
               >
-                <span>
+                <span className="hero-next__ring">
+                  <DrawOutline radius={49} play={loaded} />
+                  <span className="hero-next__icon">
+                    <ArrowDown size={25} strokeWidth={1} />
+                  </span>
+                </span>
+                <span className="hero-next__label">
                   <SwapText text="کشف کنید" />
                 </span>
-                <span className="square-arrow">
-                  <ArrowDown size={25} strokeWidth={1} />
-                </span>
-                <span className="discover-line" />
               </motion.a>
               <motion.button
                 className="motion-control"
@@ -299,7 +365,11 @@ export default function DoctorWebsite() {
                 aria-label={paused ? 'پخش حرکت ملایم' : 'توقف حرکت ملایم'}
                 variants={heroFade(0)}
               >
-                {paused ? <Play size={11} fill="currentColor" /> : <Pause size={11} />}
+                {paused ? (
+                  <Play size={11} fill="currentColor" />
+                ) : (
+                  <Pause size={11} />
+                )}
                 <span>{paused ? 'پخش حرکت' : 'توقف حرکت'}</span>
               </motion.button>
             </motion.div>
@@ -333,7 +403,7 @@ export default function DoctorWebsite() {
                 <Parallax distance={0} scale className="v7-abs-fill">
                   <Image
                     src="/v7/images/portrait.webp"
-                    alt="دکتر آرمان گریگوری، متخصص لیزر مو و پوست"
+                    alt="دکتر آرمان حسینی، متخصص لیزر مو و پوست"
                     fill
                     sizes="(max-width: 760px) 100vw, 64vw"
                   />
@@ -343,7 +413,7 @@ export default function DoctorWebsite() {
             </div>
             <div className="doctor-editorial">
               <Reveal className="doctor-bio">
-                <span className="eyebrow">دکتر آرمان گریگوری</span>
+                <span className="eyebrow">دکتر آرمان حسینی</span>
                 <p>
                   متخصص اصلی و سرپرست بخش لیزر.
                   <br />
@@ -362,9 +432,10 @@ export default function DoctorWebsite() {
                 <Reveal className="doctor-quote" delay={0.15}>
                   <span className="quote-mark">”</span>
                   <blockquote>
-                    تنها چشمِ ورزیده و دستِ ماهرِ استادی می‌تواند کمالِ پنهان را آشکار کند.
+                    تنها چشمِ ورزیده و دستِ ماهرِ استادی می‌تواند کمالِ پنهان را
+                    آشکار کند.
                   </blockquote>
-                  <span className="signature">آ. گریگوری</span>
+                  <span className="signature">آ. حسینی</span>
                 </Reveal>
               </Parallax>
             </div>
@@ -390,7 +461,10 @@ export default function DoctorWebsite() {
             </Reveal>
           </section>
 
-          <section className="philosophy-section section-padding" id="philosophy">
+          <section
+            className="philosophy-section section-padding"
+            id="philosophy"
+          >
             <div className="section-topline">
               <span className="eyebrow">۰۲ / فلسفه ما</span>
               <span className="eyebrow">طبیعی، بی‌مانندِ خودتان</span>
@@ -445,9 +519,9 @@ export default function DoctorWebsite() {
                     ✧
                   </span>
                   <p>
-                    حس زیبایی‌شناسانه هدیه‌ای کمیاب است. دکتر گریگوری با تجربه‌ای گسترده و نگاهی
-                    هنری، ویژگی‌های طبیعی پوست شما را برجسته می‌کند تا هماهنگی و ظرافتی اصیل شکل
-                    بگیرد.
+                    حس زیبایی‌شناسانه هدیه‌ای کمیاب است. دکتر حسینی با تجربه‌ای
+                    گسترده و نگاهی هنری، ویژگی‌های طبیعی پوست شما را برجسته
+                    می‌کند تا هماهنگی و ظرافتی اصیل شکل بگیرد.
                   </p>
                 </Reveal>
               </div>
@@ -481,68 +555,93 @@ export default function DoctorWebsite() {
                 </p>
               </Reveal>
             </div>
-            <div className="services-grid">
-              <div className="service-list" aria-label="خدمات لیزری کلینیک">
-                {services.map((item, index) => (
-                  <button
-                    key={item.id}
-                    className={`service-row ${index === activeService ? 'active' : ''}`}
-                    onMouseEnter={() => setActiveService(index)}
-                    onFocus={() => setActiveService(index)}
-                    onClick={() => setOverlay({ type: 'service', service: item.id })}
-                  >
-                    <span className="service-number">{item.number}</span>
-                    <span>{item.title}</span>
-                    <ArrowUpRight size={25} strokeWidth={1} />
-                  </button>
-                ))}
-                <div className="service-list-footer">
-                  <span className="little-star" aria-hidden="true">
-                    ✧
-                  </span>
-                  <p>
-                    هر جزئیات دیده شده.
-                    <br />
-                    هر درمان، شخصی.
-                  </p>
+            <MouseField className="services-field" strength={1}>
+              <div className="services-grid">
+                <div className="service-list" aria-label="خدمات لیزری کلینیک">
+                  {services.map((item, index) => (
+                    <button
+                      key={item.id}
+                      className={`service-row ${index === activeService ? 'active' : ''}`}
+                      onMouseEnter={() => setActiveService(index)}
+                      onFocus={() => setActiveService(index)}
+                      onClick={() =>
+                        setOverlay({ type: 'service', service: item.id })
+                      }
+                    >
+                      <span className="service-number">{item.number}</span>
+                      <span>{item.title}</span>
+                      <ArrowUpRight size={25} strokeWidth={1} />
+                    </button>
+                  ))}
+                  <div className="service-list-footer">
+                    <span className="little-star" aria-hidden="true">
+                      ✧
+                    </span>
+                    <p>
+                      هر جزئیات دیده شده.
+                      <br />
+                      هر درمان، شخصی.
+                    </p>
+                  </div>
                 </div>
+                <button
+                  className="service-preview"
+                  onClick={() =>
+                    setOverlay({ type: 'service', service: service.id })
+                  }
+                  aria-label={`مشاهده ${service.title}`}
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      className="service-preview-image"
+                      key={service.id}
+                      initial={{ opacity: 0, scale: 1.035 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.35 }}
+                    >
+                      <Image
+                        src={service.image}
+                        alt={service.subtitle}
+                        fill
+                        sizes="(max-width: 760px) 100vw, 50vw"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
+                  <div className="service-preview-shade" />
+                  <span className="service-preview-top eyebrow">
+                    {service.number} / ۰۵
+                  </span>
+                  <span className="service-preview-bottom">
+                    <span>
+                      <span className="eyebrow">{service.subtitle}</span>
+                      <span className="service-preview-description">
+                        {service.description}
+                      </span>
+                    </span>
+                    <span className="square-arrow">
+                      <ArrowUpRight size={25} strokeWidth={1} />
+                    </span>
+                  </span>
+                </button>
               </div>
-              <button
-                className="service-preview"
-                onClick={() => setOverlay({ type: 'service', service: service.id })}
-                aria-label={`مشاهده ${service.title}`}
-              >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    className="service-preview-image"
-                    key={service.id}
-                    initial={{ opacity: 0, scale: 1.035 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.35 }}
-                  >
-                    <Image
-                      src={service.image}
-                      alt={service.subtitle}
-                      fill
-                      sizes="(max-width: 760px) 100vw, 50vw"
-                    />
-                  </motion.div>
-                </AnimatePresence>
-                <div className="service-preview-shade" />
-                <span className="service-preview-top eyebrow">{service.number} / ۰۵</span>
-                <span className="service-preview-bottom">
-                  <span>
-                    <span className="eyebrow">{service.subtitle}</span>
-                    <span className="service-preview-description">{service.description}</span>
-                  </span>
-                  <span className="square-arrow">
-                    <ArrowUpRight size={25} strokeWidth={1} />
-                  </span>
-                </span>
-              </button>
-            </div>
+            </MouseField>
           </section>
+
+          <div className="v7-marquee" aria-hidden="true">
+            <div className="v7-marquee__track">
+              {[0, 1].map((row) => (
+                <span className="v7-marquee__group" key={row}>
+                  {['زیبایی', 'اصالت', 'ظرافت', 'اعتماد', 'دقت'].map((word) => (
+                    <span className="v7-marquee__item" key={word}>
+                      {word}
+                      <i>✧</i>
+                    </span>
+                  ))}
+                </span>
+              ))}
+            </div>
+          </div>
 
           <section className="results-section section-padding" id="results">
             <div className="section-topline">
@@ -569,10 +668,16 @@ export default function DoctorWebsite() {
               </Reveal>
             </div>
             <div className="results-toolbar">
-              <div className="result-filters" aria-label="فیلتر نتیجه‌ها بر اساس خدمت">
+              <div
+                className="result-filters"
+                aria-label="فیلتر نتیجه‌ها بر اساس خدمت"
+              >
                 {[
                   { id: 'all', title: 'همه نتیجه‌ها' },
-                  ...services.map((item) => ({ id: item.id as string, title: item.title })),
+                  ...services.map((item) => ({
+                    id: item.id as string,
+                    title: item.title,
+                  })),
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -594,7 +699,9 @@ export default function DoctorWebsite() {
                   disabled={filteredResults.length < 2}
                   onClick={() =>
                     setResultIndex(
-                      (index) => (index - 1 + filteredResults.length) % filteredResults.length,
+                      (index) =>
+                        (index - 1 + filteredResults.length) %
+                        filteredResults.length,
                     )
                   }
                 >
@@ -604,7 +711,11 @@ export default function DoctorWebsite() {
                   className="circle-button"
                   aria-label="نتیجه‌های بعدی"
                   disabled={filteredResults.length < 2}
-                  onClick={() => setResultIndex((index) => (index + 1) % filteredResults.length)}
+                  onClick={() =>
+                    setResultIndex(
+                      (index) => (index + 1) % filteredResults.length,
+                    )
+                  }
                 >
                   <ArrowRight size={19} strokeWidth={1} />
                 </button>
@@ -624,7 +735,9 @@ export default function DoctorWebsite() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     transition={{ duration: 0.4 }}
-                    onClick={() => setOverlay({ type: 'gallery', result: item.id })}
+                    onClick={() =>
+                      setOverlay({ type: 'gallery', result: item.id })
+                    }
                   >
                     <span className="result-image">
                       <Image
@@ -658,13 +771,16 @@ export default function DoctorWebsite() {
                     امکان‌های شما.
                   </h3>
                   <p>
-                    هر تغییر با یک گفت‌وگو آغاز می‌شود. ببینید رویکردی شخصی چه معنایی برای شما
-                    می‌تواند داشته باشد.
+                    هر تغییر با یک گفت‌وگو آغاز می‌شود. ببینید رویکردی شخصی چه
+                    معنایی برای شما می‌تواند داشته باشد.
                   </p>
                   <button
                     className="text-button underlined-link"
                     onClick={() =>
-                      setOverlay({ type: 'appointment', service: visibleResults[0].service })
+                      setOverlay({
+                        type: 'appointment',
+                        service: visibleResults[0].service,
+                      })
                     }
                   >
                     بیایید از شما حرف بزنیم <ArrowUpRight size={18} />
@@ -673,14 +789,68 @@ export default function DoctorWebsite() {
               )}
             </div>
             <p className="results-disclaimer">
-              پیش‌نمایش‌ها صرفاً ناحیه درمان را نشان می‌دهند، نه نتیجه قبل و بعد. نتیجه در هر فرد
-              متفاوت است. مشاوره حضوری لازم است.
+              پیش‌نمایش‌های این بخش صرفاً ناحیه درمان را نشان می‌دهند. نمونه‌های
+              قبل و بعد را در بخش «قبل و بعد» ببینید. نتیجه در هر فرد متفاوت
+              است. مشاوره حضوری لازم است.
             </p>
+          </section>
+
+          <section className="compare-section" id="compare">
+            <div className="compare-intro section-padding">
+              <div className="section-topline">
+                <span className="eyebrow">۰۵ / قبل و بعد</span>
+                <span className="eyebrow">شفافیت، بی‌واسطه</span>
+              </div>
+              <div className="compare-heading">
+                <MaskReveal>
+                  <h2>
+                    تفاوت،
+                    <br />
+                    <span>دیده می‌شود.</span>
+                  </h2>
+                </MaskReveal>
+                <div>
+                  <SplitText
+                    as="p"
+                    text={'نتیجه را نه با حرف،\nکه با تصویر ببینید.'}
+                    stagger={0.05}
+                  />
+                  <span className="small-note">
+                    اسکرول کنید یا نشانگر را بکشید تا هر نمونه باز شود.
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <BeforeAfterCompare shape="star" cases={comparisons} />
+
+            <div className="compare-outro section-padding">
+              <div className="wipe-grid">
+                <div className="wipe-grid__head">
+                  <span className="eyebrow">نمونه‌های بیشتر</span>
+                  <span className="eyebrow">۰۳ نمونه</span>
+                </div>
+                <div className="wipe-grid__items">
+                  {comparisons.slice(3).map((item, index) => (
+                    <BeforeAfterWipe
+                      key={item.id}
+                      item={item}
+                      priority={index === 0}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <p className="results-disclaimer">
+                تصاویر واقعی مراجعان کلینیک‌اند و با رضایت منتشر شده‌اند. نتیجه
+                در هر فرد متفاوت است؛ پیش از تصمیم، مشاوره حضوری لازم است.
+              </p>
+            </div>
           </section>
 
           <section className="approach-section section-padding" id="approach">
             <div className="section-topline">
-              <span className="eyebrow">۰۵ / رویکرد</span>
+              <span className="eyebrow">۰۶ / رویکرد</span>
               <span className="eyebrow">دقت. مراقبت. ظرافت.</span>
             </div>
             <MaskReveal className="approach-heading">
@@ -716,12 +886,16 @@ export default function DoctorWebsite() {
                   >
                     <button
                       onClick={() =>
-                        setActivePrinciple((current) => (current === index ? -1 : index))
+                        setActivePrinciple((current) =>
+                          current === index ? -1 : index,
+                        )
                       }
                       aria-expanded={activePrinciple === index}
                       aria-controls={`principle-${index}`}
                     >
-                      <span className="eyebrow">{['۰۱', '۰۲', '۰۳'][index]}</span>
+                      <span className="eyebrow">
+                        {['۰۱', '۰۲', '۰۳'][index]}
+                      </span>
                       <span>{item.title}</span>
                       {activePrinciple === index ? (
                         <Minus size={24} strokeWidth={1} />
@@ -748,7 +922,8 @@ export default function DoctorWebsite() {
                   className="text-button underlined-link approach-cta"
                   onClick={() => setOverlay({ type: 'appointment' })}
                 >
-                  رویکردی شخصی را تجربه کنید <ArrowUpRight size={19} strokeWidth={1} />
+                  رویکردی شخصی را تجربه کنید{' '}
+                  <ArrowUpRight size={19} strokeWidth={1} />
                 </button>
               </div>
             </div>
@@ -784,10 +959,17 @@ export default function DoctorWebsite() {
               </Reveal>
               <div className="faq-list">
                 {faqs.map((faq, index) => (
-                  <div className={`faq-item ${activeFaq === index ? 'active' : ''}`} key={faq.question}>
+                  <div
+                    className={`faq-item ${activeFaq === index ? 'active' : ''}`}
+                    key={faq.question}
+                  >
                     <h3>
                       <button
-                        onClick={() => setActiveFaq((current) => (current === index ? -1 : index))}
+                        onClick={() =>
+                          setActiveFaq((current) =>
+                            current === index ? -1 : index,
+                          )
+                        }
                         aria-expanded={activeFaq === index}
                         aria-controls={`faq-answer-${index}`}
                       >
@@ -820,8 +1002,10 @@ export default function DoctorWebsite() {
 
           <section className="contacts-section section-padding" id="contacts">
             <div className="section-topline">
-              <span className="eyebrow">۰۷ / دعوتی شخصی</span>
-              <span className="eyebrow">فصل تازه‌تان از همین‌جا آغاز می‌شود</span>
+              <span className="eyebrow">۰۸ / دعوتی شخصی</span>
+              <span className="eyebrow">
+                فصل تازه‌تان از همین‌جا آغاز می‌شود
+              </span>
             </div>
             <div className="contact-intro">
               <div className="contact-photo">
@@ -829,7 +1013,7 @@ export default function DoctorWebsite() {
                   <Parallax distance={44} className="v7-abs-fill">
                     <Image
                       src="/v7/images/consultation.webp"
-                      alt="دکتر گریگوری، آماده برای یک گفت‌وگوی شخصی"
+                      alt="دکتر حسینی، آماده برای یک گفت‌وگوی شخصی"
                       fill
                       sizes="(max-width: 760px) 100vw, 55vw"
                     />
@@ -846,7 +1030,10 @@ export default function DoctorWebsite() {
                     را عوض می‌کند.
                   </h2>
                 </MaskReveal>
-                <button className="contact-book" onClick={() => setOverlay({ type: 'appointment' })}>
+                <button
+                  className="contact-book"
+                  onClick={() => setOverlay({ type: 'appointment' })}
+                >
                   <span>
                     <SwapText text="رزرو نوبت" />
                   </span>
@@ -860,16 +1047,18 @@ export default function DoctorWebsite() {
               <div>
                 <span className="eyebrow">حضوری. یا از هر جای دنیا.</span>
                 <div className="contact-location-tabs">
-                  {(['تهران', 'کرج', 'آنلاین'] as ConsultationLocation[]).map((location) => (
-                    <button
-                      key={location}
-                      className={contactLocation === location ? 'active' : ''}
-                      aria-pressed={contactLocation === location}
-                      onClick={() => setContactLocation(location)}
-                    >
-                      {location}
-                    </button>
-                  ))}
+                  {(['تهران', 'کرج', 'آنلاین'] as ConsultationLocation[]).map(
+                    (location) => (
+                      <button
+                        key={location}
+                        className={contactLocation === location ? 'active' : ''}
+                        aria-pressed={contactLocation === location}
+                        onClick={() => setContactLocation(location)}
+                      >
+                        {location}
+                      </button>
+                    ),
+                  )}
                 </div>
               </div>
               <div className="contact-location-info" aria-live="polite">
@@ -902,7 +1091,12 @@ export default function DoctorWebsite() {
                 {contactLocation === 'آنلاین' ? (
                   <button
                     className="text-button"
-                    onClick={() => setOverlay({ type: 'appointment', location: contactLocation })}
+                    onClick={() =>
+                      setOverlay({
+                        type: 'appointment',
+                        location: contactLocation,
+                      })
+                    }
                   >
                     وقت مشاوره بگیرید <ArrowUpRight size={14} />
                   </button>
@@ -919,7 +1113,10 @@ export default function DoctorWebsite() {
               </div>
               <div>
                 <span className="eyebrow">یک گفت‌وگوی مستقیم</span>
-                <a className="contact-email" href="mailto:info@dr-grigori-laser.ir">
+                <a
+                  className="contact-email"
+                  href="mailto:info@dr-grigori-laser.ir"
+                >
                   info@dr-grigori-laser.ir <ArrowUpRight size={18} />
                 </a>
                 <a className="contact-phone" href="tel:+982188776655">
@@ -942,19 +1139,27 @@ export default function DoctorWebsite() {
             </a>
             <span className="eyebrow">لیزر؛ به روایتِ هنر</span>
             <a href="#home" className="back-top">
-              <SwapText text="بازگشت به بالا" /> <ArrowUp size={18} strokeWidth={1} />
+              <SwapText text="بازگشت به بالا" />{' '}
+              <ArrowUp size={18} strokeWidth={1} />
             </a>
           </div>
           <div className="footer-bottom">
-            <span>© {new Date().getFullYear()} دکتر گریگوری</span>
-            <span className="footer-credit">بازآفرینی طراحی · الهام‌گرفته از Vide Infra</span>
+            <span>© {new Date().getFullYear()} دکتر حسینی</span>
+            <span className="footer-credit">
+              بازآفرینی طراحی · الهام‌گرفته از Vide Infra
+            </span>
             <button onClick={() => setOverlay({ type: 'privacy' })}>
               حریم خصوصی <ArrowUpRight size={12} />
             </button>
           </div>
         </footer>
       </div>
-      <SiteOverlays overlay={overlay} onClose={closeOverlay} onOpen={setOverlay} onNavigate={navigate} />
+      <SiteOverlays
+        overlay={overlay}
+        onClose={closeOverlay}
+        onOpen={setOverlay}
+        onNavigate={navigate}
+      />
     </>
   )
 }

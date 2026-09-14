@@ -3,7 +3,13 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUpRight, ArrowLeft, ArrowRight, Check, MapPin } from 'lucide-react'
+import {
+  ArrowUpRight,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  MapPin,
+} from 'lucide-react'
 import {
   services,
   results,
@@ -35,7 +41,9 @@ function PriceCalculator({ onOpen }: { onOpen: Props['onOpen'] }) {
   const [selected, setSelected] = useState<string[]>(['full-body'])
   const toggle = (id: string) =>
     setSelected((current) =>
-      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id],
     )
   const total = priceItems.reduce(
     (sum, item) => (selected.includes(item.id) ? sum + item.price : sum),
@@ -52,7 +60,8 @@ function PriceCalculator({ onOpen }: { onOpen: Props['onOpen'] }) {
         شخصیِ شما.
       </h2>
       <p>
-        تعرفه‌های راهنما را ببینید. برنامه درمان و مبلغ نهایی همیشه به‌صورت شخصی اعلام می‌شود.
+        تعرفه‌های راهنما را ببینید. برنامه درمان و مبلغ نهایی همیشه به‌صورت شخصی
+        اعلام می‌شود.
       </p>
       <div className="location-switch" aria-label="محل درمان">
         {['تهران', 'کرج / آنلاین'].map((item) => (
@@ -111,7 +120,12 @@ function PriceCalculator({ onOpen }: { onOpen: Props['onOpen'] }) {
       </p>
       <button
         className="solid-button"
-        onClick={() => onOpen({ type: 'appointment', service: first?.service as ServiceId | undefined })}
+        onClick={() =>
+          onOpen({
+            type: 'appointment',
+            service: first?.service as ServiceId | undefined,
+          })
+        }
       >
         درباره برنامه شخصی صحبت کنیم <ArrowUpRight size={20} />
       </button>
@@ -119,16 +133,24 @@ function PriceCalculator({ onOpen }: { onOpen: Props['onOpen'] }) {
   )
 }
 
-function Menu({ onOpen, onNavigate }: { onOpen: Props['onOpen']; onNavigate: Props['onNavigate'] }) {
+function Menu({
+  onOpen,
+  onNavigate,
+}: {
+  onOpen: Props['onOpen']
+  onNavigate: Props['onNavigate']
+}) {
   const links = [
     { label: 'پزشک', id: 'doctor' },
     { label: 'تخصص ما', id: 'services' },
     { label: 'گالری نتیجه‌ها', id: 'results' },
+    { label: 'قبل و بعد', id: 'compare' },
     { label: 'رویکرد', id: 'approach' },
     { label: 'راهنمای قیمت', id: 'prices' },
     { label: 'پرسش‌های شما', id: 'faq' },
     { label: 'تماس', id: 'contacts' },
   ]
+  const indices = ['۰۱', '۰۲', '۰۳', '۰۴', '۰۵', '۰۶', '۰۷', '۰۸']
   return (
     <div className="menu-content">
       <a
@@ -159,7 +181,9 @@ function Menu({ onOpen, onNavigate }: { onOpen: Props['onOpen']; onNavigate: Pro
                   else onNavigate(link.id)
                 }}
               >
-                <span className="menu-index">{['۰۱', '۰۲', '۰۳', '۰۴', '۰۵', '۰۶', '۰۷'][index]}</span>
+                <span className="menu-index">
+                  {indices[index]}
+                </span>
                 <span>{link.label}</span>
                 <ArrowUpRight strokeWidth={1} />
               </motion.a>
@@ -198,7 +222,7 @@ function DoctorProfile({ onOpen }: { onOpen: Props['onOpen'] }) {
       <div className="detail-visual">
         <Image
           src="/v7/images/portrait.webp"
-          alt="دکتر آرمان گریگوری"
+          alt="دکتر آرمان حسینی"
           fill
           sizes="(max-width: 760px) 100vw, 45vw"
         />
@@ -208,7 +232,7 @@ function DoctorProfile({ onOpen }: { onOpen: Props['onOpen'] }) {
         <h2>
           آرمان
           <br />
-          گریگوری.
+          حسینی.
         </h2>
         <p className="detail-lead">
           دقتِ یک متخصص.
@@ -216,12 +240,13 @@ function DoctorProfile({ onOpen }: { onOpen: Props['onOpen'] }) {
           نگاهِ یک هنرمند.
         </p>
         <p>
-          متخصص پوست، مو و لیزر و سرپرست فنی بخش لیزر یک مرکز درمانی بین‌المللی؛ با مطب‌هایی در
-          تهران و کرج.
+          متخصص پوست، مو و لیزر و سرپرست فنی بخش لیزر یک مرکز درمانی بین‌المللی؛
+          با مطب‌هایی در تهران و کرج.
         </p>
         <p>
-          دکتر گریگوری تجربه‌ای گسترده و نگاهی زیبایی‌شناسانه به مسیر هر مراجع می‌آورد. فلسفه او
-          ساده است: شکوفا کردن زیبایی‌ای که از قبل هست، نه تحمیل یک الگوی آماده.
+          دکتر حسینی تجربه‌ای گسترده و نگاهی زیبایی‌شناسانه به مسیر هر مراجع
+          می‌آورد. فلسفه او ساده است: شکوفا کردن زیبایی‌ای که از قبل هست، نه
+          تحمیل یک الگوی آماده.
         </p>
         <div className="profile-facts">
           <span>
@@ -234,8 +259,13 @@ function DoctorProfile({ onOpen }: { onOpen: Props['onOpen'] }) {
             <strong>۲۵٬۰۰۰+</strong> جلسه لیزر
           </span>
         </div>
-        <p className="small-note">آمار تجربه بر اساس پرونده کلینیک، به‌عنوان داده نمونه.</p>
-        <button className="outline-button" onClick={() => onOpen({ type: 'appointment' })}>
+        <p className="small-note">
+          آمار تجربه بر اساس پرونده کلینیک، به‌عنوان داده نمونه.
+        </p>
+        <button
+          className="outline-button"
+          onClick={() => onOpen({ type: 'appointment' })}
+        >
           یک مشاوره شخصی <ArrowUpRight size={20} />
         </button>
       </div>
@@ -273,8 +303,8 @@ function Procedure({ id, onOpen }: { id: ServiceId; onOpen: Props['onOpen'] }) {
         <span className="eyebrow detail-label">بهبود و مراقبت</span>
         <p>{service.recovery}</p>
         <p className="small-note">
-          هر درمان لیزری ریسک‌هایی دارد. مناسب بودن، جایگزین‌ها و نتیجه مورد انتظار در جلسه مشاوره
-          بررسی می‌شود.
+          هر درمان لیزری ریسک‌هایی دارد. مناسب بودن، جایگزین‌ها و نتیجه مورد
+          انتظار در جلسه مشاوره بررسی می‌شود.
         </p>
         <button
           className="outline-button"
@@ -294,7 +324,10 @@ function Procedure({ id, onOpen }: { id: ServiceId; onOpen: Props['onOpen'] }) {
 }
 
 function Gallery({ id, onOpen }: { id: string; onOpen: Props['onOpen'] }) {
-  const index = Math.max(0, results.findIndex((item) => item.id === id))
+  const index = Math.max(
+    0,
+    results.findIndex((item) => item.id === id),
+  )
   const result = results[index]
   const change = (direction: number) =>
     onOpen({
@@ -312,15 +345,19 @@ function Gallery({ id, onOpen }: { id: string; onOpen: Props['onOpen'] }) {
         />
       </div>
       <div className="gallery-view-content">
-        <span className="eyebrow">گالری نتیجه‌ها · {['۰۱', '۰۲', '۰۳', '۰۴', '۰۵'][index]} / ۰۵</span>
+        <span className="eyebrow">
+          گالری نتیجه‌ها · {['۰۱', '۰۲', '۰۳', '۰۴', '۰۵'][index]} / ۰۵
+        </span>
         <h2>{result.title}</h2>
         <span className="gallery-category">{result.category}</span>
         <p>
-          رویکردی سنجیده برای تناسب‌های طبیعی، با توجه به جزئیاتی که هر مراجع را یکتا می‌کند.
+          رویکردی سنجیده برای تناسب‌های طبیعی، با توجه به جزئیاتی که هر مراجع را
+          یکتا می‌کند.
         </p>
         <p className="small-note">
-          عکس‌های گالری صرفاً ناحیه درمان را نشان می‌دهند، نه نتیجه قبل و بعد. نتیجه در هر فرد
-          متفاوت است. برای بررسی مناسب بودن و انتظارات، مشاوره لازم است.
+          عکس‌های گالری صرفاً ناحیه درمان را نشان می‌دهند، نه نتیجه قبل و بعد.
+          نتیجه در هر فرد متفاوت است. برای بررسی مناسب بودن و انتظارات، مشاوره
+          لازم است.
         </p>
         <button
           className="outline-button"
@@ -329,13 +366,22 @@ function Gallery({ id, onOpen }: { id: string; onOpen: Props['onOpen'] }) {
           مشاهده خدمت <ArrowUpRight size={20} />
         </button>
         <div className="gallery-view-controls">
-          <button className="circle-button" onClick={() => change(-1)} aria-label="نتیجه قبلی">
+          <button
+            className="circle-button"
+            onClick={() => change(-1)}
+            aria-label="نتیجه قبلی"
+          >
             <ArrowLeft size={22} strokeWidth={1} />
           </button>
           <span>
-            {['۰۱', '۰۲', '۰۳', '۰۴', '۰۵'][index]} <span className="muted">/ ۰۵</span>
+            {['۰۱', '۰۲', '۰۳', '۰۴', '۰۵'][index]}{' '}
+            <span className="muted">/ ۰۵</span>
           </span>
-          <button className="circle-button" onClick={() => change(1)} aria-label="نتیجه بعدی">
+          <button
+            className="circle-button"
+            onClick={() => change(1)}
+            aria-label="نتیجه بعدی"
+          >
             <ArrowRight size={22} strokeWidth={1} />
           </button>
         </div>
@@ -344,28 +390,48 @@ function Gallery({ id, onOpen }: { id: string; onOpen: Props['onOpen'] }) {
   )
 }
 
-export default function SiteOverlays({ overlay, onClose, onOpen, onNavigate }: Props) {
+export default function SiteOverlays({
+  overlay,
+  onClose,
+  onOpen,
+  onNavigate,
+}: Props) {
   const titles: Record<NonNullable<OverlayState>['type'], string> = {
     menu: 'ناوبری اصلی',
     appointment: 'درخواست مشاوره',
     service: 'جزئیات خدمت',
     calculator: 'راهنمای قیمت شخصی',
-    profile: 'درباره دکتر آرمان گریگوری',
+    profile: 'درباره دکتر آرمان حسینی',
     gallery: 'پیش‌نمایش گالری',
     privacy: 'حریم خصوصی',
   }
   return (
     <AnimatePresence mode="wait">
       {overlay && (
-        <Dialog key={overlay.type} kind={overlay.type} title={titles[overlay.type]} onClose={onClose}>
-          {overlay.type === 'menu' && <Menu onOpen={onOpen} onNavigate={onNavigate} />}
+        <Dialog
+          key={overlay.type}
+          kind={overlay.type}
+          title={titles[overlay.type]}
+          onClose={onClose}
+        >
+          {overlay.type === 'menu' && (
+            <Menu onOpen={onOpen} onNavigate={onNavigate} />
+          )}
           {overlay.type === 'appointment' && (
-            <AppointmentForm service={overlay.service} initialLocation={overlay.location} onClose={onClose} />
+            <AppointmentForm
+              service={overlay.service}
+              initialLocation={overlay.location}
+              onClose={onClose}
+            />
           )}
           {overlay.type === 'calculator' && <PriceCalculator onOpen={onOpen} />}
           {overlay.type === 'profile' && <DoctorProfile onOpen={onOpen} />}
-          {overlay.type === 'service' && <Procedure id={overlay.service} onOpen={onOpen} />}
-          {overlay.type === 'gallery' && <Gallery id={overlay.result} onOpen={onOpen} />}
+          {overlay.type === 'service' && (
+            <Procedure id={overlay.service} onOpen={onOpen} />
+          )}
+          {overlay.type === 'gallery' && (
+            <Gallery id={overlay.result} onOpen={onOpen} />
+          )}
           {overlay.type === 'privacy' && (
             <div className="privacy-content">
               <span className="eyebrow">اطلاعات شما مهم است</span>
@@ -375,28 +441,31 @@ export default function SiteOverlays({ overlay, onClose, onOpen, onNavigate }: P
                 خصوصی.
               </h2>
               <p>
-                این وب‌سایت بازآفرینی طراحی و عملکرد سایت دکتر گریگوری است؛ سیستم نوبت‌دهی رسمی
-                کلینیک نیست.
+                این وب‌سایت بازآفرینی طراحی و عملکرد سایت دکتر حسینی است؛ سیستم
+                نوبت‌دهی رسمی کلینیک نیست.
               </p>
               <h3>چه چیزی ذخیره می‌شود</h3>
               <p>
-                اگر فرم مشاوره را ارسال کنید، نام، ایمیل، شماره تماس، خدمت انتخابی، محل مشاوره،
-                تاریخ پیشنهادی و پیام شما در حافظه موقتِ همین نمونه ذخیره می‌شود. رضایت شما و زمان
-                ارسال هم ثبت می‌شود.
+                اگر فرم مشاوره را ارسال کنید، نام، ایمیل، شماره تماس، خدمت
+                انتخابی، محل مشاوره، تاریخ پیشنهادی و پیام شما در حافظه موقتِ
+                همین نمونه ذخیره می‌شود. رضایت شما و زمان ارسال هم ثبت می‌شود.
               </p>
               <h3>درخواست شما چطور استفاده می‌شود</h3>
               <p>
-                درخواست‌ها فقط برای نمایش روند مشاوره ذخیره می‌شوند. به پزشک یا کلینیک ارسال
-                نمی‌شوند؛ نوبتی قطع نمی‌شود و هیچ خدمت پزشکی تنظیم نمی‌گردد. لطفاً مدارک پزشکی یا
-                اطلاعات حساس سلامت ارسال نکنید.
+                درخواست‌ها فقط برای نمایش روند مشاوره ذخیره می‌شوند. به پزشک یا
+                کلینیک ارسال نمی‌شوند؛ نوبتی قطع نمی‌شود و هیچ خدمت پزشکی تنظیم
+                نمی‌گردد. لطفاً مدارک پزشکی یا اطلاعات حساس سلامت ارسال نکنید.
               </p>
               <h3>کوکی و آمار</h3>
               <p>
-                این بازآفرینی از کوکی تبلیغاتی، ردیاب تبلیغاتی یا آمار شخص ثالث استفاده نمی‌کند.
-                تصاویر و فونت‌ها به‌صورت محلی سرو می‌شوند.
+                این بازآفرینی از کوکی تبلیغاتی، ردیاب تبلیغاتی یا آمار شخص ثالث
+                استفاده نمی‌کند. تصاویر و فونت‌ها به‌صورت محلی سرو می‌شوند.
               </p>
               <h3>برای مشاوره واقعی</h3>
-              <p>لطفاً برای دریافت خدمت پزشکی از وب‌سایت رسمی کلینیک استفاده کنید.</p>
+              <p>
+                لطفاً برای دریافت خدمت پزشکی از وب‌سایت رسمی کلینیک استفاده
+                کنید.
+              </p>
               <a
                 className="solid-button"
                 href="https://grigoriak.doctor/contacts"

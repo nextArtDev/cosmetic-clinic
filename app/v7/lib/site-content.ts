@@ -23,7 +23,8 @@ export const services: Service[] = [
     number: '۰۱',
     title: 'لیزر مو',
     subtitle: 'روشناییِ پوست، بدون رشّ مو',
-    description: 'نتیجه‌ای تمیز و یکدست؛ پوستی که دیگر لازم نیست هر هفته برایش مرتب‌سازی کرد.',
+    description:
+      'نتیجه‌ای تمیز و یکدست؛ پوستی که دیگر لازم نیست هر هفته برایش مرتب‌سازی کرد.',
     image: '/v7/images/service-hair.webp',
     detail:
       'با دیود و الکساندریت، بسته به پوست و موی شما دستگاه و پروتکل انتخاب می‌شود. قبل از شروع، یک جلسه تست روی ناحیه کوچکی از پوست انجام می‌شود تا شدت، پالس و فاصله جلسات دقیقاً برای شما تنظیم شود.',
@@ -41,11 +42,17 @@ export const services: Service[] = [
     number: '۰۲',
     title: 'لیزر پوست',
     subtitle: 'شفافیت، در آرام‌ترین حالت ممکن',
-    description: 'لک‌ها و آثار جوش کم‌رنگ می‌شوند؛ بافت پوست یکدست و آرام برمی‌گردد.',
+    description:
+      'لک‌ها و آثار جوش کم‌رنگ می‌شوند؛ بافت پوست یکدست و آرام برمی‌گردد.',
     image: '/v7/images/service-spot.webp',
     detail:
       'کربن پیل، فرکشنال و لیزرهای رنگدانه‌ای در ترکیبی شخصی‌سازی‌شده برای روشن‌سازی، کاهش منافذ و اصلاح بافت پوست به‌کار می‌روند. برای پوست‌های ایرانی، پروتکل‌ها با احتیاط بیشتری و با دوره آماده‌سازی پوست شروع می‌شوند.',
-    procedures: ['کربن پیل', 'لیزر فرکشنال', 'رفع لک و ملاسما', 'جوان‌سازی بافت پوست'],
+    procedures: [
+      'کربن پیل',
+      'لیزر فرکشنال',
+      'رفع لک و ملاسما',
+      'جوان‌سازی بافت پوست',
+    ],
     recovery:
       'بسته به نوع لیزر، قرمزی و پوسته‌ریزی خفیف چند روز طول می‌کشد. ضدآفتاب SPF 50 در طول درمان اجباری است.',
   },
@@ -58,7 +65,12 @@ export const services: Service[] = [
     image: '/v7/images/service-young.webp',
     detail:
       'با Nd:YAG و طول‌موج‌های تنظیم‌شده برای هر رنگ، ذرات جوهر به‌مرور تجزیه می‌شوند تا سیستم لنفاوی خود بدن آن‌ها را پاک کند. جلسات با فاصله ۶ تا ۸ هفته انجام می‌شود.',
-    procedures: ['پاک‌سازی خط لب', 'پاک‌سازی تاتوی بدن', 'اصلاح خالکوبی قدیمی', 'رفع رنگ‌های تیره و قرمز'],
+    procedures: [
+      'پاک‌سازی خط لب',
+      'پاک‌سازی تاتوی بدن',
+      'اصلاح خالکوبی قدیمی',
+      'رفع رنگ‌های تیره و قرمز',
+    ],
     recovery:
       'تاول خفیف و کبودی موقتی طبیعی است. تا بهبود کامل از خمیردندان‌های حاوی فلز و سولفات استفاده نکنید.',
   },
@@ -71,7 +83,12 @@ export const services: Service[] = [
     image: '/v7/images/service-vascular.webp',
     detail:
       'لیزر عروقی با انتخاب طول‌موج اختصاصی هموگلوبین، عروق سطحی را بدون آسیب به بافت اطراف بسته می‌کند. برای دَرون، روزِ وسط جلسات با فاصله ۴ تا ۶ هفته برنامه‌ریزی می‌شود.',
-    procedures: ['درمان گلابی (روزاسه)', 'حذف مویرگ‌های صورت', 'لیزر واریس سطحی', 'رفع قرمزی پس از جوش'],
+    procedures: [
+      'درمان گلابی (روزاسه)',
+      'حذف مویرگ‌های صورت',
+      'لیزر واریس سطحی',
+      'رفع قرمزی پس از جوش',
+    ],
     recovery:
       'کبودی جزئی ممکن است دیده شود و طی ۱۰ روز محو می‌شود. یک هفته از سونا و ورزش سنگین پرهیز کنید.',
   },
@@ -84,7 +101,12 @@ export const services: Service[] = [
     image: '/v7/images/service-acne.webp',
     detail:
       'با تحریک کلاژن‌سازی از طریق لیزرهای غیرتهاجمی و نیم‌تهاجمی، پوست خودش را بازسازی می‌کند. نتیجه تدریجی و طبیعی است؛ معمولاً ۳ تا ۴ جلسه با فاصله یک ماه.',
-    procedures: ['لیفت با لیزر غیرتهاجمی', 'کاهش خطوط ریز', 'جوان‌سازی گردن و دکلته', 'بازسازی کلاژن پس از ۴۰ سالگی'],
+    procedures: [
+      'لیفت با لیزر غیرتهاجمی',
+      'کاهش خطوط ریز',
+      'جوان‌سازی گردن و دکلته',
+      'بازسازی کلاژن پس از ۴۰ سالگی',
+    ],
     recovery:
       'خشکی و کشیدگی خفیف تا ۴۸ ساعت طبیعی است. از روز سوم آرایش مجاز است.',
   },
@@ -94,7 +116,7 @@ export const faqs = [
   {
     question: 'کدام دستگاه لیزر برای پوست من مناسب است؟',
     answer:
-      'دکتر گریگوری بعد از معاینه پوست و بررسی سابقه هورمونی، دارویی و آفتاب‌گیری، دستگاه و پروتکل مناسب را پیشنهاد می‌دهد. هیچ جلسه‌ای بدون تست اولیه شروع نمی‌شود.',
+      'دکتر حسینی بعد از معاینه پوست و بررسی سابقه هورمونی، دارویی و آفتاب‌گیری، دستگاه و پروتکل مناسب را پیشنهاد می‌دهد. هیچ جلسه‌ای بدون تست اولیه شروع نمی‌شود.',
   },
   {
     question: 'برای اولین جلسه چه چیزی باید آماده کنم؟',
@@ -183,18 +205,134 @@ export const priceItems = [
     price: 4200000,
     service: 'laser-hair',
   },
-  { id: 'face', label: 'لیزر صورت و خط ریش', price: 1800000, service: 'laser-hair' },
-  { id: 'carbon', label: 'کربن پیل صورت', price: 2200000, service: 'laser-skin' },
-  { id: 'fractional', label: 'لیزر فرکشنال صورت', price: 5500000, service: 'laser-skin' },
-  { id: 'tattoo', label: 'پاک‌سازی خالکوبی · هر جلسه', price: 3500000, service: 'laser-tattoo' },
-  { id: 'vascular', label: 'لیزر عروق و گلابی', price: 2800000, service: 'laser-vascular' },
+  {
+    id: 'face',
+    label: 'لیزر صورت و خط ریش',
+    price: 1800000,
+    service: 'laser-hair',
+  },
+  {
+    id: 'carbon',
+    label: 'کربن پیل صورت',
+    price: 2200000,
+    service: 'laser-skin',
+  },
+  {
+    id: 'fractional',
+    label: 'لیزر فرکشنال صورت',
+    price: 5500000,
+    service: 'laser-skin',
+  },
+  {
+    id: 'tattoo',
+    label: 'پاک‌سازی خالکوبی · هر جلسه',
+    price: 3500000,
+    service: 'laser-tattoo',
+  },
+  {
+    id: 'vascular',
+    label: 'لیزر عروق و گلابی',
+    price: 2800000,
+    service: 'laser-vascular',
+  },
 ]
 
 export type ConsultationLocation = 'تهران' | 'کرج' | 'آنلاین'
 
+/**
+ * Before/after pairs used by the /v7 comparators. The source site has no
+ * comparison UI at all — these are drawn from the clinic's own result
+ * library so the route gains the interaction the reference lacks.
+ */
+export type Comparison = {
+  id: string
+  index: string
+  title: string
+  area: string
+  service: ServiceId
+  before: string
+  after: string
+  /** Shared crop so the two halves of a face line up across the seam. */
+  position: string
+  note: string
+}
+
+export const comparisons: Comparison[] = [
+  {
+    id: 'eyelid',
+    index: '۰۱',
+    title: 'پلک و نگاه',
+    area: 'ناحیه چشم',
+    service: 'laser-rejuvenation',
+    before: '/images/b-a/belfa1-b.webp',
+    after: '/images/b-a/belfa1-a.webp',
+    position: '50% 30%',
+    note: '۹ ماه پس از دوره',
+  },
+  {
+    id: 'chin',
+    index: '۰۲',
+    title: 'تناسب چانه',
+    area: 'خط فک',
+    service: 'laser-rejuvenation',
+    before: '/images/b-a/chins1-b.webp',
+    after: '/images/b-a/chins1-a.webp',
+    position: '50% 40%',
+    note: '۶ ماه پس از دوره',
+  },
+  {
+    id: 'brow',
+    index: '۰۳',
+    title: 'قوس ابرو',
+    area: 'ناحیه ابرو',
+    service: 'laser-hair',
+    before: '/images/b-a/ebro1-b.webp',
+    after: '/images/b-a/ebro1-a.webp',
+    position: '50% 35%',
+    note: '۴ جلسه',
+  },
+  {
+    id: 'lift',
+    index: '۰۴',
+    title: 'لیفت و جوان‌سازی',
+    area: 'تمام صورت',
+    service: 'laser-rejuvenation',
+    before: '/images/b-a/face-lift1-b.webp',
+    after: '/images/b-a/face-lift1-a.webp',
+    position: '50% 32%',
+    note: '۸ ماه پس از دوره',
+  },
+  {
+    id: 'profile',
+    index: '۰۵',
+    title: 'ظرافت پروفایل',
+    area: 'خط بینی',
+    service: 'laser-rejuvenation',
+    before: '/images/b-a/rhinoplasti-before.webp',
+    after: '/images/b-a/rhinoplasti-after.webp',
+    position: '50% 30%',
+    note: '۱۲ ماه پس از دوره',
+  },
+  {
+    id: 'submental',
+    index: '۰۶',
+    title: 'ناحیه زیر چانه',
+    area: 'گردن',
+    service: 'laser-skin',
+    before: '/images/b-a/Submental-before-r.webp',
+    after: '/images/b-a/Submental-after.webp',
+    position: '50% 45%',
+    note: '۵ ماه پس از دوره',
+  },
+]
+
 export type OverlayState =
   | { type: 'menu' }
-  | { type: 'appointment'; service?: ServiceId; location?: ConsultationLocation }
+  | {
+      type: 'appointment'
+      service?: ServiceId
+      location?: ConsultationLocation
+    }
   | { type: 'service'; service: ServiceId }
   | { type: 'calculator' }
   | { type: 'profile' }
@@ -203,7 +341,7 @@ export type OverlayState =
   | null
 
 export const site = {
-  name: 'دکتر آرمان گریگوری',
+  name: 'دکتر آرمان حسینی',
   role: 'متخصص لیزر مو و پوست',
   cities: ['تهران', 'کرج'] as const,
   email: 'info@dr-grigori-laser.ir',
