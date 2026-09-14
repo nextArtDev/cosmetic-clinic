@@ -15,17 +15,24 @@ import { useEffect, useRef } from 'react'
  *   data-cursor="book"     → filled pill with the CTA label   (primary CTAs)
  *   data-cursor="discover" → mid-size ring with a label       (image zones)
  *
- * Desktop pointers only: touch and `prefers-reduced-motion` keep the native
- * cursor, and the element stays `display:none` until the effect activates it
- * — so nothing is rendered that a mouse-less visitor could ever see.
+ * Desktop pointers only: touch devices keep the native cursor. The element
+ * stays `display:none` until the effect activates it, so nothing is rendered
+ * that a mouse-less visitor could ever see.
  */
 export function CustomCursor() {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // Mouse/trackpad only — touch devices keep the native cursor.
+    //
+    // NB: deliberately NOT gated on `prefers-reduced-motion`. Chrome reports
+    // `reduce` whenever Windows "Show animations" is switched off, so gating
+    // here silently disabled the cursor for a large slice of desktop users.
+    // Reduced motion is honoured in CSS instead (no trailing/morph
+    // transitions; the ring still tracks the pointer 1:1, which is a
+    // positional aid rather than an effect).
     const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (!fine || reduced) return
+    if (!fine) return
 
     const cursor = ref.current
     if (!cursor) return
@@ -37,8 +44,16 @@ export function CustomCursor() {
     let y = window.innerHeight / 2
     let visible = false
 
-    const apply = (state: string, label: string) => {
-      cursor.className = `v10-cursor is-active is-${state}`
+    // Swap only the state class. Never assign `cursor.className` wholesale —
+    // that also strips `is-active` / `is-visible` (both added elsewhere) and
+    // leaves the ring at opacity 0 while the native cursor is already hidden.
+    let state = ''
+    const apply = (next: string, label: string) => {
+      if (next !== state) {
+        if (state) cursor.classList.remove(`is-${state}`)
+        cursor.classList.add(`is-${next}`)
+        state = next
+      }
       const el = cursor.querySelector('.v10-cursor-label')
       if (el) el.textContent = label
     }

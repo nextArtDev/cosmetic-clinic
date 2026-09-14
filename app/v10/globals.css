@@ -1446,6 +1446,9 @@ html.v10-cursor-hidden .v10 *{cursor:none!important}
   .v10 .service-card{transform:none!important}
   .v10 .service-card-detail{height:auto!important;opacity:1!important}
   .v10 .service-card-flower{transform:none!important}
+  /* Custom cursor stays — it is a positional aid, not an effect — but it
+     stops animating: no fade-in, no ring morph, no label cross-fade. */
+  .v10-cursor,.v10-cursor:before,.v10-cursor-label,.v10-cursor-arrow{transition:none!important}
 }
 @media(prefers-reduced-motion:reduce) and (max-width:600px){
   .v10 .use-sticky{display:flex;min-height:0}
