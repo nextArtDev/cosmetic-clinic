@@ -68,8 +68,10 @@ export function SiteHeader() {
   }
 
   const navLinks = [
-    { text: 'رزرو خدمات', target: '#shop' },
+    { text: 'دربارهٔ پزشک', target: '#doctor' },
+    { text: 'خدمات تخصصی', target: '#services' },
     { text: 'مسیر درمان', target: '#how-it-works' },
+    { text: 'رزرو خدمات', target: '#shop' },
     { text: 'پرسش‌های شما', target: '#faq' },
   ]
 
@@ -80,8 +82,20 @@ export function SiteHeader() {
           <Wordmark />
         </a>
         <nav className="desktop-nav" aria-label="ناوبری اصلی">
-          <a href="#shop">رزرو خدمات <ArrowUpLeft size={11} /></a>
-          <button onClick={() => setDialog('contact')}>تماس با ما <ArrowUpLeft size={11} /></button>
+          {navLinks.map((link) => (
+            <a
+              key={link.target}
+              href={link.target}
+              data-cursor="view"
+              onClick={(event) => { event.preventDefault(); navigate(link.target) }}
+            >
+              {link.text}
+              <ArrowUpLeft size={11} />
+            </a>
+          ))}
+          <button onClick={() => setDialog('contact')}>
+            تماس با ما <ArrowUpLeft size={11} />
+          </button>
         </nav>
         <div className="header-actions">
           <button

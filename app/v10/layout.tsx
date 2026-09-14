@@ -5,6 +5,9 @@ import { CartProvider } from './components/cart-provider'
 import { SiteHeader } from './components/site-header'
 import { SmoothScroll } from './components/smooth-scroll'
 import { Dialogs } from './components/dialogs'
+import { Preloader } from './components/preloader'
+import { CustomCursor } from './components/cursor'
+import { ScrollProgress } from './components/scroll-progress'
 
 // /v10 is a self-contained frontend port (NERVANA design recreation,
 // chat-clone/nervana), Iranized for an Obstetrician & Gynecologist
@@ -22,6 +25,9 @@ export default function V10Layout({ children }: { children: ReactNode }) {
     <V10Shell>
       <CartProvider>
         <SmoothScroll />
+        <ScrollProgress />
+        <Preloader />
+        <CustomCursor />
         <SiteHeader />
         {children}
         <Dialogs />

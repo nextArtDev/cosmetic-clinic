@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, type ReactNode } from 'react'
+import { MotionConfig } from 'framer-motion'
 import { shabnamV10, farsiAdadV10 } from '../fonts'
 
 /**
@@ -11,6 +12,12 @@ import { shabnamV10, farsiAdadV10 } from '../fonts'
  * port's own font variables and the fa-IR/rtl context (matches the
  * production <html>, so no direction flip happens at the document
  * level; the subtree stays self-consistent either way).
+ *
+ * MotionConfig reducedMotion="user" makes every Framer Motion animation in
+ * this subtree honour `prefers-reduced-motion` automatically — transforms
+ * and layout animations are dropped while opacity cross-fades are kept, so
+ * the reveal primitives degrade to simple fades without per-component
+ * branching.
  */
 export function V10Shell({ children }: { children: ReactNode }) {
   useEffect(() => {
@@ -22,13 +29,15 @@ export function V10Shell({ children }: { children: ReactNode }) {
     }
   }, [])
   return (
-    <div
-      id="v10-site-content"
-      className={`v10 ${shabnamV10.variable} ${farsiAdadV10.variable}`}
-      lang="fa-IR"
-      dir="rtl"
-    >
-      {children}
-    </div>
+    <MotionConfig reducedMotion="user">
+      <div
+        id="v10-site-content"
+        className={`v10 ${shabnamV10.variable} ${farsiAdadV10.variable}`}
+        lang="fa-IR"
+        dir="rtl"
+      >
+        {children}
+      </div>
+    </MotionConfig>
   )
 }
