@@ -167,7 +167,11 @@ export function FeaturedTabs({ tabs }: { tabs: Tab[] }) {
                           </span>
                           <span
                             className={cn(
-                              "maya-ft-pill inline-flex px-4 py-1.5 text-xl font-black transition-all duration-500 md:text-3xl",
+                              /* the reference's chip label (`.list-tab-text`) is
+                                 `white-space: nowrap` — it never wraps, so the pill
+                                 must not either or the heading spills out of its
+                                 own background. */
+                              "maya-ft-pill inline-flex max-w-full whitespace-nowrap px-4 py-1.5 text-lg font-black transition-all duration-500 md:text-2xl",
                               isActive ? "text-maya-ink" : "text-maya-ink/35 group-hover:text-maya-ink/70",
                             )}
                             data-active={isActive}

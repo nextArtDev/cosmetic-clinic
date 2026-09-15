@@ -795,6 +795,16 @@
 .maya-ft-pill {
   position: relative;
   isolation: isolate;
+  /* the reference's chip label never wraps; the split-char wrapper would
+     otherwise break the heading mid-phrase and spill it out of the pill */
+  white-space: nowrap;
+}
+.maya-ft-pill .maya-split,
+.maya-ft-pill .maya-ft-char {
+  white-space: nowrap;
+}
+.maya-ft-pill .maya-split {
+  display: inline-block;
 }
 .maya-ft-pill::before {
   content: "";
