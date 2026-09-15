@@ -25,17 +25,28 @@
 @theme {
   --font-maya: "Vazirmatn", "Vazir", Tahoma, ui-sans-serif, system-ui, sans-serif;
 
-  --color-maya-cream: #f2ede4;
-  --color-maya-parchment: #eae2d3;
-  --color-maya-sand: #ddd2bf;
-  --color-maya-fog: #cfc6b4;
-  --color-maya-ink: #16130e;
-  --color-maya-coal: #2a251d;
-  --color-maya-mute: #74695a;
-  --color-maya-clay: #9a6a3d;
-  --color-maya-clay-deep: #7d5228;
-  --color-maya-line: rgba(22, 19, 14, 0.14);
-  --color-maya-creamline: rgba(242, 237, 228, 0.22);
+  /* Transcribed from the reference's `:root, .scheme-primary` block
+     (the default scheme the whole theme uses) — it is a MONOCHROME system,
+     not a warm one:
+       body-background #ffffff   text-color/heading-color #000000
+       card-background #f4f4f4   border-color #dddddd
+       body-alternate-background #f1f1f1   image-bg #a9a3a3
+       link-hover-color #5e5e5e  button #000 on #fff (and inverted)
+     The token names are kept so every component keeps working; only the
+     values changed. `maya-cream` is the page surface, `maya-parchment` the
+     alternate surface, `maya-card` the reference's card-background. */
+  --color-maya-cream: #ffffff;
+  --color-maya-parchment: #f1f1f1;
+  --color-maya-card: #f4f4f4;
+  --color-maya-sand: #a9a3a3;
+  --color-maya-fog: #dddddd;
+  --color-maya-ink: #000000;
+  --color-maya-coal: #000000;
+  --color-maya-mute: #5e5e5e;
+  --color-maya-clay: #000000;
+  --color-maya-clay-deep: #000000;
+  --color-maya-line: #dddddd;
+  --color-maya-creamline: rgba(255, 255, 255, 0.22);
 
   --animate-maya-spin: maya-spin 22s linear infinite;
   --animate-maya-spin-slow: maya-spin 40s linear infinite;
@@ -115,17 +126,27 @@
 .maya-root :where(a) { color: inherit; text-decoration: none; }
 
 /* ---------- layout helpers ---------- */
+/* Transcribed from the reference's global `.container` (base.css):
+     .container { width:100%; max-width:100%; padding:0 15px; margin:auto }
+     .container { max-width: var(--container) }
+     @media (min-width: 768px)  { .container { padding: 0 20px } }
+     --container: 100%  ->  1370px @1200  ->  1790px @1441
+   The gutter is 15px on phones and 20px from 768px up; it is NOT 40/56px,
+   and the container is 1370px (not 1440px) from 1200px up. */
 .maya-wrap {
   width: 100%;
-  max-width: 1440px;
+  max-width: 100%;
   margin-inline: auto;
-  padding-inline: 1.25rem;
+  padding-inline: 15px;
 }
 @media (min-width: 768px) {
-  .maya-wrap { padding-inline: 2.5rem; }
+  .maya-wrap { padding-inline: 20px; }
 }
-@media (min-width: 1280px) {
-  .maya-wrap { padding-inline: 3.5rem; }
+@media (min-width: 1200px) {
+  .maya-wrap { max-width: 1370px; }
+}
+@media (min-width: 1441px) {
+  .maya-wrap { max-width: 1790px; }
 }
 
 /* ---------- typographic bits ---------- */

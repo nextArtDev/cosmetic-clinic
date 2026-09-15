@@ -9,8 +9,8 @@ import type {
   MayaFeaturedTab,
   MayaHeroSlide,
   MayaProduct,
-  MayaPromoTile,
   MayaTestimonial,
+  MosaicTile,
 } from "../lib/data";
 import { gsapSetup, setLenis } from "../lib/fx";
 import { StoreProvider } from "./Store";
@@ -44,7 +44,7 @@ export type MayaData = {
   testimonials: MayaTestimonial[];
   faqs: MayaFaq[];
   bestSellers: MayaBestSeller[];
-  promoTiles: MayaPromoTile[];
+  mosaicTiles: MosaicTile[];
 };
 
 export function MayaApp({ data }: { data: MayaData }) {
@@ -148,7 +148,7 @@ export function MayaApp({ data }: { data: MayaData }) {
         <BestSellers items={data.bestSellers} />
         <VideoMarquee />
         <Testimonials items={data.testimonials} />
-        <MediaGrid tiles={data.promoTiles} />
+        <MediaGrid tiles={data.mosaicTiles} />
         <MediaWithText />
         <Faq items={data.faqs} />
         <ScrollingText />

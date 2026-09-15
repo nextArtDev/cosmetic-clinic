@@ -1,101 +1,227 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
-import { ArrowLeft, ArrowUpLeft } from "lucide-react";
-import type { MayaPromoTile } from "../lib/data";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import type { MosaicTile } from "../lib/data";
 import { gsapSetup } from "../lib/fx";
-import { SectionHead } from "./bits";
 import { useStore } from "./Store";
 
-/* ----------------------------- media grid ---------------------------- */
+/* ----------------------------- media mosaic ---------------------------- */
+/* Port of the reference `media_grid` section. Note that the reference gives
+   this section no `methodCalled` — it has no GSAP engine animation and no
+   entrance reveal at all. What animates is the mosaic itself:
 
-export function MediaGrid({ tiles }: { tiles: MayaPromoTile[] }) {
-  const gridRef = useRef<HTMLDivElement>(null);
+     · eight cells in a packed grid (4×4 at ≥768px, 2×8 below), each cell its
+       own one-or-two-slide loop slider;
+     · every cell slides along its own axis — the reference hands each cell a
+       Splide `direction` of ltr / rtl / ttb — while the two edge arrows
+       advance all eight together (`media-grid-slide.js` calls `go()` on every
+       instance);
+     · the arrows only reveal while the pointer is in the outer 20% of the
+       viewport (`#hoverHandler`);
+     · a 1500px "spotlight" disc lerps toward the cursor at 0.3
+       (`#spotlightHandler`), and the section scheme rotates on every step
+       (`#changeScheme`).
+
+   Grid spans, directions, caption anchors, the CTA and the four pastel
+   schemes are all transcribed from the reference (see `lib/data.ts`). */
+
+/* the reference's `data-slide-scheme` array, in order: the section's own
+   scheme followed by the same alternate three times. */
+const SCHEME_STEPS = [0, 1, 1, 1];
+const SCHEME_BG = [
+  { bg: "#000000", spot: "#808080" }, // scheme-f2e74476 (the section's own)
+  { bg: "#212123", spot: "#9f9fa4" }, // scheme-4861db02
+];
+
+export function MediaGrid({ tiles }: { tiles: MosaicTile[] }) {
+  const rootRef = useRef<HTMLElement>(null);
+  const spotRef = useRef<HTMLDivElement>(null);
+  const fwdRef = useRef<HTMLButtonElement>(null);
+  const backRef = useRef<HTMLButtonElement>(null);
   const { notify } = useStore();
 
-  useLayoutEffect(() => {
-    const { gsap } = gsapSetup();
-    const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>("[data-tile]", gridRef.current!).forEach((tile, i) => {
-        gsap.fromTo(
-          tile,
-          { clipPath: "inset(22% 22% 22% 22% round 32px)", autoAlpha: 0.35 },
-          {
-            clipPath: "inset(0% 0% 0% 0% round 24px)",
-            autoAlpha: 1,
-            duration: 1.15,
-            ease: "power3.out",
-            delay: (i % 3) * 0.12,
-            scrollTrigger: { trigger: gridRef.current, start: "top 74%", once: true },
-          },
-        );
-      });
-    }, gridRef);
-    return () => ctx.revert();
+  /* ONE slide cursor for the whole mosaic — the reference drives every cell
+     from the same click, so they all advance together. A cell with a single
+     slide simply never moves. */
+  const [step, setStep] = useState(0);
+  const [dir, setDir] = useState<1 | -1>(1);
+  const [schemeIdx, setSchemeIdx] = useState(0);
+
+  const go = useCallback((d: 1 | -1) => {
+    setDir(d);
+    setStep((s) => s + d);
+    setSchemeIdx((i) => (i + d + SCHEME_STEPS.length) % SCHEME_STEPS.length);
   }, []);
 
-  return (
-    <section className="maya-wrap py-20 md:py-28" aria-label="پیشنهادهای فصل">
-      <SectionHead
-        kicker="پیشنهادهای فصل"
-        title="برای هر لحظه، یک انتخاب"
-        desc="چهار روایتِ فصل؛ از گرم‌ترین لایه‌ها تا شلوغ‌ترین حراج‌های مایا."
-      />
-      <div ref={gridRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-4 lg:grid-rows-2">
-        {tiles.map((t, i) => {
-          /* Mosaic geometry at lg (4 cols × 2 rows, RTL):
-               tile 0 → cols 1-2, rows 1-2   (the 2×2 feature)
-               tile 1 → col 3,   rows 1-2   (tall — this is what packs 8/8)
-               tile 2 → col 4,   row 1
-               tile 3 → col 4,   row 2
-             Four tiles in an eight-cell grid can only cover every cell if
-             one of them spans two, so tile 1 is given `lg:row-span-2`; with
-             all four at 1×1 the bottom-left cell is left as a hole.
-             NOTE: no `lg:[grid-area:unset]` anywhere — `grid-area` is the
-             shorthand for `grid-column`/`grid-row`, so it would clobber the
-             span utilities below (that leftover was what left the second
-             row entirely empty). */
-          const span = i === 0 ? "lg:col-span-2 lg:row-span-2" : i === 1 ? "lg:row-span-2" : "";
+  /* spotlight + edge-reveal arrows. Both listeners sit on the section (the
+     reference attaches the spotlight to the section and the hover handler to
+     `document`; the section is full-width, so the effect is the same). */
+  useEffect(() => {
+    const root = rootRef.current;
+    const spot = spotRef.current;
+    if (!root || !spot) return;
 
-          /* Tiles 0 and 1 span rows, so at lg their boxes have no aspect of
-             their own and must be absolutely filled. The two single-cell
-             tiles keep their in-flow aspect box — they are what gives the
-             `1fr` rows their height. An in-flow <img> must never be the
-             sizer: its intrinsic height grew this grid from 354px to 640px
-             once it loaded, which shifted every ScrollTrigger below it. */
-          const spans = i === 0 || i === 1;
-          const media = `overflow-hidden bg-maya-parchment ${
-            spans ? "lg:absolute lg:inset-0 lg:aspect-auto" : ""
-          } ${i === 0 ? "aspect-[4/4]" : "aspect-[4/2.1]"}`;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let x = 0;
+    let y = 0;
+    let tx = 0;
+    let ty = 0;
+    let raf = 0;
+
+    if (!reduce) {
+      const tick = () => {
+        x += (tx - x) * 0.3;
+        y += (ty - y) * 0.3;
+        spot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        raf = window.requestAnimationFrame(tick);
+      };
+      raf = window.requestAnimationFrame(tick);
+    }
+
+    const onMove = (e: MouseEvent) => {
+      const r = root.getBoundingClientRect();
+      tx = e.clientX - r.left - spot.offsetWidth / 2;
+      ty = e.clientY - r.top - spot.offsetHeight / 2;
+      /* The reference reveals `prev` near the left window edge and `next`
+         near the right. This port is RTL, so the pair is mirrored: the left
+         edge advances (forward is leftward in RTL) and the right edge goes
+         back. */
+      const w = window.innerWidth;
+      fwdRef.current?.classList.toggle("is-shown", e.clientX < w * 0.2);
+      backRef.current?.classList.toggle("is-shown", e.clientX > w * 0.8);
+    };
+    const onLeave = () => {
+      tx = 0;
+      ty = 0;
+      fwdRef.current?.classList.remove("is-shown");
+      backRef.current?.classList.remove("is-shown");
+    };
+
+    root.addEventListener("mousemove", onMove);
+    root.addEventListener("mouseleave", onLeave);
+    return () => {
+      root.removeEventListener("mousemove", onMove);
+      root.removeEventListener("mouseleave", onLeave);
+      window.cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  const scheme = SCHEME_BG[SCHEME_STEPS[schemeIdx]];
+
+  return (
+    <section
+      ref={rootRef}
+      className="maya-mg"
+      aria-label="پیشنهادهای فصل"
+      style={{ "--mg-bg": scheme.bg, "--mg-spot": scheme.spot } as CSSProperties}
+    >
+      <div ref={spotRef} className="maya-mg-spot" aria-hidden />
+
+      <div className="maya-mg-nav">
+        {/* mirrored for RTL: the left edge is "forward" (leftward is the
+            reading direction), the right edge is "back" */}
+        <button
+          ref={fwdRef}
+          type="button"
+          className="maya-mg-arrow maya-mg-forward"
+          onClick={() => go(1)}
+          aria-label="اسلاید بعدی"
+        >
+          <ChevronLeft className="size-4" aria-hidden />
+        </button>
+        <button
+          ref={backRef}
+          type="button"
+          className="maya-mg-arrow maya-mg-back"
+          onClick={() => go(-1)}
+          aria-label="اسلاید قبلی"
+        >
+          <ChevronRight className="size-4" aria-hidden />
+        </button>
+      </div>
+
+      <div className="maya-mg-list maya-wrap">
+        {tiles.map((t) => {
+          const n = t.slides.length;
+          const pos = n > 1 ? (((step % n) + n) % n) : 0;
+
+          /* which edge the caption enters from — the reference keys this off
+             the cell's own axis plus the navigation direction. */
+          const anim =
+            t.direction === "ttb"
+              ? dir > 0
+                ? "in-bottom"
+                : "in-top"
+              : t.direction === "ltr"
+                ? dir > 0
+                  ? "in-right"
+                  : "in-left"
+                : dir > 0
+                  ? "in-left"
+                  : "in-right";
 
           return (
-            <button
+            <div
               key={t.id}
-              data-tile
-              onClick={() => notify(`نسخه نمایشی — «${t.title}» به‌زودی`)}
-              className={`group relative overflow-hidden rounded-3xl text-right will-change-[clip-path] ${span}`}
+              className="maya-mg-item"
+              data-dir={t.direction}
+              data-feature={
+                t.desktopSpan[0] > 1 && t.desktopSpan[1] > 1 ? "" : undefined
+              }
+              style={
+                {
+                  "--mg-cd": String(t.desktopSpan[0]),
+                  "--mg-rd": String(t.desktopSpan[1]),
+                  "--mg-cm": String(t.mobileSpan[0]),
+                  "--mg-rm": String(t.mobileSpan[1]),
+                  "--mg-pos": String(pos),
+                  "--mg-bg": t.scheme.bg,
+                  "--mg-ink": t.scheme.ink,
+                } as CSSProperties
+              }
             >
-              <div className={media}>
-                <img
-                  src={t.image}
-                  alt={t.title}
-                  loading="lazy"
-                  className="absolute inset-0 size-full object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
-                />
+              <div className="maya-mg-track">
+                {t.slides.map((s, si) => {
+                  const active = si === pos;
+                  return (
+                    <div key={si} className="maya-mg-slide" data-img={s.image ? "" : undefined}>
+                      {s.image ? (
+                        /* NOT `loading="lazy"`: the off-axis slides sit
+                           translated outside their `overflow: hidden` cell, so
+                           the browser defers them and the first advance lands
+                           on a blank tile. The seven mosaic images are small,
+                           so they load eagerly. */
+                        <img src={s.image} alt={s.title} className="maya-mg-img" />
+                      ) : null}
+                      {t.place !== "none" ? (
+                        <div className="maya-mg-cap" data-place={t.place}>
+                          {/* remounting on `step` replays the entrance, which is
+                              what the reference's `slide-active` class does */}
+                          <div
+                            className="maya-mg-cap-inner"
+                            key={active && step > 0 ? step : "idle"}
+                            data-anim={active && step > 0 ? anim : undefined}
+                          >
+                            <h3 className="maya-mg-title">{s.title}</h3>
+                            {s.desc ? <p className="maya-mg-text">{s.desc}</p> : null}
+                            {s.cta ? (
+                              <button
+                                type="button"
+                                className="maya-mg-cta"
+                                onClick={() => notify(`نسخه نمایشی — «${s.title}» به‌زودی`)}
+                              >
+                                {s.cta}
+                              </button>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-maya-ink/70 via-maya-ink/10 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 text-maya-cream md:p-6">
-                <div>
-                  <h3 className={`font-black leading-snug ${i === 0 ? "text-2xl md:text-3xl" : "text-lg md:text-xl"}`}>
-                    {t.title}
-                  </h3>
-                  <p className="mt-1.5 line-clamp-2 max-w-xs text-xs leading-6 text-maya-cream/75">{t.desc}</p>
-                </div>
-                <span className="grid size-10 flex-none translate-y-2 place-items-center rounded-full bg-maya-cream text-maya-ink opacity-0 transition-all duration-400 group-hover:translate-y-0 group-hover:opacity-100">
-                  <ArrowUpLeft className="size-4" />
-                </span>
-              </div>
-            </button>
+            </div>
           );
         })}
       </div>

@@ -5,7 +5,7 @@ import {
   getFaqs,
   getFeaturedTabs,
   getHeroSlides,
-  getPromoTiles,
+  getMosaicTiles,
   getStackedProducts,
   getTestimonials,
   getTrendingProducts,
@@ -33,7 +33,7 @@ export default async function V16Page() {
     testimonials,
     faqs,
     bestSellers,
-    promoTiles,
+    mosaicTiles,
   ] = await Promise.all([
     getHeroSlides(),
     getCollections(),
@@ -44,7 +44,7 @@ export default async function V16Page() {
     getTestimonials(),
     getFaqs(),
     getBestSellers(),
-    getPromoTiles(),
+    getMosaicTiles(),
   ]);
 
   const data: MayaData = {
@@ -57,7 +57,7 @@ export default async function V16Page() {
     testimonials,
     faqs,
     bestSellers,
-    promoTiles,
+    mosaicTiles,
   };
 
   return <MayaApp data={data} />;

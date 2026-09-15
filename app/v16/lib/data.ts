@@ -328,44 +328,183 @@ const BEST_SELLERS: MayaBestSeller[] = [
   { id: "b5", title: "نیم‌تنه اسپرت", price: 1_650_000, image: "/maya/img/col-6.jpg", note: "تمرین روزانه" },
 ];
 
-/* ------------------------------ promo cards ---------------------------- */
+/* ------------------------------ media mosaic --------------------------- */
+/* Port of the reference `media_grid` section — a packed mosaic of eight
+   cells (4×4 on desktop, 2×8 on mobile) where every cell is its own
+   one-or-two-slide loop slider. Each cell slides in its own direction (the
+   reference gives each cell its own Splide `direction`: ltr / rtl / ttb),
+   and the section's two edge arrows advance all eight at once.
+   Four of the cells are text-only — the reference paints those with a
+   colour scheme instead of a photograph.
 
-export type MayaPromoTile = {
-  id: string;
+   Everything below is transcribed from the reference: the spans from its
+   inline `#media-grid-item-*` style block, the directions from each cell's
+   `data-splide` JSON, the caption anchors from its
+   `media-grid-content <pos>` classes, and the scheme colours from the
+   `.scheme-*` rules (card-background-gradient → bg, card-heading → ink). */
+
+export type MosaicSlide = {
+  /** null → a text-only slide, rendered on the cell's scheme colour. */
+  image: string | null;
+  /** always set — used as the alt text even on caption-less cells. */
   title: string;
   desc: string;
-  image: string;
-  size: "lg" | "sm";
+  /** optional CTA. The reference only puts one on the fifth cell (XiNa8x). */
+  cta?: string;
 };
 
-const PROMO_TILES: MayaPromoTile[] = [
+export type MosaicTile = {
+  id: string;
+  direction: "ltr" | "rtl" | "ttb";
+  /** [columns, rows] spanned at ≥768px / <768px. */
+  desktopSpan: [number, number];
+  mobileSpan: [number, number];
+  /** caption anchor; `none` = the reference renders no caption at all. */
+  place: "bottom-left" | "center-left" | "top-left" | "none";
+  /** the cell's colour scheme (reference `--card-background-gradient` / `--card-heading`). */
+  scheme: { bg: string; ink: string };
+  slides: MosaicSlide[];
+};
+
+/* the reference's `scheme-scheme-beb77a32-*`: image cells sit on black with
+   white captions; the four text-only cells use their own pastel schemes. */
+const ON_IMAGE = { bg: "#000000", ink: "#ffffff" };
+
+const MOSAIC_TILES: MosaicTile[] = [
   {
     id: "g1",
-    title: "گرم بمان و شیک",
-    desc: "با کالکشن «گرم و شیک» بدون کم‌زدن از استایل، راحت بمان.",
-    image: "/maya/img/grid-2.webp",
-    size: "lg",
+    direction: "ltr",
+    desktopSpan: [2, 2],
+    mobileSpan: [2, 2],
+    place: "bottom-left",
+    scheme: ON_IMAGE,
+    slides: [
+      {
+        image: "/maya/img/mosaic-1a.webp",
+        title: "گرم بمان و شیک",
+        desc: "بدون اینکه از استایل بزنی، گرم و راحت بمان.",
+      },
+      {
+        image: "/maya/img/mosaic-1b.webp",
+        title: "تا ۵۰٪ تخفیف",
+        desc: "بهترین وقت برای تازه‌کردن کمد لباست.",
+      },
+    ],
   },
   {
     id: "g2",
-    title: "تا ۵۰٪ تخفیف",
-    desc: "بهترین زمان برای تازه‌کردن استایلت؛ روی آیتم‌های منتخب.",
-    image: "/maya/img/grid-3.webp",
-    size: "sm",
+    direction: "ttb",
+    desktopSpan: [1, 1],
+    mobileSpan: [1, 1],
+    place: "center-left",
+    scheme: { bg: "#e5dacb", ink: "#634d11" },
+    slides: [
+      {
+        image: null,
+        title: "شیک و کاربردی",
+        desc: "ترکیب بی‌نقصِ زیبایی و کاربرد.",
+      },
+      {
+        image: null,
+        title: "گرم بمان، جذاب بمان",
+        desc: "قطعه‌هایی که گرم نگهت می‌دارند و خوش‌استایل.",
+      },
+    ],
   },
   {
     id: "g3",
-    title: "شیک و کاربردی",
-    desc: "تعادل بی‌نقصِ زیبایی و کاربرد را اینجا پیدا کن.",
-    image: "/maya/img/grid-4.webp",
-    size: "sm",
+    direction: "ltr",
+    desktopSpan: [1, 2],
+    mobileSpan: [1, 1],
+    place: "none",
+    scheme: ON_IMAGE,
+    slides: [
+      { image: "/maya/img/mosaic-3a.webp", title: "استایل روزمره", desc: "" },
+      { image: "/maya/img/mosaic-3b.webp", title: "لحظه‌های ساحلی", desc: "" },
+    ],
   },
   {
     id: "g4",
-    title: "گرم بمان، خاص به نظر برس",
-    desc: "قطعاتی که گرما می‌بخشند و استایلت را جسورانه نگه می‌دارند.",
-    image: "/maya/img/grid-1.webp",
-    size: "sm",
+    direction: "rtl",
+    desktopSpan: [1, 2],
+    mobileSpan: [2, 2],
+    place: "none",
+    scheme: ON_IMAGE,
+    slides: [
+      { image: "/maya/img/mosaic-4a.webp", title: "کالکشن ساحلی", desc: "" },
+      { image: "/maya/img/mosaic-4b.webp", title: "آفتاب و استایل", desc: "" },
+    ],
+  },
+  {
+    id: "g5",
+    direction: "ttb",
+    desktopSpan: [1, 2],
+    mobileSpan: [1, 1],
+    place: "top-left",
+    scheme: { bg: "#c69d9d", ink: "#461033" },
+    slides: [
+      {
+        image: null,
+        title: "استایل روزمره",
+        desc: "سادگی و راحتی در هر روز.",
+        cta: "خرید کن",
+      },
+      {
+        image: null,
+        title: "قطعه‌های بی‌زمان، حس امروزی",
+        desc: "کالکشنی برای هر روز و هر موقعیت.",
+        cta: "خرید کن",
+      },
+    ],
+  },
+  {
+    id: "g6",
+    direction: "ttb",
+    desktopSpan: [1, 2],
+    mobileSpan: [1, 1],
+    place: "none",
+    scheme: ON_IMAGE,
+    slides: [{ image: "/maya/img/mosaic-6a.webp", title: "بافت‌های زمستانه", desc: "" }],
+  },
+  {
+    id: "g7",
+    direction: "ltr",
+    desktopSpan: [1, 2],
+    mobileSpan: [1, 2],
+    place: "top-left",
+    scheme: { bg: "#eafce4", ink: "#10490f" },
+    slides: [
+      {
+        image: null,
+        title: "استایل دوستدار طبیعت",
+        desc: "کالکشن ما را ببین و تفاوت بساز.",
+      },
+      {
+        image: null,
+        title: "هوای خنک، ترندِ گرم",
+        desc: "بهترین‌های فصل را برایت آورده‌ایم.",
+      },
+    ],
+  },
+  {
+    id: "g8",
+    direction: "ltr",
+    desktopSpan: [1, 1],
+    mobileSpan: [1, 2],
+    place: "center-left",
+    scheme: { bg: "#ebddf6", ink: "#471371" },
+    slides: [
+      {
+        image: null,
+        title: "ترند و راحت",
+        desc: "کالکشن ترند و راحت.",
+      },
+      {
+        image: null,
+        title: "ظاهری شیک، قیمت شیرین",
+        desc: "ترکیبی از استایل ترند و قیمت‌های دل‌نشین.",
+      },
+    ],
   },
 ];
 
@@ -430,6 +569,6 @@ export async function getFaqs(): Promise<MayaFaq[]> {
 export async function getBestSellers(): Promise<MayaBestSeller[]> {
   return BEST_SELLERS;
 }
-export async function getPromoTiles(): Promise<MayaPromoTile[]> {
-  return PROMO_TILES;
+export async function getMosaicTiles(): Promise<MosaicTile[]> {
+  return MOSAIC_TILES;
 }

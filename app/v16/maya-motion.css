@@ -956,3 +956,280 @@
   .maya-trending-tiles { gap: 20px; }
   .maya-trending-tile { flex: 0 1 calc(20% - 20px); }
 }
+
+/* ================================================================== */
+/* media mosaic — port of the reference `media_grid` section           */
+/*                                                                     */
+/* Everything here is derived from the theme's own media-grid.css and  */
+/* its generated `#media-grid-item-*` style block:                     */
+/*   --column-gap 20px / 10px   --desktop-height 185px  --mobile-height 100px */
+/*   --card-radius 40px / 20px  --top/bottom-spacing 70px / 40px        */
+/*   --spotlight-opacity .3     grid 4 cols ≥768px, 2 below             */
+/* The reference has no engine animation for this section, so there is  */
+/* no entrance reveal — the mosaic itself is the animation.             */
+/* ================================================================== */
+
+.maya-mg {
+  --mg-gap: 10px;
+  --mg-row-h: 100px;
+  --mg-radius: 20px;
+  --mg-pad: 15px;
+  --mg-space: 40px;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-block: var(--mg-space);
+  background: var(--mg-bg, #000);
+  color: #fff;
+}
+
+@media (min-width: 768px) {
+  .maya-mg {
+    --mg-gap: 20px;
+    --mg-row-h: 185px;
+    --mg-radius: 40px;
+    --mg-pad: 20px;
+    --mg-space: 70px;
+  }
+}
+
+/* the "mousetrap": a 1500px disc that lerps toward the cursor */
+.maya-mg-spot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1500px;
+  height: 1500px;
+  border-radius: 100%;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.3;
+  background: radial-gradient(
+    circle,
+    var(--mg-spot, #808080) 0%,
+    rgba(0, 0, 0, 0) 61%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  will-change: transform;
+}
+
+/* the two arrows ride the section edges and only reveal near the window
+   edges (reference `#hoverHandler`). Mobile keeps them always visible,
+   as the theme does. */
+.maya-mg-nav {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .maya-mg-nav { padding: 0 30px; }
+}
+
+.maya-mg-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid currentColor;
+  border-radius: 100px;
+  color: #fff;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 1;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease,
+    opacity 0.3s ease, transform 0.3s ease;
+}
+.maya-mg-arrow:hover {
+  background: #fff;
+  border-color: #fff;
+  color: #000;
+}
+@media (min-width: 768px) {
+  .maya-mg-arrow {
+    width: 48px;
+    height: 48px;
+    opacity: 0;
+    /* the forward arrow enters from the left edge, the back one from the
+       right (mirrored for RTL) */
+    transform: translateX(-12px);
+  }
+  .maya-mg-arrow.maya-mg-back { transform: translateX(12px); }
+  .maya-mg-arrow.is-shown { opacity: 1; transform: none; }
+}
+
+/* the packed mosaic. `grid-auto-rows` is the reference's own
+   `minmax(100px,auto)` / `minmax(185px,auto)`; each cell's spans arrive as
+   --mg-cm/--mg-rm (mobile) and --mg-cd/--mg-rd (desktop). */
+.maya-mg-list {
+  display: grid;
+  gap: var(--mg-gap);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(var(--mg-row-h), auto);
+}
+@media (min-width: 768px) {
+  .maya-mg-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.maya-mg-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--mg-radius);
+  background: var(--mg-bg, #000);
+  color: var(--mg-ink, #fff);
+  grid-column: span var(--mg-cm);
+  grid-row: span var(--mg-rm);
+}
+@media (min-width: 768px) {
+  .maya-mg-item {
+    grid-column: span var(--mg-cd);
+    grid-row: span var(--mg-rd);
+  }
+}
+
+/* The track is absolutely filled so the cell contributes NO in-flow height
+   — that keeps every row at exactly `--mg-row-h` and stops the grid from
+   growing after the images load (which would shift every ScrollTrigger
+   below it). */
+.maya-mg-track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  /* The page is `dir="rtl"`, so a plain `row` lays the slides out
+     RIGHT-TO-LEFT: slide 2 already sits to the left of slide 1, and
+     advancing means translating the track to the RIGHT. A cell the
+     reference marks `ltr` runs the other way (row-reverse + a leftward
+     translate), so the mosaic keeps the reference's mix of travel
+     directions. */
+  transform: translate3d(calc(var(--mg-pos) * 100%), 0, 0);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.maya-mg-item[data-dir="ltr"] .maya-mg-track {
+  flex-direction: row-reverse;
+  transform: translate3d(calc(var(--mg-pos) * -100%), 0, 0);
+}
+.maya-mg-item[data-dir="ttb"] .maya-mg-track {
+  flex-direction: column;
+  transform: translate3d(0, calc(var(--mg-pos) * -100%), 0);
+}
+
+.maya-mg-slide {
+  position: relative;
+  flex: 0 0 100%;
+  overflow: hidden;
+  border-radius: var(--mg-radius);
+}
+.maya-mg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* the reference's `media-overlay`: a flat 10% scrim on image cells */
+.maya-mg-slide[data-img]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+/* caption. The reference anchors these at the physical LEFT; this port is
+   RTL, so they are mirrored to the inline-start (right) edge. */
+.maya-mg-cap {
+  position: absolute;
+  max-width: calc(100% - var(--mg-pad) * 2);
+  max-height: calc(100% - 30px);
+  overflow: hidden;
+  overflow-y: auto;
+  padding-block: var(--mg-pad);
+}
+.maya-mg-cap[data-place="bottom-left"] {
+  bottom: var(--mg-pad);
+  right: var(--mg-pad);
+  padding-left: var(--mg-pad);
+}
+.maya-mg-cap[data-place="center-left"] {
+  top: 50%;
+  right: var(--mg-pad);
+  transform: translateY(-50%);
+  padding-left: var(--mg-pad);
+}
+.maya-mg-cap[data-place="top-left"] {
+  top: var(--mg-pad);
+  right: var(--mg-pad);
+  padding-left: var(--mg-pad);
+}
+
+.maya-mg-cap-inner {
+  display: grid;
+  gap: 8px;
+  padding: 4px;
+  justify-items: start;
+  text-align: right;
+}
+.maya-mg-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+.maya-mg-item[data-feature] .maya-mg-title { font-size: 1.35rem; }
+.maya-mg-text {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 0.78rem;
+  line-height: 1.85;
+  opacity: 0.92;
+}
+.maya-mg-cta {
+  margin-top: 6px;
+  padding: 0.55rem 1.3rem;
+  border: 0;
+  border-radius: 100px;
+  background: #111;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.maya-mg-cta:hover { transform: translateY(-2px); opacity: 0.9; }
+
+/* the reference's caption entrances (css-animations.css), keyed to the
+   cell's axis + the navigation direction */
+@keyframes maya-mg-in-right {
+  from { transform: translate3d(100%, 0, 0); opacity: 0; }
+  to { transform: translateZ(0); opacity: 1; }
+}
+@keyframes maya-mg-in-left {
+  from { transform: translate3d(-100%, 0, 0); opacity: 0; }
+  to { transform: translateZ(0); opacity: 1; }
+}
+@keyframes maya-mg-in-bottom {
+  from { transform: translate3d(0, 100%, 0); opacity: 0; }
+  to { transform: translateZ(0); opacity: 1; }
+}
+@keyframes maya-mg-in-top {
+  from { transform: translate3d(0, -100%, 0); opacity: 0; }
+  to { transform: translateZ(0); opacity: 1; }
+}
+.maya-mg-cap-inner[data-anim="in-right"] { animation: maya-mg-in-right 0.5s ease-out 0.6s both; }
+.maya-mg-cap-inner[data-anim="in-left"] { animation: maya-mg-in-left 0.5s ease-out 0.6s both; }
+.maya-mg-cap-inner[data-anim="in-bottom"] { animation: maya-mg-in-bottom 0.5s ease-out 0.6s both; }
+.maya-mg-cap-inner[data-anim="in-top"] { animation: maya-mg-in-top 0.5s ease-out 0.6s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .maya-mg-track { transition: none; }
+  .maya-mg-cap-inner[data-anim] { animation: none; }
+  .maya-mg-spot { display: none; }
+}

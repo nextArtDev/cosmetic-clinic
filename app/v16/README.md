@@ -162,33 +162,69 @@ existing API endpoints are unchanged — `git status` shows only
   640px — +286px of document height), and `MayaApp` now refreshes on
   `load` plus a debounced `ResizeObserver` on `document.body` (the theme's
   own `autoRefreshEvents: "DOMContentLoaded,load,resize"`). Verified: the
-  document is a constant 20353px from first paint to the bottom at 1440×900
+  document is a constant 20555px from first paint to the bottom at 1440×900
   (measured at nine scroll positions, 1.5s → bottom, zero drift).
+- **The container gutter is 15/20px, not 40/56px**: `.maya-wrap` was originally
+  built with `padding-inline: 1.25rem / 2.5rem / 3.5rem` and a 1440px cap. The
+  reference's global `.container` (base.css) is `padding: 0 15px`, `0 20px` from
+  768px up, with `--container: 100% → 1370px @1200 → 1790px @1441`. The two only
+  agreed by coincidence at ~1440px viewport (1330px content both ways), so the
+  port was 40px narrower at 768–1199 and up to 72px narrower at 1200–1440 —
+  measured against the mirror at eight widths. `.maya-wrap` now transcribes the
+  reference exactly; the mosaic's mobile columns immediately moved 170px → 175px
+  and its desktop cells `654×390` → `655×390`, matching the reference to the
+  pixel. Document height moved only 20552 → 20555 and stayed constant, and the
+  clipping/early-reveal audit was byte-identical afterwards (73 desktop / 129
+  mobile hits, 8/8 reveals settled, 0 console errors).
 - **Footer watermark**: Vazirmatn's ascent+descent is ~1.37em, so the line
   box needs at least that or the footer's `overflow-hidden` shears the bottom
   off "مایا". The parallax is also driven off the whole `<footer>` rather
   than the wordmark's own box — its bottom *is* the document bottom, so
   `end: "bottom bottom"` landed on the last scrollable pixel and the scrub
   never reached 1, leaving the word ~75px low and clipped.
-- **`grid-area` is a shorthand — never `unset` it beside span utilities**:
-  the `MediaGrid` feature tile carried a leftover `lg:[grid-area:unset]`.
-  Because `grid-area` expands to `grid-row` + `grid-column` + their `-start`/
-  `-end` longhands, that `unset` won the cascade and wiped the tile's
-  `lg:col-span-2 lg:row-span-2` — so the 2×2 feature tile rendered as a plain
-  1×1 cell and the grid's second row (`lg:grid-rows-2`) was left empty, a
-  ~190px dead band under the tiles. Removing it restores the mosaic, and the
-  tile that lands in the third column also gets `lg:row-span-2` — four tiles
-  cannot cover an eight-cell grid otherwise, and the bottom-left cell was left
-  as a hole. Verified by `probe-mediagrid` (4 cols of 314px, two 164.8px rows,
-  tiles `[354, 354, 165, 165]`, section 741px, row heights and document height
-  unchanged) and by screenshot.
-- **Known deviation — `media_grid`**: the reference ships a 16-tile Splide
-  *mosaic slider* (`media-grid-slide`, `--column-span`/`--row-span` per item,
-  `--desktop-height: 185px`), whereas this port renders the four tiles from
-  `data.promoTiles` in a static `lg:grid-cols-4 lg:grid-rows-2` grid. The
-  entrance motion (per-tile `clipPath` inset → 0, staggered by `i % 3`) is
-  faithful; the tile *count* and the slider wrapper are an intentional
-  simplification, to be revisited if strict structural parity is wanted.
+- **`media_grid` — the mosaic is a port, not an approximation**: this section
+  carries no `methodCalled` in the reference, so it has **no engine animation
+  and no entrance reveal**; the mosaic itself is the animation. The port now
+  reproduces it: **eight cells** in a packed grid (4×4 at ≥768px, 2×8 below,
+  `--column-gap` 20/10px, `--desktop-height` 185px, `--mobile-height` 100px,
+  `--card-radius` 40/20px), each cell its own one-or-two-slide loop slider
+  driven by the cell's own Splide `direction` — `ltr`, `rtl` or **`ttb`** — so
+  cells advance along different axes. The two edge arrows advance all eight
+  together (the reference calls `go()` on every instance) and only reveal while
+  the pointer is in the outer 20% of the window; a 1500px spotlight disc lerps
+  toward the cursor at 0.3; and the section scheme rotates on each step. Spans,
+  directions, caption anchors, the one CTA and the four pastel schemes are
+  transcribed from the reference's `#media-grid-item-*` style block and its
+  `.scheme-*` rules (see `lib/data.ts`).
+  Two deliberate adaptations: captions are anchored at the inline-**start**
+  (right) rather than the reference's physical left, and the arrow pair is
+  mirrored for RTL (left edge = forward). The seven images load **eagerly** —
+  the off-axis slides are clipped outside their cell, so `loading="lazy"`
+  defers them and the first advance lands on a blank tile.
+  Verified by `probe-mosaic` / `probe-cap-mobile`, cell for cell against the
+  mirror: desktop `317.5px × 4` cols / `minmax(185px, auto)` rows / 20px gap,
+  cells `655×390` (2×2), `318×390` (1×2), `318×185` (1×1), section 940px
+  (4 rows × 185 + 3 × 20 gaps + 2 × 70 padding); mobile `175px × 2` cols /
+  `minmax(100px, auto)` rows / 10px gap with the reference's own mobile spans,
+  cells `360×210 / 175×100 / 175×210` — every one identical to the mirror.
+  Every cell's track transform and caption entrance matches its axis; 0 console
+  errors.
+- **The mosaic's mobile captions scroll — and the reference does too**: at
+  390px the two 1×1 mobile cells (2 and 5, both `100px` tall) hold a
+  centre/top caption whose content is taller than the cell. `probe-cap-mobile`
+  measures the mirror overflowing those same two cells by **100px and 153px**
+  against the port's 47px and 96px, so the port clips *less* than the source.
+  This is the reference's own design, not a defect: its `.media-grid-content`
+  is `max-height: calc(100% - 30px)` + `overflow: hidden; overflow-y: auto`,
+  and its caption is `position: absolute` so it never sizes the row. Don't
+  "fix" it by growing the cells — that would break the packed mosaic and the
+  constant document height.
+- **Historical pitfall (that rewrite retired)**: the previous Tailwind grid
+  carried a leftover `lg:[grid-area:unset]`. `grid-area` is the shorthand for
+  `grid-column` + `grid-row` (+ their `-start`/`-end` longhands), so it won the
+  cascade and wiped `lg:col-span-2 lg:row-span-2` — the 2×2 tile rendered 1×1
+  and the second row was left empty. Worth remembering anywhere a span utility
+  sits beside an `area` utility.
 
 
 ## Boundaries
