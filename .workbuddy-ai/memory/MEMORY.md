@@ -139,9 +139,28 @@
   column, and the media column. Each collection owns **4 images** — one
   full-bleed `mainmedia` plus 2 squares + 1 wide tile — and the engine's
   `onUpdate` shrinks the hero to `scale 0` while scaling the tiles to `1`.
+- **The tabs pin is DESKTOP-ONLY.** `featured-collections-tabs.css` scopes both
+  the chip deck's `position: fixed` and the head's / hero's `position: absolute`
+  inside `@media(min-width: 768px)`; below 768 the wrapper is a plain three-row
+  grid (`collection-heading` / `collection-tab` / `collection-tabcontent`) with
+  every layer in flow. The port applied the sticky `100svh` panel at every
+  breakpoint and overflowed the mobile media column by 265px — the wide tile was
+  invisible and the caption half cut. `FeaturedTabs.tsx` now branches with
+  `gsap.matchMedia` (`>=768px` scrub + phase-4 `onUpdate`; `<768px` pins nothing
+  and scales nothing) and `.maya-ft-stage` carries the `250svh` height so the
+  mobile block can collapse it to `auto`. Mobile geometry must match the
+  reference: `main 360×300`, squares `175×175`, wide `360×216`, chips
+  `80×60`/`280×60`, caption pill `58px` (no mobile override for
+  `--text-box-height`). Clear the description rail's `width` on mobile rather
+  than setting `100%` — the engine only grows it on the pinned path.
 - A label inside a background-painted pill (`.maya-ft-pill::before { inset: 0 }`)
   will "crash" if it wraps: the trailing glyphs land outside the painted box.
   Always `white-space: nowrap` there, as the reference does.
+- To settle "is this element clipped?" on a sticky-panel section, measure each
+  child's rect against the panel's own box across the whole pin — see
+  `scripts/maya/probe-ft-mobile-clip.mjs`. The panel is the clipper, so a
+  `height: 100svh` panel is a real risk whenever its content is taller than the
+  viewport.
 - Probe scripts live in `scripts/maya/*.mjs`, run with
   `NODE_PATH="C:/Users/aria/.workbuddy-ai/binaries/node/workspace/node_modules"`
   and the managed node 22 binary against `http://localhost:3000/v16`.

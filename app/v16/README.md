@@ -252,6 +252,24 @@ existing API endpoints are unchanged — `git status` shows only
   reference values), hero transform `matrix(0.7,…,−536,0) → matrix(1,0,0,1,0,0)`,
   tiles resolving to `243×243` + `506×304`, `docH` constant 20208, audit 73
   desktop / 128 mobile with 8/8 reveals and 0 console errors, no `overflowX`.
+- **The tabs pin is desktop-only — below 768px the section just flows**: this
+  is the single easiest way to get this section wrong. `featured-collections-tabs.css`
+  scopes *both* the chip deck's `position: fixed` and the head's / hero's
+  `position: absolute` inside `@media(min-width: 768px)`. Below that the wrapper
+  becomes a plain three-row grid — `"collection-heading" / "collection-tab" /
+  "collection-tabcontent"` — and every layer sits in flow. The port originally
+  applied the sticky `100svh` panel at *every* breakpoint, which forced the
+  767px-tall media column into an 844px box and overflowed it by **265px**: the
+  wide mosaic tile was never visible at all (clipped 250px) and the caption pill
+  was half cut (32px). The fix is a `gsap.matchMedia` branch — ≥768px keeps the
+  scrub and the phase-4 `onUpdate`, <768px pins nothing and scales nothing, so
+  the hero keeps its 300px `--media-height` and the mosaic stacks beneath it.
+  Mobile geometry then matches the reference element for element: `main 360×300`,
+  squares `175×175`, wide `360×216`, caption pill `58px` tall hugging its text.
+  Two details that follow from it: the caption pill's height is
+  `--text-box-height: 58px` at **every** size (no mobile override), and the
+  description rail's `width` must be *cleared* rather than set to `100%` on
+  mobile, because the engine only grows it on the pinned path.
 - **The palette is monochrome — keep it that way**: the port shipped a warm
   cream/brown theme (`--color-maya-cream: #f2ede4`, a brown `--color-maya-clay`)
   for a long time. The reference's `:root, .scheme-primary` is white/black:
