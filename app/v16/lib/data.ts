@@ -30,10 +30,20 @@ export type MayaCollection = {
 
 export type MayaFeaturedTab = {
   id: string;
+  /** the chip's short label — the reference's `.list-tab-text` inside the tab deck. */
+  chip: string;
   heading: string;
   typed: string;
   paragraphs: string[];
+  /** the full-bleed main media — the reference's `.list-mainmedia`, absolutely
+      positioned behind the mosaic. */
   image: string;
+  /** the three secondary tiles that scale in as the main media scales away.
+      The reference lays them out as two squares (`--image-ratio: 100%`) in a
+      2-column row plus one full-width tile (`--image-ratio: 60%`). */
+  mosaic: Array<{ src: string; ratio: number }>;
+  /** the small caption inside the text pill (`tabscontent-inner-text`). */
+  caption: string;
   productIds: string[];
 };
 
@@ -200,6 +210,7 @@ const HERO_SLIDES: MayaHeroSlide[] = [
 const FEATURED_TABS: MayaFeaturedTab[] = [
   {
     id: "winter-warmth",
+    chip: "گرمای زمستان",
     heading: "خودت را در گرمای زمستان بپیچ",
     typed: "گرمای زمستان، با وقار",
     paragraphs: [
@@ -207,10 +218,17 @@ const FEATURED_TABS: MayaFeaturedTab[] = [
       "هر جزئیات، از بافت‌های مخملی تا پرداخت‌های مجلسی، برای تجربه‌ای بهتر از زمستان انتخاب شده است.",
     ],
     image: "/maya/img/tab-1.jpg",
+    mosaic: [
+      { src: "/maya/img/prod-5.webp", ratio: 100 },
+      { src: "/maya/img/prod-6.webp", ratio: 100 },
+      { src: "/maya/img/col-4.jpg", ratio: 60 },
+    ],
+    caption: "خودت را در گرمای زمستان بپیچ",
     productIds: ["p1", "p5", "p6"],
   },
   {
     id: "stylish-layers",
+    chip: "لایه‌های شیک",
     heading: "لایه‌های شیک برای استایلی بی‌نقص",
     typed: "لایه‌لایه، تا کمال",
     paragraphs: [
@@ -218,10 +236,17 @@ const FEATURED_TABS: MayaFeaturedTab[] = [
       "این لایه‌ها به‌گونه‌ای طراحی شده‌اند که بی‌نقص با هم ست شوند؛ با هر لایه، عمق و شخصیت بیشتری به استایلت ببخش.",
     ],
     image: "/maya/img/tab-2.webp",
+    mosaic: [
+      { src: "/maya/img/prod-2.webp", ratio: 100 },
+      { src: "/maya/img/prod-4.webp", ratio: 100 },
+      { src: "/maya/img/col-3.jpg", ratio: 60 },
+    ],
+    caption: "لایه‌های شیک برای استایلی بی‌نقص",
     productIds: ["p2", "p4", "p7"],
   },
   {
     id: "strong-moves",
+    chip: "ضروری‌های جسور",
     heading: "سبک قدرتمند برای حرکت‌های قاطع",
     typed: "قوی حرکت کن",
     paragraphs: [
@@ -229,6 +254,12 @@ const FEATURED_TABS: MayaFeaturedTab[] = [
       "فرمی مثل پوست دوم و ظاهری که توجه می‌خواهد؛ چون وقتی قوی به نظر برسی، قوی‌تر حرکت می‌کنی.",
     ],
     image: "/maya/img/tab-3.webp",
+    mosaic: [
+      { src: "/maya/img/prod-3.webp", ratio: 100 },
+      { src: "/maya/img/prod-8.webp", ratio: 100 },
+      { src: "/maya/img/col-1.jpg", ratio: 60 },
+    ],
+    caption: "سبک قدرتمند برای حرکت‌های قاطع",
     productIds: ["p3", "p6", "p8"],
   },
 ];

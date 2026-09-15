@@ -771,65 +771,397 @@
 }
 
 /* ================================================================== */
-/* featured collections tabs — pinned stage (port of                  */
-/* `featuredCollectionsList`: image slides in from xPercent −100)      */
+/* featured collections tabs — pinned stage                            */
+/* (port of `featuredCollectionsList`)                                 */
 /* ================================================================== */
 
+.maya-ft-section {
+  background: var(--ft-bg, var(--color-maya-cream));
+  color: var(--ft-ink, var(--color-maya-ink));
+  background-image: var(--ft-grad, none);
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
 .maya-ft-panel {
   position: sticky;
   top: 0;
+  height: 100svh;
+  overflow: hidden;
 }
-.maya-ft-image {
-  will-change: transform;
+
+/* ---- the section head (reference `.featured-collections-list-front`) ----
+   absolutely centred, and faded out (`fade-out-text`) once the pin starts */
+.maya-ft-front {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  display: grid;
+  gap: 30px;
+  padding-inline: 15px;
+  text-align: center;
+  transition: opacity 0.4s ease-in-out, visibility 0s linear 0s;
 }
-/* the thin "fill" rule the engine scales 0 → 1 → 0 across the pin */
+.maya-ft-front.is-faded,
+.maya-ft-pinned .maya-ft-front {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease-in-out, visibility 0s linear 0.4s;
+}
+.maya-ft-front-title {
+  font-size: clamp(1.9rem, 5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.maya-ft-front-desc {
+  max-width: 64ch;
+  margin-inline: auto;
+  font-size: 0.95rem;
+  line-height: 1.9;
+  opacity: 0.78;
+}
+
+/* ---- the chip deck (reference `.featured-collections-list-tabs`) ----
+   a centred row of glass chips; the active one expands 106 -> 475 and
+   reveals its label (`.list-tab-text`, nowrap). */
+.maya-ft-tabs {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  z-index: 4;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 30px;
+  padding: 30px 15px;
+  transition: top 0.6s ease, transform 0.6s ease;
+}
+.maya-ft-pinned .maya-ft-tabs {
+  top: 0;
+  transform: translate3d(-50%, 0, 0);
+}
+.maya-ft-chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 106px;
+  height: 86px;
+  flex: none;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(153, 153, 153, 0));
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--ft-btn-ink, var(--color-maya-ink));
+  transition: background-color 0.4s ease-in-out, width 0.4s ease-in-out,
+    border-color 0.4s ease-in-out;
+}
+.maya-ft-chip[data-active="true"] {
+  width: 475px;
+  padding: 20px 60px 20px 90px;
+  border-color: var(--ft-btn-bg, var(--color-maya-ink));
+  background: var(--ft-btn-bg, var(--color-maya-ink));
+  color: var(--ft-btn-ink, var(--color-maya-cream));
+}
+.maya-ft-chip-icon {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 50px;
+  transition: all 0.4s ease-in-out;
+}
+.maya-ft-chip-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.maya-ft-chip[data-active="true"] .maya-ft-chip-icon {
+  inset: 0 auto 0 0;
+  width: 70px;
+  transform: scale(0.85);
+}
+.maya-ft-chip-label {
+  display: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.maya-ft-chip[data-active="true"] .maya-ft-chip-label {
+  display: block;
+}
+
+/* ---- the two columns: text | media mosaic ---- */
+.maya-ft-body {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  align-items: center;
+  gap: 40px;
+  padding-block: calc(var(--ft-tabs-h, 146px) + 20px);
+  grid-template-columns: 1fr;
+  opacity: 0.3;
+  transition: opacity 0.4s ease-in-out;
+}
+.maya-ft-pinned .maya-ft-body {
+  opacity: 1;
+}
+@media (min-width: 768px) {
+  .maya-ft-body {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 1025px) {
+  .maya-ft-body {
+    max-width: 80%;
+    margin-inline: auto;
+  }
+}
+
+/* text column — all three collections stacked in one cell */
+.maya-ft-textcol {
+  position: relative;
+  display: grid;
+  align-items: center;
+  padding: 20px;
+}
+.maya-ft-text {
+  grid-column: 1;
+  grid-row: 1;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.maya-ft-text[data-active="true"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.maya-ft-heading {
+  margin-bottom: 26px;
+  font-size: clamp(1.6rem, 3.4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+}
+.maya-ft-paras {
+  display: grid;
+  gap: 14px;
+  max-width: 52ch;
+}
+.maya-ft-paras p {
+  font-size: 0.9rem;
+  line-height: 1.95;
+  opacity: 0.82;
+}
+.maya-ft-typed {
+  margin-top: 22px;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.maya-ft-rule {
+  margin-top: 16px;
+  height: 1px;
+  width: 100%;
+  background: color-mix(in srgb, currentColor 22%, transparent);
+}
 .maya-ft-fill {
+  height: 1px;
+  width: 100%;
+  background: currentColor;
   transform-origin: right center;
   will-change: transform;
 }
-.maya-ft-desc-inner {
+.maya-ft-descwrap {
+  margin-top: 14px;
   overflow: hidden;
+}
+.maya-ft-desc-inner {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
   will-change: width;
 }
-/* active tab becomes the wide white pill of the original */
-.maya-ft-pill {
+
+/* media column — the hero plus the mosaic it resolves into */
+.maya-ft-mediacol {
   position: relative;
-  isolation: isolate;
-  /* the reference's chip label never wraps; the split-char wrapper would
-     otherwise break the heading mid-phrase and spill it out of the pill */
-  white-space: nowrap;
+  display: grid;
+  min-height: 420px;
 }
-.maya-ft-pill .maya-split,
-.maya-ft-pill .maya-ft-char {
-  white-space: nowrap;
+.maya-ft-media {
+  position: relative;
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-content: center;
+  padding: 15px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
-.maya-ft-pill .maya-split {
-  display: inline-block;
+.maya-ft-media[data-active="true"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
-.maya-ft-pill::before {
-  content: "";
+/* the full-bleed hero — the engine drives it in from xPercent -100 / scale .7 */
+.maya-ft-main {
   position: absolute;
   inset: 0;
-  z-index: -1;
-  border-radius: 999px;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--card-radius, 20px);
+  will-change: transform;
+}
+.maya-ft-tile {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: var(--card-radius, 20px);
+  aspect-ratio: 1;
+  box-shadow: -8px 13px 15px -5px rgba(0, 0, 0, 0.28);
+  will-change: transform;
+}
+.maya-ft-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.maya-ft-tile-wide {
+  grid-column: span 2;
+  aspect-ratio: 100 / 60;
+}
+/* the caption pill, between the squares and the wide tile */
+.maya-ft-cap {
+  position: relative;
+  z-index: 2;
+  grid-column: span 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.maya-ft-cap-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  max-width: 100%;
+  height: 58px;
+  padding: 0 10px 0 25px;
+  border-radius: 50px;
+  background: var(--color-maya-card);
+  color: var(--color-maya-ink);
+  filter: drop-shadow(-8px 13px 15px rgba(0, 0, 0, 0.28));
+}
+.maya-ft-cap-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.maya-ft-cap-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-maya-ink);
+  color: var(--color-maya-card);
+}
+
+/* ---- product thumbs for the active collection ---- */
+.maya-ft-thumbs {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 24px;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+.maya-ft-thumb {
+  width: 84px;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 2px solid var(--color-maya-cream);
   background: var(--color-maya-cream);
-  box-shadow: 0 18px 40px -22px rgba(22, 19, 14, 0.55);
-  opacity: 0;
-  transform: scale(0.92);
-  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.45);
+  transition: transform 0.3s ease;
 }
-.maya-ft-pill[data-active="true"]::before {
-  opacity: 1;
-  transform: scale(1);
+.maya-ft-thumb:hover {
+  transform: translateY(-4px);
 }
-/* section-level state the engine toggles (tab-content-active / fade-out-text) */
-.maya-ft-pinned [data-ft-front] {
-  opacity: 0;
-  transform: translateY(-14px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+.maya-ft-thumb img {
+  aspect-ratio: 3 / 3.6;
+  width: 100%;
+  object-fit: cover;
 }
-.maya-ft-pinned [data-ft-reveal] {
-  opacity: 1;
+
+@media (max-width: 767px) {
+  .maya-ft-body {
+    padding-block: 96px 120px;
+  }
+  .maya-ft-chip {
+    width: 80px;
+    height: 60px;
+  }
+  .maya-ft-chip[data-active="true"] {
+    width: 280px;
+    min-width: max-content;
+    height: 60px;
+    padding: 10px 20px 10px 62px;
+  }
+  .maya-ft-chip[data-active="true"] .maya-ft-chip-icon {
+    width: 52px;
+  }
+  .maya-ft-mediacol {
+    min-height: 300px;
+  }
+  .maya-ft-main {
+    position: relative;
+    grid-column: span 2;
+    height: 300px;
+  }
+  .maya-ft-cap-inner {
+    height: 46px;
+    padding: 0 8px 0 16px;
+  }
+  .maya-ft-thumbs {
+    bottom: 16px;
+  }
+  .maya-ft-thumb {
+    width: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .maya-ft-chip,
+  .maya-ft-tabs,
+  .maya-ft-section,
+  .maya-ft-body,
+  .maya-ft-front {
+    transition: none;
+  }
 }
 
 /* ================================================================== */
