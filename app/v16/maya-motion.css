@@ -269,7 +269,7 @@
   width: 100%;
   height: 100%;
   margin: 0;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -283,6 +283,10 @@
   transform-origin: 0 calc(var(--diameter) / 2);
 }
 .maya-rotating:hover .maya-rotating-text { animation-play-state: paused; }
+/* the reference steps the ring's type size with the badge diameter */
+@media (min-width: 768px) { .maya-rotating-text { font-size: 11px; } }
+@media (min-width: 1025px) { .maya-rotating-text { font-size: 13px; } }
+@media (min-width: 1200px) { .maya-rotating-text { font-size: 14px; } }
 
 /* ---------------------------------------------------------------
    6. scrolling-text marquee section
@@ -465,6 +469,41 @@
    colour out from the bottom centre. Copied from the reference's
    `--text-reveal-percentage` rule.
    --------------------------------------------------------------- */
+
+/* the reference's responsive geometry (`rich-text.css`):
+     --main-circle-size / --main-circle-border-size / --collection-padding-block
+   and the graduated `collection-items-7` slot sizes. */
+.maya-rich-section {
+  --maya-badge: 120px;
+  --maya-badge-border: 4px;
+  --maya-col-pad: 10px;
+  /* the circular text ring: `--main-circle-size - --main-circle-border-size * 3.5` */
+  --maya-diameter: calc(var(--maya-badge) - var(--maya-badge-border) * 3.5);
+}
+@media (min-width: 768px) {
+  .maya-rich-section { --maya-col-pad: 20px; }
+}
+@media (min-width: 1025px) {
+  .maya-rich-section {
+    --maya-badge: 170px;
+    --maya-badge-border: 6px;
+    --maya-col-pad: 30px;
+  }
+}
+@media (min-width: 1200px) {
+  .maya-rich-section {
+    --maya-badge: 180px;
+    --maya-badge-border: 6px;
+    --maya-col-pad: 33px;
+  }
+}
+@media (min-width: 1441px) {
+  .maya-rich-section {
+    --maya-badge: 200px;
+    --maya-badge-border: 8px;
+  }
+}
+
 .maya-rich-text {
   color: transparent;
   background-image: radial-gradient(
@@ -476,24 +515,68 @@
   background-clip: text;
 }
 
-/* the converging collection thumbnail row */
-.maya-col-row {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  align-items: center;
-  gap: 0.75rem;
+/* ---------------------------------------------------------------
+   13b. the decorative round blob (`.animate-round-wrap` / `.animate-round`)
+   A clipping layer over the whole panel holding one disc, sized and
+   placed to sit exactly behind the centre badge. gsap scales it 20 → 1,
+   so the section opens as a solid clay field that collapses into the
+   badge's backing disc.
+   --------------------------------------------------------------- */
+.maya-round-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
 }
-@media (max-width: 1023px) {
-  .maya-col-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
-  .maya-col-row > :nth-child(4) { grid-column: span 2; grid-row: 1; order: -1; }
+.maya-round {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  /* the collection row is `--maya-col-pad` off the bottom and the badge is
+     the tallest cell, so this lands the disc exactly under the badge */
+  top: calc(100% + 4px - var(--maya-badge) - var(--maya-col-pad));
+  width: calc(var(--maya-badge) - 8px);
+  height: calc(var(--maya-badge) - 8px);
+  aspect-ratio: 1;
+  border-radius: 100%;
+  background: var(--color-maya-clay);
+  will-change: transform, filter;
+}
+
+/* ---------------------------------------------------------------
+   13c. the converging collection row (`collection-items-7`)
+   One flex row pinned to the bottom of the panel: three circular
+   thumbnails, the circular SALE badge, three more thumbnails. Each
+   slot has its own diameter, ring width and z-index, and overlaps its
+   neighbour with a negative margin, so the row tapers toward the edges.
+   --------------------------------------------------------------- */
+.maya-col-row {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  margin: 0;
+  padding: var(--maya-col-pad) 0;
 }
 .maya-col-thumb {
   position: relative;
   display: block;
-  aspect-ratio: 3 / 3.6;
+  flex: none;
+  aspect-ratio: 1;
   overflow: hidden;
-  border-radius: 1rem;
+  border-radius: 50%;
+  border-style: solid;
+  border-color: var(--color-maya-cream);
   background: var(--color-maya-parchment);
+  box-shadow: 0 0 20px -12px var(--color-maya-ink);
   will-change: transform;
 }
 .maya-col-thumb img {
@@ -502,7 +585,90 @@
   object-fit: cover;
   transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.maya-col-thumb:hover img { transform: scale(1.08); }
+.maya-col-thumb:hover img { transform: scale(1.12); }
+
+/* slot sizes — mobile defaults (reference: `.collection-items-7`) */
+.maya-col-thumb[data-slot="0"],
+.maya-col-thumb[data-slot="6"] { width: 42px; border-width: 1px; z-index: 2; }
+.maya-col-thumb[data-slot="1"],
+.maya-col-thumb[data-slot="5"] { width: 60px; border-width: 2px; z-index: 3; }
+.maya-col-thumb[data-slot="2"],
+.maya-col-thumb[data-slot="4"] { width: 75px; border-width: 3px; z-index: 4; }
+.maya-col-thumb[data-slot="0"] { margin-inline-end: -12px; }
+.maya-col-thumb[data-slot="1"] { margin-inline-end: -16px; }
+.maya-col-thumb[data-slot="2"] { margin-inline-end: -24px; }
+.maya-col-thumb[data-slot="4"] { margin-inline-start: -24px; }
+.maya-col-thumb[data-slot="5"] { margin-inline-start: -16px; }
+.maya-col-thumb[data-slot="6"] { margin-inline-start: -12px; }
+
+@media (min-width: 1025px) {
+  .maya-col-thumb[data-slot="2"],
+  .maya-col-thumb[data-slot="4"] { width: 130px; border-width: 5px; }
+  .maya-col-thumb[data-slot="1"],
+  .maya-col-thumb[data-slot="5"] { width: 90px; border-width: 4px; }
+  .maya-col-thumb[data-slot="0"],
+  .maya-col-thumb[data-slot="6"] { width: 70px; border-width: 3px; }
+}
+@media (min-width: 1200px) {
+  .maya-col-thumb[data-slot="2"],
+  .maya-col-thumb[data-slot="4"] { width: 140px; border-width: 5px; }
+  .maya-col-thumb[data-slot="1"],
+  .maya-col-thumb[data-slot="5"] { width: 100px; border-width: 4px; }
+}
+@media (min-width: 1441px) {
+  .maya-col-thumb[data-slot="0"] { width: 80px; border-width: 6px; }
+  .maya-col-thumb[data-slot="1"] { width: 112px; border-width: 6px; }
+  .maya-col-thumb[data-slot="2"],
+  .maya-col-thumb[data-slot="4"] { width: 152px; border-width: 6px; }
+  .maya-col-thumb[data-slot="5"] { width: 112px; border-width: 6px; }
+  .maya-col-thumb[data-slot="6"] { width: 80px; border-width: 6px; }
+}
+
+/* the centre cell — `.collection-item-main`: a cream disc with a thick
+   accent ring and a half-size accent dot behind the rotating text */
+.maya-col-badge {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--maya-badge);
+  height: var(--maya-badge);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-maya-cream);
+  border: var(--maya-badge-border) solid var(--color-maya-clay);
+}
+.maya-col-badge::before {
+  content: "";
+  position: absolute;
+  width: calc(var(--maya-badge) / 2);
+  height: calc(var(--maya-badge) / 2);
+  border-radius: 50%;
+  background: var(--color-maya-clay);
+  pointer-events: none;
+}
+/* the inner label rides above the accent dot */
+.maya-col-badge .maya-rotating { z-index: 1; }
+
+/* the collection count chip */
+.maya-col-count {
+  position: absolute;
+  top: 0.4rem;
+  inset-inline-start: 0.4rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-maya-cream) 88%, transparent);
+  color: var(--color-maya-ink);
+  font-size: 0.56rem;
+  font-weight: 900;
+  backdrop-filter: blur(3px);
+}
+
 .maya-tooltip {
   position: absolute;
   inset-inline: 0;
@@ -521,6 +687,7 @@
   pointer-events: none;
 }
 .maya-col-thumb:hover .maya-tooltip { opacity: 1; transform: translateY(0); }
+
 
 /* ---------------------------------------------------------------
    14. bundle masonry scrub (reference: `mixAndMatchBundle`)

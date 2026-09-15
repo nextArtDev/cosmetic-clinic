@@ -118,7 +118,10 @@ export function StackedCollection({ products }: { products: MayaProduct[] }) {
 
     const ctx = gsap.context(() => {
       ScrollTrigger.batch(items, {
-        start: "top 94%",
+        /* the reference reveals these on `top 80%` (see the engine's
+           `scrollableCollectionList`); anything later than that and the
+           0.6s cascade is over before the card is properly in view */
+        start: "top 80%",
         once: true,
         onEnter: (batch) =>
           batch.forEach((el, i) => {

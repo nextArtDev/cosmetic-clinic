@@ -28,13 +28,38 @@ export function Reveal({
   const ref = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    const { gsap } = gsapSetup();
+    const { gsap, ScrollTrigger } = gsapSetup();
     const el = ref.current;
     if (!el) return;
     const ctx = gsap.context(() => {
-      const targets = stagger ? gsap.utils.toArray<HTMLElement>("[data-rv]", el) : [el];
+      /* Staggered groups must NOT be driven by the wrapper's own top edge.
+         A wrapper holding five rows spans ~530px, so a single trigger at
+         `top 84%` fires while the last rows are still below the fold and
+         they finish animating before anyone sees them. `ScrollTrigger.batch`
+         gives every row its own start, while rows that enter together still
+         cascade by `stagger`. */
+      if (stagger) {
+        const items = gsap.utils.toArray<HTMLElement>("[data-rv]", el);
+        if (!items.length) return;
+        gsap.set(items, { y, autoAlpha: 0 });
+        ScrollTrigger.batch(items, {
+          start,
+          once,
+          onEnter: (batch) =>
+            gsap.to(batch, {
+              y: 0,
+              autoAlpha: 1,
+              duration: 1.05,
+              delay,
+              ease: "power3.out",
+              stagger,
+              overwrite: true,
+            }),
+        });
+        return;
+      }
       gsap.fromTo(
-        targets,
+        el,
         { y, autoAlpha: 0 },
         {
           y: 0,
@@ -42,7 +67,6 @@ export function Reveal({
           duration: 1.05,
           delay,
           ease: "power3.out",
-          stagger: stagger || undefined,
           scrollTrigger: { trigger: el, start, once },
         },
       );

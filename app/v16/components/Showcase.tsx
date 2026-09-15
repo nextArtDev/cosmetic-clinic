@@ -51,12 +51,21 @@ export function MediaGrid({ tiles }: { tiles: MayaPromoTile[] }) {
               i === 0 ? "lg:col-span-2 lg:row-span-2" : ""
             }`}
           >
-            <div className={`w-full overflow-hidden bg-maya-parchment ${i === 0 ? "aspect-[4/4] lg:h-full lg:aspect-auto" : "aspect-[4/2.1]"}`}>
+            {/* Tile 0 spans both rows, so its box has no aspect of its own on
+                lg — it must be absolutely filled. Leaving the <img> in flow
+                let the image's intrinsic height size the auto rows once it
+                loaded, which grew this grid from 354px to 640px and shifted
+                every ScrollTrigger below it. */}
+            <div
+              className={`overflow-hidden bg-maya-parchment ${
+                i === 0 ? "aspect-[4/4] lg:absolute lg:inset-0 lg:aspect-auto" : "aspect-[4/2.1]"
+              }`}
+            >
               <img
                 src={t.image}
                 alt={t.title}
                 loading="lazy"
-                className="size-full object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+                className="absolute inset-0 size-full object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
               />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-maya-ink/70 via-maya-ink/10 to-transparent" />

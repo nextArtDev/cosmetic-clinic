@@ -97,11 +97,34 @@ export function MayaApp({ data }: { data: MayaData }) {
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
-    // settle after first paint so triggers measure correctly
-    const t = window.setTimeout(() => ScrollTrigger.refresh(), 350);
+    /* The reference configures the same refresh events
+       (`autoRefreshEvents: "DOMContentLoaded,load,resize"`). On top of that we
+       watch the body box: the page is full of `loading="lazy"` imagery, and any
+       late layout change shifts every trigger below it. Without a refresh the
+       reveals then fire while their section is still below the fold — the
+       animations play where nobody can see them. */
+    ScrollTrigger.config({ autoRefreshEvents: "DOMContentLoaded,load,resize" });
+
+    let raf = 0;
+    const scheduleRefresh = () => {
+      window.cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    };
+
+    const onLoad = () => scheduleRefresh();
+    window.addEventListener("load", onLoad);
+
+    const ro = new ResizeObserver(scheduleRefresh);
+    ro.observe(document.body);
+
+    /* settle after first paint so triggers measure correctly */
+    const t = window.setTimeout(scheduleRefresh, 350);
 
     return () => {
       window.clearTimeout(t);
+      window.cancelAnimationFrame(raf);
+      window.removeEventListener("load", onLoad);
+      ro.disconnect();
       gsap.ticker.remove(tick);
       lenis.destroy();
       setLenis(null);

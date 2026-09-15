@@ -21,14 +21,21 @@ existing API endpoints are unchanged — `git status` shows only
   counter and progress line — plus the `bannerSlider` pinned scrub
   (200svh stage / sticky panel) that drives the marquee, slide fade,
   media parallax, overlay rise and control fade-out.
-- **Trending**: `trendingProduct` (`data-animation-type="style-1"`) — the
-  heading is split into two halves and every product card is parked as a
-  3D deck (`opacity 0, scale .5, rotationY 70`, all stacked on one x with
-  a 10px depth step, `perspective: 1000`). A single `scrub: 1.5` timeline
-  (`top top += 55vh` → `bottom bottom -= 35%`, no pin) flies the two title
-  halves out to `∓innerWidth / 2` while the deck converges to its resting
-  row (`x 0, rotationY 0, scale 1, opacity 1, z 0`). Hover zoom,
-  quick-view pill, hover size-rail and spring add-to-cart sit on top.
+- **Trending**: `trendingProduct` (`data-animation-type="style-1"`). Layout
+  is a port of `trending-products.css`: the heading is split into two
+  halves that live in a two-column grid (`grid-template-areas:
+  "main-front main-back"`) and a single row of 8 narrow tiles
+  (`flex: 0 1 calc(20% - 20px)` → 149px each at 1440) spans both columns
+  *on top of* them, so at rest the giant 110px heading is visible only
+  through the gaps between tiles. Below 768px the heading is hidden (the
+  theme shows a static one instead) and the tiles become a horizontal
+  scroll-snap carousel. Every tile is parked as a 3D deck (`opacity 0,
+  scale .5, rotationY 70`, all stacked on one x with a 10px depth step,
+  `perspective: 1000`); a single `scrub: 1.5` timeline
+  (`top top += 55vh` → `bottom bottom -= 35%`, no pin) flies the two
+  heading halves out to `∓innerWidth / 2` while the deck converges to its
+  resting row (`x 0, rotationY 0, scale 1, opacity 1, z 0`). Hover reveals
+  a quick-view pill and the size rail.
 - **Collection carousel**: `collectionCarousel` pinned scrub — the track
   translates by `scrollWidth - innerWidth` with an RTL-aware sign while
   the progress rule scales 0 → 1 and the active caption flips.
@@ -112,13 +119,56 @@ existing API endpoints are unchanged — `git status` shows only
   orbit is walked counter-clockwise for RTL so the string reads in its
   natural direction. Hidden under `prefers-reduced-motion`, matching the
   theme's `html.no-animation` bail-out.
-- **Known framing deviation**: `trendingProduct`'s
-  `top top += 55vh` → `bottom bottom -= 35%` window was tuned for the
-  original's short (349px) horizontal strip. The Iranized section is a
-  4×2 grid and therefore much taller, so the same expressions finish the
-  scrub with the section's top already scrolled off. The offsets are kept
-  verbatim for parity; the animation still completes while the landed row
-  is on screen.
+- **Trending framing**: because the rebuilt section is 333px tall (the
+  reference is 349px), the engine's `top top += 55vh` →
+  `bottom bottom -= 35%` window resolves to a ~240px scrub that starts with
+  the section fully visible and finishes with it still framed (measured:
+  y 1305 → 1548 at 1440×900). Keep it short — stretching this section back
+  into a multi-row grid is what made the animation finish off-screen.
+- **Full-bleed hero media**: the hero media is `absolute inset-0` over the
+  whole sticky panel (the theme's `d-media-fixed`), so the control band and
+  the marquee overlay sit *on* the photograph. It previously lived inside
+  the `flex-1` stage, which stopped 68px short of the panel and left a bare
+  strip of section background under the image.
+- **One mobile dock, not two**: the theme's only bottom bar is the
+  `mobile-action-dock` section, so `components/MobileDock.tsx` is the single
+  source. `Footer.tsx` used to render a second, differently-shaped pill nav
+  on the same edge — it was an invention and has been removed.
+- **`richText` — the scaled element is a blob, not the badge**: the engine's
+  `gsap.set([rich-animated-color], { scale: 20 })` targets `.animate-round`,
+  a decorative disc in `.animate-round-wrap` (absolute, `inset: 0`,
+  `overflow: hidden`) sized and placed to sit exactly behind the centre
+  badge. It opens the section as a solid accent field and collapses into the
+  badge backing. Scaling the SALE badge instead — as this port originally
+  did — blows it up 20× and paints the whole viewport clay for the first half
+  of the pin. The collection row is also `.collection-items-7`: seven
+  *circular* cells (70 / 100 / 140 / 180 / 140 / 100 / 70 at ≥1200px) that
+  overlap via negative margins, pinned to the bottom of the panel, not a row
+  of rounded rectangles.
+- **Staggered `Reveal` triggers per child, not per wrapper**: a wrapper
+  holding the five FAQ rows spans ~530px, so a single trigger on its top edge
+  fires while the last rows are still below the fold — they then animate
+  where nobody can see them (measured: 0px visible at rest). `Reveal` now
+  uses `ScrollTrigger.batch` over the `[data-rv]` children, so each row has
+  its own `start` while rows entering together still cascade. Same reasoning
+  behind moving `StackedCollection`'s batch from `top 94%` to the engine's
+  `top 80%`.
+- **ScrollTrigger positions must survive late layout**: the page is full of
+  `loading="lazy"` imagery, and *any* post-load growth invalidates every
+  trigger below it — the reveals then fire early and play off-screen. Two
+  things keep this honest: the `MediaGrid` grid no longer grows (its
+  spanning tile had `lg:aspect-auto` + an in-flow `<img>`, so the image's
+  intrinsic height sized both `auto` rows and took the grid from 354px to
+  640px — +286px of document height), and `MayaApp` now refreshes on
+  `load` plus a debounced `ResizeObserver` on `document.body` (the theme's
+  own `autoRefreshEvents: "DOMContentLoaded,load,resize"`). Verified: the
+  document is a constant 20131px from first paint to the bottom.
+- **Footer watermark**: Vazirmatn's ascent+descent is ~1.37em, so the line
+  box needs at least that or the footer's `overflow-hidden` shears the bottom
+  off "مایا". The parallax is also driven off the whole `<footer>` rather
+  than the wordmark's own box — its bottom *is* the document bottom, so
+  `end: "bottom bottom"` landed on the last scrollable pixel and the scrub
+  never reached 1, leaving the word ~75px low and clipped.
 
 
 ## Boundaries

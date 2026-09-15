@@ -187,9 +187,16 @@ function FooterColumn({
 
 export function Footer() {
   const { notify } = useStore();
+  const footRef = useRef<HTMLElement>(null);
   const markRef = useRef<HTMLDivElement>(null);
 
-  /* watermark parallax */
+  /* Watermark parallax.
+     Driving this from the watermark's own box is fragile: its bottom IS the
+     document bottom, so `end: "bottom bottom"` lands exactly on the last
+     scrollable pixel and the scrub never quite reaches 1 — the word then sits
+     low and the footer's `overflow-hidden` shears its bottom off. Triggering
+     off the whole footer instead gives a full footer-height of travel, and the
+     block keeps `pb` below it so the last few percent are never needed. */
   useLayoutEffect(() => {
     const { gsap } = gsapSetup();
     const ctx = gsap.context(() => {
@@ -199,16 +206,21 @@ export function Footer() {
         {
           yPercent: 0,
           ease: "none",
-          scrollTrigger: { trigger: markRef.current, start: "top bottom", end: "bottom bottom", scrub: 0.5 },
+          scrollTrigger: {
+            trigger: footRef.current,
+            start: "top bottom",
+            end: "bottom bottom",
+            scrub: 0.5,
+          },
         },
       );
-    }, markRef);
+    }, footRef);
     return () => ctx.revert();
   }, []);
 
   return (
     <>
-      <footer className="relative overflow-hidden bg-maya-ink text-maya-cream" aria-label="پانوشت">
+      <footer ref={footRef} className="relative overflow-hidden bg-maya-ink text-maya-cream" aria-label="پانوشت">
         {/* top marquee */}
         <div className="border-b border-maya-creamline py-5 md:py-7">
           <MayaMarquee speed={26} direction={1} fadeEdges={false}>
@@ -306,9 +318,16 @@ export function Footer() {
           </div>
         </div>
 
-        {/* watermark */}
-        <div ref={markRef} className="pointer-events-none relative z-0 -mb-[4vw] select-none will-change-transform" aria-hidden>
-          <p className="maya-outline-cream text-center text-[38vw] font-black leading-[0.8] opacity-30 lg:text-[24vw]">
+        {/* watermark — Vazirmatn's ascent+descent is ~1.37em, so the line box
+            needs at least that or `overflow-hidden` shears the bottom off
+            "مایا". The trailing padding also gives the parallax room to
+            finish before the last scrollable pixel. */}
+        <div
+          ref={markRef}
+          className="pointer-events-none relative z-0 select-none pb-[10vw] will-change-transform lg:pb-[6vw]"
+          aria-hidden
+        >
+          <p className="maya-outline-cream text-center text-[26vw] font-black leading-[1.45] opacity-30 lg:text-[17vw]">
             مایا
           </p>
         </div>

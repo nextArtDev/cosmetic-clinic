@@ -398,7 +398,9 @@ export async function getProducts(): Promise<MayaProduct[]> {
   return PRODUCTS;
 }
 export async function getTrendingProducts(): Promise<MayaProduct[]> {
-  return PRODUCTS.slice(0, 4);
+  /* the theme's trending section renders one tile per product in a single
+     row (8 in the reference), so don't trim this list */
+  return PRODUCTS.slice(0, 8);
 }
 export async function getBundleProducts(): Promise<MayaProduct[]> {
   return PRODUCTS;

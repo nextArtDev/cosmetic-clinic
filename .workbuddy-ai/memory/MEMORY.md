@@ -73,3 +73,38 @@
 - Don't gate a custom cursor on `prefers-reduced-motion: reduce` —
   Chrome reports `reduce` whenever Windows "Show animations" is off,
   which silently disables it. Kill transitions in CSS instead.
+
+# /v16 — Maya Shopify theme port (RTL/Persian, isolated demo route)
+
+## Shape
+
+- `app/v16/**` + `public/maya/**`. `MayaApp.tsx` composes the sections in the
+  reference's order; `lib/data.ts` is the single source of truth for copy and
+  products; `maya.css` (tokens) + `maya-motion.css` (section motion).
+- Ports the theme's real `engine.js` (`gsapMayaaThemeExecution`) methods, keyed
+  by each section's `methodCalled` attribute — exact `start`/`end`/`scrub`/target
+  values. The offline mirror + extracted sections live in `.tmp-maya/`.
+- Pinning = tall stage + `position: sticky` panel, never gsap `pin: true`
+  (gsap pinning fights Lenis). Scroll distance matches the engine's `end` offset.
+
+## Conventions
+
+- RTL: horizontal animation signs are mirrored through `DIR = -1`.
+- Marquees need `direction: ltr` on `.maya-scrollrow`/`-track` — under `rtl` a
+  `width: max-content` track overflows *left* and `xPercent 0→-50` walks it off.
+- `Reveal` (bits.tsx): when `stagger` is set it batches per `[data-rv]` child;
+  a single trigger on a tall wrapper animates its lower rows off-screen.
+- Any late layout growth invalidates every ScrollTrigger below it. `MayaApp`
+  refreshes on `load` + a debounced `ResizeObserver` on `document.body`.
+  Never let an in-flow `<img>` size an `auto` grid row — give the tile a
+  definite aspect or `absolute inset-0` the image.
+
+## Pitfalls
+
+- `window.lenis` is a **stub** (only `version`), not the Lenis instance. Plain
+  `window.scrollTo(0, y)` does land and stick — use it to park probes.
+- gsap writes `matrix3d(...)` whenever `preserve-3d` is set; a "is it at rest?"
+  check that only regexes `matrix(` treats a `scale: 20` deck as settled.
+- Probe scripts live in `scripts/maya/*.mjs`, run with
+  `NODE_PATH="C:/Users/aria/.workbuddy-ai/binaries/node/workspace/node_modules"`
+  and the managed node 22 binary against `http://localhost:3000/v16`.

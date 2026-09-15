@@ -42,6 +42,7 @@ export function useReducedMotionSafe(): boolean {
 export function RotatingText({
   text,
   size = 170,
+  sizeCss,
   children,
   className,
   duration = 40,
@@ -50,6 +51,10 @@ export function RotatingText({
 }: {
   text: string;
   size?: number;
+  /** CSS length expression for the diameter — wins over `size` and lets the
+      ring track a responsive custom property (the theme sizes it as
+      `--main-circle-size - --main-circle-border-size * 3.5`) */
+  sizeCss?: string;
   children?: ReactNode;
   className?: string;
   duration?: number;
@@ -62,10 +67,11 @@ export function RotatingText({
      clockwise from the top. That reads backwards for Persian, so we keep
      the same geometry but walk the circle the other way for RTL. */
   const step = ((dir === "rtl" ? -1 : 1) * 360) / Math.max(chars.length, 1);
+  const diameter = sizeCss ?? `${size}px`;
   return (
     <div
       className={`maya-rotating ${className ?? ""}`}
-      style={{ width: size, height: size, "--diameter": `${size}px` } as CSSProperties}
+      style={{ width: diameter, height: diameter, "--diameter": diameter } as CSSProperties}
     >
       <p
         className="maya-rotating-text"
