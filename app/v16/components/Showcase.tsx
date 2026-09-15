@@ -47,7 +47,12 @@ export function MediaGrid({ tiles }: { tiles: MayaPromoTile[] }) {
             key={t.id}
             data-tile
             onClick={() => notify(`نسخه نمایشی — «${t.title}» به‌زودی`)}
-            className={`group relative overflow-hidden rounded-3xl text-right will-change-[clip-path] lg:[grid-area:unset] ${
+            className={`group relative overflow-hidden rounded-3xl text-right will-change-[clip-path] ${
+              /* NOTE: no `lg:[grid-area:unset]` here. It was a leftover, and
+                 because `grid-area` is the shorthand for `grid-column`/
+                 `grid-row` it reset the span utilities below — the feature
+                 tile rendered as a normal cell and the grid's second row was
+                 left empty, which is the ~190px dead band under the tiles. */
               i === 0 ? "lg:col-span-2 lg:row-span-2" : ""
             }`}
           >

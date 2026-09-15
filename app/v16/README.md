@@ -162,13 +162,30 @@ existing API endpoints are unchanged — `git status` shows only
   640px — +286px of document height), and `MayaApp` now refreshes on
   `load` plus a debounced `ResizeObserver` on `document.body` (the theme's
   own `autoRefreshEvents: "DOMContentLoaded,load,resize"`). Verified: the
-  document is a constant 20131px from first paint to the bottom.
+  document is a constant 20353px from first paint to the bottom at 1440×900
+  (measured at nine scroll positions, 1.5s → bottom, zero drift).
 - **Footer watermark**: Vazirmatn's ascent+descent is ~1.37em, so the line
   box needs at least that or the footer's `overflow-hidden` shears the bottom
   off "مایا". The parallax is also driven off the whole `<footer>` rather
   than the wordmark's own box — its bottom *is* the document bottom, so
   `end: "bottom bottom"` landed on the last scrollable pixel and the scrub
   never reached 1, leaving the word ~75px low and clipped.
+- **`grid-area` is a shorthand — never `unset` it beside span utilities**:
+  the `MediaGrid` feature tile carried a leftover `lg:[grid-area:unset]`.
+  Because `grid-area` expands to `grid-row` + `grid-column` + their `-start`/
+  `-end` longhands, that `unset` won the cascade and wiped the tile's
+  `lg:col-span-2 lg:row-span-2` — so the 2×2 feature tile rendered as a plain
+  1×1 cell and the grid's second row (`lg:grid-rows-2`) was left empty, a
+  ~190px dead band under the tiles. Removing it restores the mosaic.
+  (`clipAudit`/`probe-mediagrid` verify: 4 cols, 2×165px rows, feature tile
+  spanning both at 354px.)
+- **Known deviation — `media_grid`**: the reference ships a 16-tile Splide
+  *mosaic slider* (`media-grid-slide`, `--column-span`/`--row-span` per item,
+  `--desktop-height: 185px`), whereas this port renders the four tiles from
+  `data.promoTiles` in a static `lg:grid-cols-4 lg:grid-rows-2` grid. The
+  entrance motion (per-tile `clipPath` inset → 0, staggered by `i % 3`) is
+  faithful; the tile *count* and the slider wrapper are an intentional
+  simplification, to be revisited if strict structural parity is wanted.
 
 
 ## Boundaries
