@@ -781,6 +781,13 @@
   background-image: var(--ft-grad, none);
   transition: background-color 0.5s ease, color 0.5s ease;
 }
+/* the tall stage + sticky panel is the pin (never gsap `pin: true`).
+   Scoped to >=768px by the mobile block at the bottom of this section —
+   the reference has no pin below 768px. */
+.maya-ft-stage {
+  position: relative;
+  height: 250svh;
+}
 .maya-ft-panel {
   position: sticky;
   top: 0;
@@ -1117,12 +1124,58 @@
   object-fit: cover;
 }
 
+/* ---- below 768px the reference drops the pin entirely ------------------
+   `featured-collections-tabs.css` scopes the chip deck's `position:fixed`
+   AND the head's / hero's `position:absolute` inside `@media(min-width:768px)`.
+   Below that the wrapper becomes a plain three-row grid
+   ("collection-heading" / "collection-tab" / "collection-tabcontent") with
+   every layer in flow. The consequence is the whole point: the head stays
+   visible, the hero keeps its 300px `--media-height` instead of being scaled
+   to 0 by the phase-4 `onUpdate`, and the mosaic tiles are all shown stacked
+   beneath it. Forcing the 100svh panel here clipped 265px off the media
+   column — the wide tile never appeared at all. */
 @media (max-width: 767px) {
-  .maya-ft-body {
-    padding-block: 96px 120px;
+  .maya-ft-stage {
+    height: auto;
+  }
+  .maya-ft-panel {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding-block: 48px 24px;
+  }
+
+  /* head — in flow above the chips, and never faded */
+  .maya-ft-front,
+  .maya-ft-front.is-faded,
+  .maya-ft-pinned .maya-ft-front {
+    position: static;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    margin-bottom: 20px;
+    transition: none;
+  }
+
+  /* chip deck — in flow, horizontally scrollable */
+  .maya-ft-tabs,
+  .maya-ft-pinned .maya-ft-tabs {
+    position: static;
+    transform: none;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 0 15px 10px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    transition: none;
+  }
+  .maya-ft-tabs::-webkit-scrollbar {
+    display: none;
   }
   .maya-ft-chip {
     width: 80px;
+    min-width: 80px;
     height: 60px;
   }
   .maya-ft-chip[data-active="true"] {
@@ -1134,20 +1187,48 @@
   .maya-ft-chip[data-active="true"] .maya-ft-chip-icon {
     width: 52px;
   }
+
+  /* columns — stacked in flow, always at full opacity (no pin to gate them) */
+  .maya-ft-body,
+  .maya-ft-pinned .maya-ft-body {
+    position: static;
+    grid-template-columns: 1fr;
+    gap: 0;
+    max-width: none;
+    padding-block: 0;
+    opacity: 1;
+    transition: none;
+  }
+  .maya-ft-textcol {
+    padding: 30px 0;
+  }
+  .maya-ft-heading {
+    margin-bottom: 6px;
+  }
+
+  /* media — the hero is in flow at 300px; every tile is visible */
   .maya-ft-mediacol {
-    min-height: 300px;
+    min-height: 0;
+  }
+  .maya-ft-media {
+    gap: 10px;
+    align-content: start;
+    padding: 0;
   }
   .maya-ft-main {
     position: relative;
+    inset: auto;
     grid-column: span 2;
     height: 300px;
   }
-  .maya-ft-cap-inner {
-    height: 46px;
-    padding: 0 8px 0 16px;
+  .maya-ft-cap {
+    grid-column: span 2;
   }
+
+  /* product thumbs — in flow rather than pinned to the panel floor */
   .maya-ft-thumbs {
-    bottom: 16px;
+    position: static;
+    margin-top: 24px;
   }
   .maya-ft-thumb {
     width: 64px;

@@ -36,7 +36,7 @@ await page.evaluate(() => {
     for (const sel of [
       "[data-vt-media]",
       "[data-vt-marquee]",
-      "[data-ft-image]",
+      "[data-ft-main]",
       "[data-ft-fill]",
       "[data-ft-desc-inner]",
       "[data-bs-title]",
@@ -107,7 +107,7 @@ async function parkAndShoot(sel, frac, tag) {
 }
 console.log("=== screenshots ===");
 await parkAndShoot("main", 0, "hero");
-await parkAndShoot("[data-ft-image]", 0.9, "tabs");
+await parkAndShoot("[data-ft-main]", 0.9, "tabs");
 await parkAndShoot("#maya-bestsellers", 0.9, "best");
 await parkAndShoot("#maya-bundle", 0.5, "bundle");
 await parkAndShoot("[data-duo]", 1, "duo");
