@@ -120,9 +120,28 @@
   wordmark: `y117`). `probe-mark2.mjs` parks at the bottom and measures the glyph
   rects (`Range.getClientRects`) against the clipper to settle it. Judge a hit by
   whether it is clipped **when on-screen**.
-- Known deviation: the reference `media_grid` is a 16-tile Splide mosaic slider;
-  this port renders 4 static tiles (`data.promoTiles`). Motion is faithful, tile
-  count is not. Documented in `app/v16/README.md`.
+- `media_grid` is now a faithful port (8-cell packed mosaic, per-cell
+  `ltr`/`rtl`/`ttb` sliders, arrows + spotlight + scheme rotation), not the old
+  4-tile approximation. Structural spec in `app/v16/README.md`.
+- **The reference palette is MONOCHROME** — `body-background #ffffff`,
+  `text/heading #000000`, `card-background #f4f4f4`, `border-color #dddddd`,
+  `body-alternate #f1f1f1`, `image-bg #a9a3a3`, buttons `#000` on `#fff`.
+  The port shipped a warm cream/brown palette for a long time; the token
+  *names* are kept (`--color-maya-cream` is now the white page surface) so
+  every component works, but never reintroduce a beige value.
+  `probe-colors.mjs` samples both DOMs' section colours to keep this honest.
+- `.maya-wrap` mirrors the reference `.container` exactly: `padding-inline`
+  15px, 20px from 768px up, `max-width` 1370px from 1200px and 1790px from
+  1441px. It is **not** 40/56px. Changing it moves every section.
+- `featured_collections_tabs` (`FeaturedTabs.tsx`) is four stacked layers in
+  one pinned stage: `.maya-ft-front` (abs-centred section head, fades on pin),
+  `.maya-ft-tabs` (centred chip deck, 106×86 → **475×86** active), the text
+  column, and the media column. Each collection owns **4 images** — one
+  full-bleed `mainmedia` plus 2 squares + 1 wide tile — and the engine's
+  `onUpdate` shrinks the hero to `scale 0` while scaling the tiles to `1`.
+- A label inside a background-painted pill (`.maya-ft-pill::before { inset: 0 }`)
+  will "crash" if it wraps: the trailing glyphs land outside the painted box.
+  Always `white-space: nowrap` there, as the reference does.
 - Probe scripts live in `scripts/maya/*.mjs`, run with
   `NODE_PATH="C:/Users/aria/.workbuddy-ai/binaries/node/workspace/node_modules"`
   and the managed node 22 binary against `http://localhost:3000/v16`.

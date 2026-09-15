@@ -162,7 +162,7 @@ existing API endpoints are unchanged — `git status` shows only
   640px — +286px of document height), and `MayaApp` now refreshes on
   `load` plus a debounced `ResizeObserver` on `document.body` (the theme's
   own `autoRefreshEvents: "DOMContentLoaded,load,resize"`). Verified: the
-  document is a constant 20555px from first paint to the bottom at 1440×900
+  document is a constant 20208px from first paint to the bottom at 1440×900
   (measured at nine scroll positions, 1.5s → bottom, zero drift).
 - **The container gutter is 15/20px, not 40/56px**: `.maya-wrap` was originally
   built with `padding-inline: 1.25rem / 2.5rem / 3.5rem` and a 1440px cap. The
@@ -173,7 +173,9 @@ existing API endpoints are unchanged — `git status` shows only
   measured against the mirror at eight widths. `.maya-wrap` now transcribes the
   reference exactly; the mosaic's mobile columns immediately moved 170px → 175px
   and its desktop cells `654×390` → `655×390`, matching the reference to the
-  pixel. Document height moved only 20552 → 20555 and stayed constant, and the
+  pixel. Document height moved only 20552 → 20555 and stayed constant (it is now
+  20208 after the `featured_collections_tabs` re-port shortened that section's
+  stage), and the
   clipping/early-reveal audit was byte-identical afterwards (73 desktop / 129
   mobile hits, 8/8 reveals settled, 0 console errors).
 - **Footer watermark**: Vazirmatn's ascent+descent is ~1.37em, so the line
@@ -219,6 +221,47 @@ existing API endpoints are unchanged — `git status` shows only
   and its caption is `position: absolute` so it never sizes the row. Don't
   "fix" it by growing the cells — that would break the packed mosaic and the
   constant document height.
+- **`featured_collections_tabs` — four stacked layers, not a list**: the
+  section (`FeaturedTabs.tsx`) was originally ported as three full-width list
+  rows with the display heading inside a white pill. That is not the reference's
+  shape, and it broke visibly: a long Persian heading wrapped and its trailing
+  glyphs landed *outside* the pill's painted background (`::before { inset: 0 }`
+  paints exactly the element box, so any wrap "crashes" the label). The
+  reference — `methodCalled="featuredCollectionsList"` — is four layers in one
+  pinned stage, and the port now reproduces them:
+  - `.maya-ft-front` — the section head, absolutely centred, faded out
+    (`fade-out-text`) once the pin starts;
+  - `.maya-ft-tabs` — a centred glass chip deck, **106×86** desktop / 80×60
+    mobile, where the active chip expands to **475×86** / **280×60** and
+    reveals its `white-space: nowrap` label (the reference's `.list-tab-text`);
+  - `.maya-ft-textcol` — the active collection's display heading + paragraphs,
+    all three stacked in one grid cell;
+  - `.maya-ft-mediacol` — the media mosaic: a full-bleed `list-mainmedia` plus
+    two square tiles (`--image-ratio: 100%`), the caption pill, and one
+    full-width tile (`ratio: 60%`).
+
+  Each collection therefore owns **four images** (one hero + three tiles), which
+  is what the engine's `onUpdate` animates: past ~72% of the pin every
+  `mainmedia` scales to `0` while every `multi-media-img` scales to `1`, so the
+  single hero *resolves into* the mosaic. The three timeline phases are kept
+  (hero in from `xPercent -100 / scale .7`; the description rail `width 0 → 100%`;
+  the rule `scaleX 0 → 1 → 0`), and each collection swaps the section's colour
+  scheme, transcribed from the reference's three `.scheme-*` rules (crimson /
+  olive / orange radials) into the component's `SCHEMES` array.
+  Verified: chips `106×86 / 475×86` desktop and `80×60 / 280×60` mobile (exact
+  reference values), hero transform `matrix(0.7,…,−536,0) → matrix(1,0,0,1,0,0)`,
+  tiles resolving to `243×243` + `506×304`, `docH` constant 20208, audit 73
+  desktop / 128 mobile with 8/8 reveals and 0 console errors, no `overflowX`.
+- **The palette is monochrome — keep it that way**: the port shipped a warm
+  cream/brown theme (`--color-maya-cream: #f2ede4`, a brown `--color-maya-clay`)
+  for a long time. The reference's `:root, .scheme-primary` is white/black:
+  `body-background #ffffff`, `text/heading-color #000000`,
+  `card-background #f4f4f4`, `border-color #dddddd`,
+  `body-alternate-background #f1f1f1`, `image-bg #a9a3a3`, buttons `#000` on
+  `#fff`. Token *names* were kept so all 24 components kept working; only the
+  values changed, plus a new `--color-maya-card` for the card surface.
+  `probe-colors.mjs` samples every section's computed background/text in both
+  the port and the mirror — use it before and after any token change.
 - **Historical pitfall (that rewrite retired)**: the previous Tailwind grid
   carried a leftover `lg:[grid-area:unset]`. `grid-area` is the shorthand for
   `grid-column` + `grid-row` (+ their `-start`/`-end` longhands), so it won the
