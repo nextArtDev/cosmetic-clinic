@@ -42,51 +42,62 @@ export function MediaGrid({ tiles }: { tiles: MayaPromoTile[] }) {
         desc="چهار روایتِ فصل؛ از گرم‌ترین لایه‌ها تا شلوغ‌ترین حراج‌های مایا."
       />
       <div ref={gridRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-4 lg:grid-rows-2">
-        {tiles.map((t, i) => (
-          <button
-            key={t.id}
-            data-tile
-            onClick={() => notify(`نسخه نمایشی — «${t.title}» به‌زودی`)}
-            className={`group relative overflow-hidden rounded-3xl text-right will-change-[clip-path] ${
-              /* NOTE: no `lg:[grid-area:unset]` here. It was a leftover, and
-                 because `grid-area` is the shorthand for `grid-column`/
-                 `grid-row` it reset the span utilities below — the feature
-                 tile rendered as a normal cell and the grid's second row was
-                 left empty, which is the ~190px dead band under the tiles. */
-              i === 0 ? "lg:col-span-2 lg:row-span-2" : ""
-            }`}
-          >
-            {/* Tile 0 spans both rows, so its box has no aspect of its own on
-                lg — it must be absolutely filled. Leaving the <img> in flow
-                let the image's intrinsic height size the auto rows once it
-                loaded, which grew this grid from 354px to 640px and shifted
-                every ScrollTrigger below it. */}
-            <div
-              className={`overflow-hidden bg-maya-parchment ${
-                i === 0 ? "aspect-[4/4] lg:absolute lg:inset-0 lg:aspect-auto" : "aspect-[4/2.1]"
-              }`}
+        {tiles.map((t, i) => {
+          /* Mosaic geometry at lg (4 cols × 2 rows, RTL):
+               tile 0 → cols 1-2, rows 1-2   (the 2×2 feature)
+               tile 1 → col 3,   rows 1-2   (tall — this is what packs 8/8)
+               tile 2 → col 4,   row 1
+               tile 3 → col 4,   row 2
+             Four tiles in an eight-cell grid can only cover every cell if
+             one of them spans two, so tile 1 is given `lg:row-span-2`; with
+             all four at 1×1 the bottom-left cell is left as a hole.
+             NOTE: no `lg:[grid-area:unset]` anywhere — `grid-area` is the
+             shorthand for `grid-column`/`grid-row`, so it would clobber the
+             span utilities below (that leftover was what left the second
+             row entirely empty). */
+          const span = i === 0 ? "lg:col-span-2 lg:row-span-2" : i === 1 ? "lg:row-span-2" : "";
+
+          /* Tiles 0 and 1 span rows, so at lg their boxes have no aspect of
+             their own and must be absolutely filled. The two single-cell
+             tiles keep their in-flow aspect box — they are what gives the
+             `1fr` rows their height. An in-flow <img> must never be the
+             sizer: its intrinsic height grew this grid from 354px to 640px
+             once it loaded, which shifted every ScrollTrigger below it. */
+          const spans = i === 0 || i === 1;
+          const media = `overflow-hidden bg-maya-parchment ${
+            spans ? "lg:absolute lg:inset-0 lg:aspect-auto" : ""
+          } ${i === 0 ? "aspect-[4/4]" : "aspect-[4/2.1]"}`;
+
+          return (
+            <button
+              key={t.id}
+              data-tile
+              onClick={() => notify(`نسخه نمایشی — «${t.title}» به‌زودی`)}
+              className={`group relative overflow-hidden rounded-3xl text-right will-change-[clip-path] ${span}`}
             >
-              <img
-                src={t.image}
-                alt={t.title}
-                loading="lazy"
-                className="absolute inset-0 size-full object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
-              />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-maya-ink/70 via-maya-ink/10 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 text-maya-cream md:p-6">
-              <div>
-                <h3 className={`font-black leading-snug ${i === 0 ? "text-2xl md:text-3xl" : "text-lg md:text-xl"}`}>
-                  {t.title}
-                </h3>
-                <p className="mt-1.5 line-clamp-2 max-w-xs text-xs leading-6 text-maya-cream/75">{t.desc}</p>
+              <div className={media}>
+                <img
+                  src={t.image}
+                  alt={t.title}
+                  loading="lazy"
+                  className="absolute inset-0 size-full object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+                />
               </div>
-              <span className="grid size-10 flex-none translate-y-2 place-items-center rounded-full bg-maya-cream text-maya-ink opacity-0 transition-all duration-400 group-hover:translate-y-0 group-hover:opacity-100">
-                <ArrowUpLeft className="size-4" />
-              </span>
-            </div>
-          </button>
-        ))}
+              <div className="absolute inset-0 bg-gradient-to-t from-maya-ink/70 via-maya-ink/10 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 text-maya-cream md:p-6">
+                <div>
+                  <h3 className={`font-black leading-snug ${i === 0 ? "text-2xl md:text-3xl" : "text-lg md:text-xl"}`}>
+                    {t.title}
+                  </h3>
+                  <p className="mt-1.5 line-clamp-2 max-w-xs text-xs leading-6 text-maya-cream/75">{t.desc}</p>
+                </div>
+                <span className="grid size-10 flex-none translate-y-2 place-items-center rounded-full bg-maya-cream text-maya-ink opacity-0 transition-all duration-400 group-hover:translate-y-0 group-hover:opacity-100">
+                  <ArrowUpLeft className="size-4" />
+                </span>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </section>
   );

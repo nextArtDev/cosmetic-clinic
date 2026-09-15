@@ -176,9 +176,12 @@ existing API endpoints are unchanged — `git status` shows only
   `-end` longhands, that `unset` won the cascade and wiped the tile's
   `lg:col-span-2 lg:row-span-2` — so the 2×2 feature tile rendered as a plain
   1×1 cell and the grid's second row (`lg:grid-rows-2`) was left empty, a
-  ~190px dead band under the tiles. Removing it restores the mosaic.
-  (`clipAudit`/`probe-mediagrid` verify: 4 cols, 2×165px rows, feature tile
-  spanning both at 354px.)
+  ~190px dead band under the tiles. Removing it restores the mosaic, and the
+  tile that lands in the third column also gets `lg:row-span-2` — four tiles
+  cannot cover an eight-cell grid otherwise, and the bottom-left cell was left
+  as a hole. Verified by `probe-mediagrid` (4 cols of 314px, two 164.8px rows,
+  tiles `[354, 354, 165, 165]`, section 741px, row heights and document height
+  unchanged) and by screenshot.
 - **Known deviation — `media_grid`**: the reference ships a 16-tile Splide
   *mosaic slider* (`media-grid-slide`, `--column-span`/`--row-span` per item,
   `--desktop-height: 185px`), whereas this port renders the four tiles from
