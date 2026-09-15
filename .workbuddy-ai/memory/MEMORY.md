@@ -105,6 +105,24 @@
   `window.scrollTo(0, y)` does land and stick — use it to park probes.
 - gsap writes `matrix3d(...)` whenever `preserve-3d` is set; a "is it at rest?"
   check that only regexes `matrix(` treats a `scale: 20` deck as settled.
+- `grid-area` is the **shorthand** for `grid-column` + `grid-row` (+ their
+  `-start`/`-end` longhands). A stray `[grid-area:unset]` therefore clobbers
+  `col-span-*`/`row-span-*` — it silently turned the `MediaGrid` 2×2 feature tile
+  into a 1×1 cell and left a ~190px dead row.
+- `MediaGrid` mosaic (4 tiles, `lg:grid-cols-4 lg:grid-rows-2`): tile 0 is the
+  2×2 feature and tile 1 is `lg:row-span-2` — 4 tiles cannot cover 8 cells
+  otherwise, and the spare cell shows as a hole. The row-spanning tiles must be
+  `lg:absolute lg:inset-0`; the single-cell tiles must keep their in-flow
+  `aspect-[4/2.1]` box, because that is what sizes the `1fr` rows (make them all
+  absolute and the rows collapse to 0).
+- `probe-audit.mjs` runs at scroll 0, so a *parallax* element still at its start
+  offset can report a transient ancestor clip that is never visible (the footer
+  wordmark: `y117`). `probe-mark2.mjs` parks at the bottom and measures the glyph
+  rects (`Range.getClientRects`) against the clipper to settle it. Judge a hit by
+  whether it is clipped **when on-screen**.
+- Known deviation: the reference `media_grid` is a 16-tile Splide mosaic slider;
+  this port renders 4 static tiles (`data.promoTiles`). Motion is faithful, tile
+  count is not. Documented in `app/v16/README.md`.
 - Probe scripts live in `scripts/maya/*.mjs`, run with
   `NODE_PATH="C:/Users/aria/.workbuddy-ai/binaries/node/workspace/node_modules"`
   and the managed node 22 binary against `http://localhost:3000/v16`.
