@@ -64,3 +64,6 @@ release.tar*
 
 # scratch: downloaded reference HTML/assets for the /v7 grigoriak parity work
 /.tmp-grig/
+
+# scratch: downloaded reference HTML/assets for the /v22 Elitestone parity work
+/.tmp-elite/

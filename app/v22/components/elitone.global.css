@@ -1,0 +1,26 @@
+/* ============================================================================
+   /v22 — the ONLY global rules this route emits.
+
+   The reference sets `html { font-size: 10px }` and swaps to a fluid
+   `0.6944444vw` between 1200px and 1899px; its whole type scale is expressed in
+   `rem`, so those two numbers are what make the design breathe on large
+   screens. Every rule below is gated on `html[data-v22-active]`, an attribute
+   the route shell sets while it is mounted and removes on unmount — so on every
+   other route this sheet is inert.
+   ========================================================================== */
+
+html[data-v22-active] {
+  font-size: 10px;
+}
+
+@media (min-width: 1200px) {
+  html[data-v22-active] {
+    font-size: 0.6944444444vw;
+  }
+}
+
+@media (min-width: 1900px) {
+  html[data-v22-active] {
+    font-size: 10px;
+  }
+}

@@ -1,0 +1,1706 @@
+/* ============================================================================
+   /v22 — آریاسنگ · a full port of https://www.elitestone.it/
+
+   Every rule is scoped under `.experience`, so nothing here can leak into the
+   home page or any other route. Values (type scale, colours, the
+   cubic-bezier(0.83, 0, 0.17, 1) easing, the 135° tile rotation, the 2.5px
+   gold autoplay bar, the fixed-attachment showroom/footer covers) are taken
+   from the reference theme's own main.min.css / layout.min.css.
+
+   Layout is RTL (فارسی), so every horizontal quantity from the LTR reference
+   is mirrored.
+   ========================================================================== */
+
+.experience {
+  --es-gold: #e0b16b;
+  --es-gold-soft: #f0cf9d;
+  --es-cream: #ffeccf;
+  --es-hairline: #dee2e6;
+  --es-ink: #000;
+  --es-body: #495057;
+  --es-dark: #1a1a1a;
+  --es-dim: #adb5bd;
+  --es-ease: cubic-bezier(0.83, 0, 0.17, 1);
+  --es-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --es-nav-h: 7rem;
+  --es-gutter: 1.5rem;
+  --es-pad: clamp(1.5rem, 4vw, 4rem);
+
+  --es-display: var(--font-es-display), 'Times New Roman', serif;
+  --es-sans: var(--font-es-body), system-ui, sans-serif;
+
+  position: relative;
+  direction: rtl;
+  font-family: var(--es-sans);
+  font-size: 1.6rem;
+  line-height: 1.35;
+  color: var(--es-ink);
+  background-color: #fff;
+  overflow-x: clip;
+}
+
+.experience *,
+.experience *::before,
+.experience *::after {
+  box-sizing: border-box;
+}
+
+.experience :is(h1, h2, h3, h4, h5, h6, p, figure, ul, ol, address) {
+  margin: 0;
+  padding: 0;
+}
+.experience :is(ul, ol) {
+  list-style: none;
+}
+.experience img,
+.experience svg,
+.experience video {
+  display: block;
+  max-width: 100%;
+}
+.experience a {
+  color: inherit;
+  text-decoration: none;
+}
+.experience button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.experience :focus-visible {
+  outline: 2px solid var(--es-gold);
+  outline-offset: 3px;
+}
+
+/* ── shared primitives ─────────────────────────────────────────────────── */
+
+.esWrap {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: var(--es-pad);
+}
+
+.esTitle {
+  display: block;
+  font-family: var(--es-display);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: pre-wrap;
+}
+.esTitleSmall {
+  font-size: clamp(3.2rem, 10vw, 7.6rem);
+}
+.esTitleBig {
+  font-size: clamp(3.4rem, 12.5vw, 9.6rem);
+}
+
+.esTagline,
+.esSeparator {
+  display: flex;
+  align-items: center;
+  font-family: var(--es-sans);
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: 0.05ch;
+  text-transform: uppercase;
+}
+.esSeparator {
+  --es-rule: clamp(5ch, 5vw, 10ch);
+  margin-block: 0 2em;
+  color: var(--es-gold);
+  user-select: none;
+  pointer-events: none;
+}
+.esSeparator::before {
+  content: '';
+  display: inline-block;
+  width: var(--es-rule);
+  height: 1px;
+  margin-left: 1ch;
+  background-color: currentColor;
+}
+
+.esDescription {
+  max-width: 55rem;
+  color: var(--es-body);
+  font-size: clamp(1.5rem, 1vw, 1.6rem);
+  line-height: 1.8;
+  margin-block: 2em;
+  white-space: pre-line;
+}
+.esDescription strong {
+  font-weight: 700;
+  letter-spacing: -0.05ch;
+}
+
+/* Split-text rows — mirrors GSAP SplitText's `.line > div` output.
+   Both the parent flag and the row class are literal so JS can flip them. */
+:global(.esSplit) :global(.esLine) {
+  display: block;
+  overflow: hidden;
+  /* room for Persian descenders while still masking the rise */
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+  perspective: 1000px;
+}
+:global(.esSplit) :global(.esLineInner) {
+  display: block;
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
+}
+
+/* ── buttons ───────────────────────────────────────────────────────────── */
+/* Upstream .btn-default slides its label colour and grows an arrow glyph. */
+.esBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75ch;
+  position: relative;
+  padding-block: 0.5em;
+  padding-inline: calc(1em + 0.5ch);
+  font-family: var(--es-sans);
+  font-size: clamp(1.4rem, 1em, 1.8rem);
+  font-weight: 500;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    color 0.6s var(--es-ease),
+    padding 0.6s var(--es-ease);
+}
+.esBtn::after {
+  content: '';
+  display: block;
+  width: 1em;
+  height: 1em;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='14' viewBox='0 0 12 14' fill='rgba(224, 177, 107, 0.99)' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.320938 0.954102L6.09783 6.92539L0.320938 13.046L0 12.8967L4.01173 6.92539L0 1.10338L0.320938 0.954102Z' /%3E%3Cpath d='M5.135 0.954102L11.0724 6.92539L5.135 13.046L4.81406 12.8967L8.82579 6.92539L4.81406 1.10338L5.135 0.954102Z' /%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0;
+  transform: scale(0.4);
+  transition:
+    opacity 0.6s var(--es-ease),
+    transform 0.6s var(--es-ease);
+}
+.esBtn:hover {
+  color: var(--es-gold);
+  padding-inline: calc(1.6em + 1ch) calc(0.4em + 0.5ch);
+}
+.esBtn:hover::after {
+  opacity: 1;
+  transform: scale(1);
+}
+.esBtnLight {
+  color: #fff;
+}
+.esBtnNoIcon::after {
+  display: none;
+}
+.esBtnNoIcon:hover {
+  padding-inline: calc(1em + 0.5ch);
+}
+
+/* ==========================================================================
+   Preloader — full-bleed panel, gold counter, top progress hairline.
+   Exit: counter out, page rises, panel wipes down via clip-path.
+   ========================================================================== */
+.esPreloader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background-color: #fff;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+.esPreloaderBar {
+  --es-progress: 0%;
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 5px;
+  background-color: var(--es-gold-soft);
+  overflow: hidden;
+}
+.esPreloaderBar::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  height: 100%;
+  width: var(--es-progress);
+  background: var(--es-gold);
+}
+.esPreloaderCount {
+  font-family: var(--es-display);
+  font-size: clamp(6rem, 14vw, 14rem);
+  line-height: 1;
+  color: var(--es-ink);
+}
+.esPreloaderName {
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: 0.4ch;
+  text-transform: uppercase;
+  color: var(--es-gold);
+}
+
+/* ==========================================================================
+   Custom cursor — 2rem ring that grows to 12rem and reveals a label.
+   ========================================================================== */
+.esCursor {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 190;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+  transition: opacity 0.4s var(--es-ease);
+}
+.esCursorOn {
+  opacity: 1;
+}
+.esCursor::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--es-cream);
+  border-radius: 50%;
+  background-color: rgba(255, 236, 207, 0);
+  transition:
+    background-color 0.5s var(--es-ease),
+    border-color 0.5s var(--es-ease);
+}
+.esCursorLabel {
+  position: relative;
+  z-index: 2;
+  color: #000;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: scale(0);
+  transition: transform 0.5s var(--es-ease);
+}
+.esCursorActive {
+  height: 12rem;
+  width: 12rem;
+}
+.esCursorActive .esCursorLabel {
+  font-size: 1.5rem;
+  transform: scale(1);
+}
+.esCursorActive::after {
+  background-color: rgba(255, 236, 207, 0.35);
+  border-color: var(--es-gold);
+}
+.esCursorClick {
+  height: 4rem;
+  width: 4rem;
+}
+.esCursorClick .esCursorLabel {
+  transform: scale(0);
+}
+/* Upstream `[data-arrow]` state: the label is replaced by a chevron and
+   `[data-prev]` mirrors it. Drawn with *physical* borders — under `rtl`,
+   `border-inline-end` would flip the glyph 90° and point it at the top.
+   The route is RTL, so "forward" points west: base = -135deg (left),
+   reverse = 45deg (right). */
+.esCursorArrow {
+  height: 8rem;
+  width: 8rem;
+}
+.esCursorArrow .esCursorLabel {
+  transform: scale(0);
+}
+.esCursorArrow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin: auto;
+  border-right: 2px solid #fff;
+  border-top: 2px solid #fff;
+  transform: rotate(-135deg) scale(0);
+  transition: transform 0.5s var(--es-ease);
+}
+.esCursorArrow.esCursorActive::before {
+  transform: rotate(-135deg) scale(1);
+}
+.esCursorReverse::before {
+  transform: rotate(45deg) scale(0);
+}
+.esCursorReverse.esCursorActive::before {
+  transform: rotate(45deg) scale(1);
+}
+
+/* ==========================================================================
+   Navigation — fixed bar + full-screen menu with a cursor-following image.
+   ========================================================================== */
+.esNav {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  height: var(--es-nav-h);
+  padding-inline: var(--es-pad);
+  transition:
+    transform 0.6s var(--es-ease),
+    background-color 0.6s var(--es-ease),
+    box-shadow 0.6s var(--es-ease),
+    color 0.6s var(--es-ease);
+}
+.esNavUp {
+  transform: translateY(-100%);
+}
+.esNavSolid {
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(0.5rem);
+  box-shadow: 0 1px 0 var(--es-hairline);
+}
+.esNavInverted {
+  color: #fff;
+}
+
+.esBrand {
+  display: block;
+  position: relative;
+  z-index: 3;
+  height: 5rem;
+}
+.esBrand svg {
+  height: 100%;
+  width: auto;
+  fill: currentColor;
+  transition: fill 0.5s ease-in-out;
+}
+
+.esQuickLinks {
+  display: none;
+  align-items: center;
+  gap: 2.5rem;
+  z-index: 3;
+}
+.esQuickLink {
+  position: relative;
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0.05ch;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.esQuickLink::after {
+  content: '';
+  position: absolute;
+  inset-block-end: -0.4em;
+  inset-inline: auto 0;
+  height: 1px;
+  width: 0;
+  background-color: var(--es-gold);
+  transition: width 0.5s var(--es-ease);
+}
+.esQuickLink:hover::after {
+  width: 100%;
+}
+
+.esNavActions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  z-index: 3;
+}
+.esLang {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+}
+.esToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 36px;
+  width: 36px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  transition:
+    border-color 0.4s var(--es-ease),
+    background-color 0.4s var(--es-ease);
+}
+.esToggle::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  background-color: transparent;
+  transition:
+    background-color 0.4s var(--es-ease),
+    transform 0.4s var(--es-ease);
+  z-index: 3;
+}
+.esToggle:hover {
+  border-color: var(--es-gold);
+}
+.esToggleBars {
+  display: block;
+  position: relative;
+  height: 9px;
+  width: 14px;
+  z-index: 4;
+}
+.esToggleBars i {
+  position: absolute;
+  inset-inline: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition:
+    transform 0.5s var(--es-ease),
+    opacity 0.3s var(--es-ease);
+}
+.esToggleBars i:nth-child(1) {
+  inset-block-start: 0;
+}
+.esToggleBars i:nth-child(2) {
+  inset-block-start: 4px;
+}
+.esToggleBars i:nth-child(3) {
+  inset-block-start: 8px;
+}
+.esMenuOpenState .esToggle {
+  border-color: var(--es-gold);
+}
+.esMenuOpenState .esToggle::before {
+  background-color: #fff;
+  transform: rotate(-180deg);
+}
+.esMenuOpenState .esToggleBars i:nth-child(1) {
+  transform: translateY(4px) rotate(45deg);
+}
+.esMenuOpenState .esToggleBars i:nth-child(2) {
+  opacity: 0;
+}
+.esMenuOpenState .esToggleBars i:nth-child(3) {
+  transform: translateY(-4px) rotate(-45deg);
+}
+
+/* full-screen menu */
+.esMenu {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: 'head' 'content' 'foot';
+  align-items: center;
+  justify-items: center;
+  padding: calc(var(--es-nav-h) * 1.2) 3rem 4rem;
+  background-color: #fff;
+  box-shadow: 0 -1px 0 var(--es-hairline);
+  backdrop-filter: blur(0.5rem);
+  overflow: hidden;
+  transform: translateY(-100%);
+  transition: transform 1.2s var(--es-ease);
+  pointer-events: none;
+}
+.esMenuVisible {
+  transform: translateY(0);
+  pointer-events: all;
+}
+.esMenuMain {
+  grid-area: content;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 1rem 2rem;
+  max-width: 1050px;
+  padding: 2vw;
+  /* The plate is absolutely positioned; we want it anchored here so its
+     coords match `e.clientX - host.left` from Navigation's pointer handler. */
+  position: relative;
+}
+.esMenuItem {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  flex: none;
+  overflow: hidden;
+  font-family: var(--es-display);
+  font-size: clamp(2.4rem, 8vw, 8rem);
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  pointer-events: all;
+}
+.esMenuItemInner {
+  display: inline-block;
+  transition:
+    transform 0.9s var(--es-ease),
+    color 0.6s var(--es-ease);
+  transform: translateY(105%);
+}
+.esMenuVisible .esMenuItemInner {
+  transform: translateY(0);
+}
+.esMenuItem:hover .esMenuItemInner {
+  color: var(--es-gold);
+}
+.esMenuImage {
+  /* `position: fixed` with `left:0/top:0` makes the pointer math viewport-
+     direct (`toX(e.clientX)` lands the plate's centre under the cursor in
+     LTR or RTL). Negative z-index sits it above .esMenu's white background
+     but below the text layer. */
+  position: fixed;
+  top: 0;
+  left: 0;
+  aspect-ratio: 2 / 3;
+  width: 25vw;
+  min-width: 22rem;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+  will-change: transform;
+}
+.esMenuImageMask {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.025);
+}
+.esMenuImageEl {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background-size: cover;
+  background-position: 50% 50%;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+.esMenuFoot {
+  grid-area: foot;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem 4rem;
+}
+.esMenuSecondary {
+  display: flex;
+  gap: 2em;
+}
+.esMenuSecondary a {
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0.05ch;
+  text-transform: uppercase;
+}
+.esMenuSocials {
+  display: flex;
+  gap: 2rem;
+}
+.esMenuSocials a {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  opacity: 0.55;
+  transition: opacity 0.4s ease;
+}
+.esMenuSocials a:hover {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Hero — full-bleed reel behind the headings, scrubbing on scroll.
+   ========================================================================== */
+.esHero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 100svh;
+  padding-block: calc(var(--es-nav-h) * 1.6);
+  color: #fff;
+  isolation: isolate;
+}
+.esReel {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: -1;
+  background-color: #111;
+}
+/* Upstream darkens the reel with a 50% scrim and runs a 2.5px gold bar. */
+.esReel::before {
+  content: '';
+  position: absolute;
+  inset: 2.5px 0 0 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 3;
+}
+.esReelTrack {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.esReelSlide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  /* Matches the reference reel's Swiper `speed: 1200`. */
+  transition: opacity 1.2s var(--es-ease);
+}
+.esReelSlideOn {
+  opacity: 1;
+}
+.esReelSlide img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.esReelProgress {
+  --es-progress: 0%;
+  position: relative;
+  height: 2.5px;
+  background: var(--es-body);
+  z-index: 4;
+}
+.esReelProgress::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  height: 100%;
+  width: var(--es-progress);
+  background: var(--es-gold);
+}
+
+.esHeroInner {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+}
+.esHeroHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 3rem 4rem;
+}
+.esHeroCol {
+  flex: 1 1 34rem;
+  min-width: 0;
+}
+.esHeroCta {
+  margin-block: 2em;
+}
+.esHeroQuote {
+  max-width: 55rem;
+  margin-block: 2em 0;
+  font-size: clamp(1.5rem, 1vw, 1.6rem);
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.86);
+}
+.esHeroQuote cite {
+  display: block;
+  margin-block-start: 1em;
+  font-size: 1.3rem;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  color: var(--es-gold);
+}
+
+.esShortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4em;
+  margin-block-start: 4rem;
+  position: relative;
+  z-index: 3;
+}
+.esShortcut {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  font-family: var(--es-display);
+  font-size: clamp(2.6rem, 5vw, 3.9rem);
+  line-height: 1;
+  white-space: normal;
+  transition: color 0.6s var(--es-ease);
+}
+.esShortcutCaption {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5ch;
+  font-family: var(--es-sans);
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  color: var(--es-gold);
+  transition: transform 0.6s var(--es-ease);
+}
+.esShortcut:hover {
+  color: var(--es-gold);
+}
+.esShortcut:hover .esShortcutCaption {
+  transform: translateX(-0.4em);
+}
+
+/* ==========================================================================
+   About
+   ========================================================================== */
+.esSection {
+  position: relative;
+  padding-block: calc(var(--es-nav-h) / 2);
+}
+.esAboutGrid {
+  display: grid;
+  gap: 3rem 4rem;
+  align-items: start;
+}
+.esPortrait {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background-color: #f4f4f4;
+}
+.esPortrait img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+.esPortraitTag {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  padding: 2rem;
+  color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent);
+}
+.esPortraitTag strong {
+  font-family: var(--es-display);
+  font-size: 2.4rem;
+  font-weight: 400;
+}
+.esPortraitTag span {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  color: var(--es-gold);
+}
+
+.esQuarry {
+  display: flex;
+  gap: 1.5rem;
+  margin-block: 2em;
+}
+.esQuarryItem {
+  display: block;
+  position: relative;
+  aspect-ratio: 1;
+  width: 12rem;
+  max-width: 45%;
+  overflow: hidden;
+  cursor: pointer;
+}
+.esQuarryItem img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.8s var(--es-ease);
+}
+.esQuarryItem:hover img {
+  transform: scale(1.06);
+}
+.esQuarryItem::after {
+  content: '+';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.4rem;
+  font-weight: 300;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transition: opacity 0.5s var(--es-ease);
+}
+.esQuarryItem:hover::after {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Products — the signature tile: on hover the square rotates 135° and
+   shrinks to 0.75, casting a long shadow.
+   ========================================================================== */
+.esProductsHead {
+  display: grid;
+  gap: 2rem 4rem;
+  align-items: end;
+}
+.esProductList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+  margin-block: 2rem;
+}
+.esProduct {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+.esProductTile {
+  --es-tile: clamp(12rem, 15vw, 20rem);
+  position: relative;
+  width: var(--es-tile);
+  max-width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  pointer-events: none;
+  transition:
+    transform 0.8s var(--es-ease),
+    box-shadow 0.8s var(--es-ease);
+  will-change: transform;
+}
+.esProductTile img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+.esProduct:hover .esProductTile {
+  transform: translateY(calc(var(--es-tile) / 7)) rotate(135deg) scale(0.75);
+  box-shadow: calc(var(--es-tile) / 7) calc(var(--es-tile) / 7 * -1)
+    calc(var(--es-tile) / 8) rgba(0, 0, 0, 0.15);
+}
+.esProductDatas {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  margin-block-start: 3rem;
+  text-align: center;
+}
+.esProductName {
+  display: block;
+  font-family: var(--es-display);
+  font-size: clamp(2rem, 3vw, 3.4rem);
+  line-height: 1;
+}
+
+/* ==========================================================================
+   Showrooms — fixed-attachment cover with two absolutely-placed plates.
+   ========================================================================== */
+.esCovers {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  margin-inline: calc(var(--es-pad) * -1);
+  margin-block-end: 4rem;
+  background-color: #000;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  overflow: hidden;
+}
+.esCovers::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+.esCoverPlate {
+  position: absolute;
+  overflow: hidden;
+}
+.esCoverPlate img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+.esCoverPortrait {
+  display: none;
+  aspect-ratio: 2 / 3;
+  width: 30vw;
+  max-width: 35%;
+  inset-block-start: 18%;
+  inset-inline-end: 8%;
+  z-index: 2;
+}
+.esCoverTile {
+  display: none;
+  aspect-ratio: 3 / 2;
+  width: 26vw;
+  max-width: 30%;
+  inset-block-start: 62%;
+  inset-inline-end: 40%;
+  z-index: 3;
+}
+.esShowroomGrid {
+  display: grid;
+  gap: 3rem 4rem;
+  margin-block: 4rem;
+}
+.esShowroomList {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+.esShowroom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.esShowroomRole {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  color: var(--es-gold);
+}
+.esShowroomName {
+  font-family: var(--es-display);
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1;
+}
+.esShowroomMeta {
+  color: var(--es-body);
+  font-size: 1.5rem;
+  line-height: 1.7;
+}
+.esShowroomMeta a:hover {
+  color: var(--es-gold);
+}
+.esShowroomLink {
+  align-self: flex-start;
+  margin-block-start: 0.75em;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  color: var(--es-gold);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.5s var(--es-ease);
+}
+.esShowroomLink:hover {
+  border-bottom-color: var(--es-gold);
+}
+
+/* ==========================================================================
+   Journal — tease posts with the "بیشتر بخوانید" marquee on hover.
+   ========================================================================== */
+.esPostList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+.esPost {
+  display: flex;
+  height: 100%;
+}
+.esPost > a {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.esPostCover {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  margin-block-end: 1em;
+  background-color: #000;
+  overflow: hidden;
+  z-index: 0;
+}
+.esPostCover img {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+  transition:
+    transform 0.4s var(--es-ease),
+    opacity 0.4s var(--es-ease);
+}
+.esPost:hover .esPostCover img {
+  transform: scale(0.6);
+  opacity: 1;
+}
+.esPostInfo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75em;
+  height: 100%;
+  padding: 2rem;
+  color: #fff;
+  z-index: 3;
+}
+.esPostFoot2 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75em;
+}
+.esPostDate {
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.esPostName {
+  font-family: var(--es-display);
+  font-size: clamp(2.2rem, 3vw, 3.6rem);
+  line-height: 1;
+  font-weight: 400;
+}
+.esPostCategory {
+  padding: 0.5em 0.9em;
+  font-size: clamp(0.8rem, 1vw, 1rem);
+  font-weight: 500;
+  text-transform: uppercase;
+  background-color: rgba(248, 249, 250, 0.25);
+}
+.esPostDatas {
+  padding-inline: 1em;
+}
+.esPostExcerpt {
+  color: var(--es-body);
+  font-size: 1.5rem;
+  line-height: 1.8;
+}
+.esPostFoot {
+  margin-block-start: 1.5em;
+  align-self: flex-start;
+}
+
+/* Marquee (upstream `.marquee--container .marquee`, 40s linear infinite) */
+.esMarqueeBox {
+  position: relative;
+  display: block;
+  height: 1.25em;
+  max-width: 100%;
+  margin-inline: -1em;
+  margin-block-end: auto;
+  font-family: var(--es-display);
+  font-size: clamp(4rem, 10vw, 6rem);
+  line-height: 1.25em;
+  text-align: center;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.4s var(--es-ease);
+  pointer-events: none;
+  z-index: 3;
+}
+.esPost:hover .esMarqueeBox {
+  opacity: 1;
+}
+.esMarqueeTrack {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  white-space: nowrap;
+  will-change: transform;
+  animation: esMarquee 40s linear infinite;
+}
+.esMarqueeTrack span {
+  display: flex;
+  gap: 4rem;
+  margin-inline: 2rem;
+  font-size: 1em;
+}
+.esMarqueeTrack span::before,
+.esMarqueeTrack span::after {
+  content: attr(data-title);
+  display: inline-block;
+}
+/* RTL: the strip travels toward the inline-end so text enters from the left. */
+@keyframes esMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ==========================================================================
+   Contacts — dark section + appointment form
+   ========================================================================== */
+.esContacts {
+  position: relative;
+  padding-block: calc(var(--es-nav-h));
+  color: #fff;
+  background-color: var(--es-dark);
+}
+.esContacts .esDescription {
+  color: var(--es-dim);
+}
+.esBreadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1ch;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  color: var(--es-dim);
+  margin-block-end: 3rem;
+}
+.esBreadcrumb a:hover {
+  color: var(--es-gold);
+}
+.esContactsGrid {
+  display: grid;
+  gap: 4rem;
+}
+.esAddress {
+  margin-block: 3rem;
+}
+.esAddress strong {
+  display: block;
+  margin-block-end: 0.5em;
+  color: #fff;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+}
+.esAddress a,
+.esAddress span {
+  display: block;
+  color: var(--es-dim);
+  font-style: normal;
+  line-height: 1.7;
+}
+.esAddress a:hover {
+  color: var(--es-gold);
+}
+
+.esForm {
+  display: flex;
+  flex-direction: column;
+}
+.esField {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin-block: 1em;
+  min-width: 0;
+  max-width: 100%;
+}
+.esLabel {
+  display: block;
+  margin-block-end: 0.5em;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  color: var(--es-dim);
+}
+.esInput,
+.esSelect,
+.esTextarea {
+  width: 100%;
+  padding: 0.75em 0;
+  color: #fff;
+  font: inherit;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 0;
+  transition: border-color 0.4s var(--es-ease);
+}
+.esTextarea {
+  resize: vertical;
+  min-height: 8em;
+}
+.esInput:focus,
+.esSelect:focus,
+.esTextarea:focus {
+  outline: none;
+  border-bottom-color: var(--es-gold);
+}
+.esSelect option {
+  color: #000;
+}
+.esFieldRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 2rem;
+}
+.esConsent {
+  display: flex;
+  align-items: flex-start;
+  gap: 1ch;
+  margin-block: 2rem;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: var(--es-dim);
+}
+.esConsent input {
+  margin-block-start: 0.35em;
+  accent-color: var(--es-gold);
+}
+.esFormFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2rem;
+  margin-block-start: 2rem;
+}
+.esFormNote {
+  font-size: 1.2rem;
+  color: var(--es-dim);
+  max-width: 26ch;
+  line-height: 1.5;
+}
+.esFormDone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 6rem 2rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.esFormDone h4 {
+  font-family: var(--es-display);
+  font-size: clamp(2.4rem, 4vw, 4rem);
+  font-weight: 400;
+  line-height: 1;
+}
+.esFormDone p {
+  color: var(--es-dim);
+  font-size: 1.5rem;
+}
+
+/* CTA shortcuts row */
+.esCtaRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3rem;
+  padding-block: 4rem;
+}
+.esCta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.esCtaTag {
+  font-family: var(--es-display);
+  font-size: clamp(2.4rem, 4vw, 4rem);
+  line-height: 1;
+}
+.esCtaBody {
+  margin-block: 2em;
+  color: var(--es-body);
+  font-size: 1.5rem;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+/* ==========================================================================
+   Footer — fixed-attachment cover, newsletter, menus
+   ========================================================================== */
+.esFooter {
+  position: relative;
+  margin-block-start: 4rem;
+  padding-inline: 1rem;
+  color: #fff;
+  background-color: #2a2a2a;
+  background-image: var(--es-footer-cover);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  overflow: hidden;
+}
+.esFooterScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.86));
+  z-index: 0;
+}
+.esFooterInner {
+  position: relative;
+  z-index: 1;
+}
+.esNewsletter {
+  display: flex;
+  justify-content: center;
+  padding-block: 10rem;
+  padding-inline: 1.5rem;
+}
+.esNewsletterInner {
+  max-width: 60rem;
+  text-align: center;
+  width: 100%;
+}
+.esNewsletterTag {
+  display: block;
+  margin-block-end: 1em;
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0.2ch;
+  text-transform: uppercase;
+  color: var(--es-gold);
+}
+.esNewsletterTitle {
+  display: block;
+  margin-block-end: 0.75em;
+  font-family: var(--es-display);
+  font-size: clamp(3.2rem, 6vw, 6rem);
+  line-height: 1;
+}
+.esNewsletterForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-block-start: 3rem;
+}
+.esNewsletterForm .esField {
+  min-width: 24rem;
+  margin-block: 0;
+}
+.esFooterMain {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem 4rem;
+  padding-block: 5rem;
+}
+.esFooterHeading {
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  color: var(--es-gold);
+  margin-block-end: 2rem;
+}
+.esFooterList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.esFooterList address {
+  color: var(--es-dim);
+  font-style: normal;
+  line-height: 1.6;
+}
+.esFooterList strong {
+  display: block;
+  margin-block-end: 0.4em;
+  color: #fff;
+  font-weight: 500;
+}
+.esFooterList a {
+  color: var(--es-dim);
+  font-weight: 300;
+  transition: color 0.4s ease;
+}
+.esFooterList a:hover {
+  color: #fff;
+}
+.esFooterSocials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-block-start: 1em;
+}
+.esFooterSocials a {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  color: var(--es-dim);
+  transition: color 0.4s ease;
+}
+.esFooterSocials a:hover {
+  color: #fff;
+}
+.esFooterBottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 3rem;
+  padding-block: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 1.2rem;
+  color: var(--es-dim);
+}
+.esFooterBottom a:hover {
+  color: var(--es-gold);
+}
+
+/* ==========================================================================
+   Lightbox — quarry gallery with thumbnails
+   ========================================================================== */
+.esLightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 6rem 4rem 3rem;
+  background-color: rgba(0, 0, 0, 0.94);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s var(--es-ease);
+}
+.esLightboxOn {
+  opacity: 1;
+  pointer-events: all;
+}
+.esLightboxStage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+.esLightboxImg {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+.esLightboxClose {
+  position: absolute;
+  inset-block-start: 2rem;
+  inset-inline-end: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 4.4rem;
+  width: 4.4rem;
+  border: 1px solid var(--es-cream);
+  border-radius: 50%;
+  color: var(--es-cream);
+  transition:
+    transform 0.6s var(--es-ease),
+    border-color 0.4s var(--es-ease);
+}
+.esLightboxClose:hover {
+  transform: rotate(90deg);
+  border-color: var(--es-gold);
+}
+.esLightboxArrow {
+  position: absolute;
+  inset-block-start: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 5rem;
+  width: 5rem;
+  margin-block-start: -2.5rem;
+  border: 1px solid rgba(255, 236, 207, 0.4);
+  border-radius: 50%;
+  color: var(--es-cream);
+  transition:
+    border-color 0.4s var(--es-ease),
+    background-color 0.4s var(--es-ease);
+}
+.esLightboxArrow:hover {
+  border-color: var(--es-gold);
+  background-color: rgba(224, 177, 107, 0.15);
+}
+.esLightboxPrev {
+  inset-inline-start: 1rem;
+}
+.esLightboxNext {
+  inset-inline-end: 1rem;
+}
+.esLightboxThumbs {
+  display: flex;
+  gap: 1rem;
+}
+.esLightboxThumb {
+  display: block;
+  height: 7rem;
+  width: 7rem;
+  overflow: hidden;
+  opacity: 0.4;
+  transition: opacity 0.4s var(--es-ease);
+}
+.esLightboxThumb img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+.esLightboxThumbOn,
+.esLightboxThumb:hover {
+  opacity: 1;
+}
+.esLightboxCaption {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.1ch;
+  text-transform: uppercase;
+  color: var(--es-cream);
+}
+
+/* Scroll progress hairline */
+.esRail {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 130;
+  height: 2px;
+  pointer-events: none;
+}
+.esRail i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background-color: var(--es-gold);
+  transform-origin: right center;
+}
+
+/* Utility: keep reveal targets from flashing before GSAP takes over. */
+.esHidden {
+  opacity: 0;
+}
+
+/* ==========================================================================
+   Breakpoints
+   ========================================================================== */
+@media (min-width: 768px) {
+  .esAboutGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  }
+  .esProductsHead {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .esShowroomGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .esContactsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .esCoverPortrait,
+  .esCoverTile {
+    display: block;
+  }
+  .esFooterMain {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .esQuickLinks {
+    display: flex;
+  }
+  .esProductList {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4rem 2rem;
+  }
+  .esPostList {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .esCovers {
+    aspect-ratio: 21 / 9;
+    margin-inline: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .esHero {
+    min-height: auto;
+    padding-block: calc(var(--es-nav-h) * 1.5) 6rem;
+  }
+  .esShortcuts {
+    gap: 2em;
+  }
+  .esFieldRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .esNewsletter {
+    padding-block: 6rem;
+  }
+  .esNewsletterForm .esField {
+    min-width: 0;
+    width: 100%;
+  }
+  .esCovers {
+    background-attachment: scroll;
+  }
+  .esFooter {
+    background-attachment: scroll;
+  }
+}
+
+/* ==========================================================================
+   Reduced motion — keep the composition, drop the movement
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .esMarqueeTrack {
+    animation: none;
+  }
+  :global(.esSplit) :global(.esLineInner) {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .esCursor {
+    display: none;
+  }
+  .esReelTrack {
+    transform: none !important;
+  }
+  .esMenuItemInner {
+    transform: translateY(0) !important;
+  }
+  .esCovers,
+  .esFooter {
+    background-attachment: scroll;
+  }
+}

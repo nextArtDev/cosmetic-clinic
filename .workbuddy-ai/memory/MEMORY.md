@@ -1,166 +1,102 @@
-# /v10 — NERVANA-port for an Iranian OB/GYN (دکتر مریف شریفی)
+# Project memory — cosmetic-clinic (Next 16 / App Router)
 
-## Route shape
+## The /vN demo-route convention
 
-- `app/v10/` is a self-contained frontend port. `V10Shell` sets
-  `html[data-v10-active]` while mounted and gates every global rule on
-  that attribute, so the port is invisible outside `/v10`.
-- Layout mounts `<SmoothScroll />` (Lenis), `<SiteHeader />`,
-  `<Preloader />`, `<CustomCursor />`, `<ScrollProgress />`,
-  `{children}`, `<Dialogs />`.
-- `app/v10/lib/content.ts` is the single source of truth for copy,
-  services, doctor profile, and reviews.
-- Cart API is a mock at `app/v10/api/*` (in-memory, no Prisma).
+Every `/vN` is a self-contained port of a reference site. Hard rules:
 
-## Motion stack
+- All UI lives in `app/vN/**`; assets in `public/vN/**`.
+- Styles are a CSS Module scoped under one wrapper class (`.experience`,
+  `.iranfit-root`, …). **Nothing** targets bare `html`/`body`/`:root`.
+- The only global hook allowed is an attribute the route shell sets while
+  mounted and strips on unmount: `html[data-vN-active]`. Gate any unavoidable
+  global rule on it.
+- Data comes from `app/vN/data.ts` behind a `*Repository` seam so Prisma can
+  replace it later. Copy is original mock content, never the reference's.
+- Route-local Tailwind (if used) must be `prefix()`ed and preflight-free.
 
-- GSAP + ScrollTrigger drives the entire `Experience` in
-  `components/shiraz.tsx` (useGSAP).
-- Framer Motion is used only for the light per-element reveals in
-  `components/motion.tsx` (FadeUp / LineReveal / WordReveal). Do NOT
-  use Framer for `clipPath` reveals — Chromium cannot interpolate the
-  string reliably; use GSAP `fromTo` instead.
-- CSS `@keyframes` for the marquees (no JS per frame) and the
-  `v10-rotate` ring on the ticker.
+## General pitfalls (verified)
 
-## Reusable components
+- Playwright: `page.evaluate(fn, a, b)` takes ONE arg — wrap in an object.
+- Next dev 403s on chunks when Origin is `127.0.0.1:3000`; use `localhost:3000`.
+- Lenis ignores `scrollIntoView` / `window.scrollTo`; drive probes with
+  `page.mouse.wheel` toward an absolute target.
+- Framer `whileInView` + `clipPath` is unreliable in Chromium — use GSAP
+  `fromTo`.
+- `next/image` lazy-load deadlocks under a fully-clipped reveal ancestor; use
+  plain `<img>` inside masks/parallax wrappers.
+- Late layout growth (fonts, images) invalidates every ScrollTrigger below it —
+  refresh on `load`, `document.fonts.ready` and a debounced resize.
+- Custom cursor: never assign `className` wholesale (strips state classes added
+  elsewhere). Don't gate it on `prefers-reduced-motion` — Chrome reports
+  `reduce` whenever Windows "Show animations" is off.
+- Don't nest `<a>` inside `<a>` — React hydration error.
+- **CSS Modules gotcha:** a class added from JS (`el.classList.add('x')`) does
+  NOT match `.x` in a `.module.css`. Import the name or write `:global(.x)`.
+- gsap writes `matrix3d(...)` when `preserve-3d` is set — regex "at rest?"
+  checks must handle both.
+- `grid-area` is the shorthand for `grid-column` + `grid-row`; a stray
+  `[grid-area:unset]` silently clobbers `col-span-*`/`row-span-*`.
+- **`npx next build` never completes here** (3 attempts, incl. 40 min). It
+  wipes `.next`, takes `.next/lock`, then idles at 0% CPU before compiling
+  anything. Not the safe-delete guard; not a concurrent `next start`.
+  Recovery: kill the build pids, `rm -rf .next/lock`, `npx next dev`, wait
+  ~3 min. Gate changes on `tsc --noEmit` + `eslint` + dev-mode smoke instead.
+- Windows tooling: `wmic` is gone and the PowerShell tool returns no stdout —
+  write output to a file and Read it, or shell out from node
+  (`child_process.execSync('tasklist ...')`). `taskkill //PID` breaks under
+  Git Bash path munging; use `node -e "process.kill(pid)"`.
 
-- `components/motion.tsx` — FadeUp, LineReveal, WordReveal, Magnetic,
-  Marquee, RotatingText.
-- `components/drag-scroller.tsx` — RTL-aware horizontal drag-to-scroll
-  with momentum + click-through guard. Use `data-cursor="drag"` on the
-  rail host.
-- `components/cursor.tsx` — trailing 64px ring, 4 morph states
-  (`view` / `drag` / `book` / `discover`), desktop pointers only.
-- `components/preloader.tsx` — countdown → slide-up exit, auto-dismiss.
-- `components/scroll-progress.tsx` — top hairline bar.
+## Playwright in this repo
 
-## CSS scope
+- `playwright-core` is a devDep but **no browsers are downloaded**. Launch with
+  `executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe'`.
+- Screenshots go to `.screenshots/<route>/` (gitignored); scratch to
+  `.tmp-<name>/` (gitignored, add a `.gitignore` entry per route).
 
-- Every rule lives under `.v10`, every global rule is gated on
-  `html[data-v10-active]`.
-- Layout breakpoints: 900px (tablet), 700px (mobile). Hero gains
-  `min-height: 100dvh` and reflows to a stacked column on ≤700px.
-- Reduced-motion: marquees stop, reveal classes become `opacity:1;
-  transform:none`, Lenis is disabled.
+## Route notes
 
-## Portrait assets
+- **/v10** NERVANA port (Persian OB/GYN). GSAP+ScrollTrigger for the whole
+  `Experience`; Framer only for light reveals. Breakpoints 900/700.
+- **/v16** Maya Shopify theme port (RTL/Persian). Ports the theme's real
+  `engine.js` values. **Palette is monochrome, never beige**: `#fff` / `#000` /
+  `#f4f4f4` / `#dddddd` / `#f1f1f1`. `.maya-wrap` = 15px→20px@768, max
+  1370px@1200 / 1790px@1441. Pinning = tall stage + sticky panel, never gsap
+  `pin:true`. RTL marquees need `direction: ltr` on the track. Spec in
+  `app/v16/README.md`; probes in `scripts/maya/*.mjs`.
+- **/v22** Elitestone port (آریاسنگ, RTL/Persian). See below.
 
-- `public/v10/assets/doctor-portrait.jpg` ← `public/images/doctors/2.jpeg`
-- `public/v10/assets/doctor-clinic.jpg` ← `public/images/doctors/4.jpeg`
-- `public/v10/assets/doctor-portrait-alt.jpg` ← `public/images/doctors/1.jpeg`
+## /v22 — Elitestone (elitestone.it) port
 
-## Tests / smoke
+Shape: `app/v22/{data,fonts}.ts`, `app/v22/lib/engine.ts`,
+`app/v22/components/{Experience,Navigation,Hero,Sections,Footer,Lightbox,
+Cursor,Preloader,bits}.tsx`, `elitone.module.css` + `elitone.global.css`
+(only `html[data-v22-active]` rules: `font-size: 10px`, `0.6944vw` from
+1200px, 10px from 1900px — the reference's whole rem scale depends on it).
 
-- `.tmp-nervana/` (gitignored): scratch + Playwright smoke, screenshot
-  capture, hero-fit matrix, proxy flag variants.
-- `.screenshots/v10/` (gitignored): output PNGs.
+Motion values lifted from the reference's `dist/js/main.min.js`:
 
-## Pitfalls (full detail in 2026-09-14.md)
+- title: `fromTo(lines, {autoAlpha:0,y:'100%',rotateX:-80,rotateZ:10},
+  {delay:.025*i, duration:1.5, ease:'expo.out', ..., clearProps:'all'})`
+- excerpt: parent `clipPath: polygon(0 0,100% 0,100% 110%,0 110%)`, then lines
+  `y:'100%'→0`, `delay:.015*i`, `clearProps`, `clipPath:'none'` onComplete
+- reel: `timeline({scrollTrigger:{trigger:header,start:'top top',scrub:true}})
+  .to('.swiper-wrapper',{y: innerHeight/1.5})`
+- preloader: counter out → viewport `fromTo({autoAlpha:.25,y:innerHeight/1.25},
+  {duration:1.5,ease:'expo.out'})` → panel `clipPath` wipe down
+- cursor: `gsap.quickSetter` + lerp `c = 1 - Math.pow(.9, .06 * deltaMs)`
+- product tile hover: `translateY(tile/7) rotate(135deg) scale(0.75)` + long
+  shadow. Post cover hover: `img scale(0.6)` + marquee reveal.
 
-- Playwright `page.evaluate(fn, a, b)` takes ONE arg — wrap in object.
-- Next dev returns 403 on chunks when `Origin` is `127.0.0.1:3000`;
-  use `localhost:3000` for tests.
-- Lenis ignores `scrollIntoView` / `window.scrollTo`; drive with
-  `page.mouse.wheel` toward an ABSOLUTE target.
-- Framer `whileInView` + `clipPath` is unreliable in Chromium.
-- `next/image` lazy-load deadlocks under a fully-clipped reveal
-  ancestor.
-- Custom cursor: never `cursor.className = ...` in an applier — it
-  strips `is-active`/`is-visible` added elsewhere and leaves the ring
-  at opacity 0 while the native cursor is already hidden. Use
-  `classList.remove` prev / `classList.add` next.
-- Don't gate a custom cursor on `prefers-reduced-motion: reduce` —
-  Chrome reports `reduce` whenever Windows "Show animations" is off,
-  which silently disables it. Kill transitions in CSS instead.
+Tokens: gold `#e0b16b`, soft `#f0cf9d`, cream `#ffeccf`, body `#495057`,
+dark `#1a1a1a`, dim `#adb5bd`; ease `cubic-bezier(0.83,0,0.17,1)`.
 
-# /v16 — Maya Shopify theme port (RTL/Persian, isolated demo route)
+Reveals are declarative: components carry `data-es-anim="title|excerpt|
+separator"` or `data-es-reveal` (+ `-children`/`-y`/`-delay`), and `Experience`
+runs one `querySelectorAll` pass over them inside `gsap.context`.
 
-## Shape
+`splitLines()` in `lib/engine.ts` reimplements SplitText (paid): honours hard
+`\n` first, then groups words by `offsetTop`. Elements with child elements fall
+back to one masked row — keep animated elements plain text.
 
-- `app/v16/**` + `public/maya/**`. `MayaApp.tsx` composes the sections in the
-  reference's order; `lib/data.ts` is the single source of truth for copy and
-  products; `maya.css` (tokens) + `maya-motion.css` (section motion).
-- Ports the theme's real `engine.js` (`gsapMayaaThemeExecution`) methods, keyed
-  by each section's `methodCalled` attribute — exact `start`/`end`/`scrub`/target
-  values. The offline mirror + extracted sections live in `.tmp-maya/`.
-- Pinning = tall stage + `position: sticky` panel, never gsap `pin: true`
-  (gsap pinning fights Lenis). Scroll distance matches the engine's `end` offset.
-
-## Conventions
-
-- RTL: horizontal animation signs are mirrored through `DIR = -1`.
-- Marquees need `direction: ltr` on `.maya-scrollrow`/`-track` — under `rtl` a
-  `width: max-content` track overflows *left* and `xPercent 0→-50` walks it off.
-- `Reveal` (bits.tsx): when `stagger` is set it batches per `[data-rv]` child;
-  a single trigger on a tall wrapper animates its lower rows off-screen.
-- Any late layout growth invalidates every ScrollTrigger below it. `MayaApp`
-  refreshes on `load` + a debounced `ResizeObserver` on `document.body`.
-  Never let an in-flow `<img>` size an `auto` grid row — give the tile a
-  definite aspect or `absolute inset-0` the image.
-
-## Pitfalls
-
-- `window.lenis` is a **stub** (only `version`), not the Lenis instance. Plain
-  `window.scrollTo(0, y)` does land and stick — use it to park probes.
-- gsap writes `matrix3d(...)` whenever `preserve-3d` is set; a "is it at rest?"
-  check that only regexes `matrix(` treats a `scale: 20` deck as settled.
-- `grid-area` is the **shorthand** for `grid-column` + `grid-row` (+ their
-  `-start`/`-end` longhands). A stray `[grid-area:unset]` therefore clobbers
-  `col-span-*`/`row-span-*` — it silently turned the `MediaGrid` 2×2 feature tile
-  into a 1×1 cell and left a ~190px dead row.
-- `MediaGrid` mosaic (4 tiles, `lg:grid-cols-4 lg:grid-rows-2`): tile 0 is the
-  2×2 feature and tile 1 is `lg:row-span-2` — 4 tiles cannot cover 8 cells
-  otherwise, and the spare cell shows as a hole. The row-spanning tiles must be
-  `lg:absolute lg:inset-0`; the single-cell tiles must keep their in-flow
-  `aspect-[4/2.1]` box, because that is what sizes the `1fr` rows (make them all
-  absolute and the rows collapse to 0).
-- `probe-audit.mjs` runs at scroll 0, so a *parallax* element still at its start
-  offset can report a transient ancestor clip that is never visible (the footer
-  wordmark: `y117`). `probe-mark2.mjs` parks at the bottom and measures the glyph
-  rects (`Range.getClientRects`) against the clipper to settle it. Judge a hit by
-  whether it is clipped **when on-screen**.
-- `media_grid` is now a faithful port (8-cell packed mosaic, per-cell
-  `ltr`/`rtl`/`ttb` sliders, arrows + spotlight + scheme rotation), not the old
-  4-tile approximation. Structural spec in `app/v16/README.md`.
-- **The reference palette is MONOCHROME** — `body-background #ffffff`,
-  `text/heading #000000`, `card-background #f4f4f4`, `border-color #dddddd`,
-  `body-alternate #f1f1f1`, `image-bg #a9a3a3`, buttons `#000` on `#fff`.
-  The port shipped a warm cream/brown palette for a long time; the token
-  *names* are kept (`--color-maya-cream` is now the white page surface) so
-  every component works, but never reintroduce a beige value.
-  `probe-colors.mjs` samples both DOMs' section colours to keep this honest.
-- `.maya-wrap` mirrors the reference `.container` exactly: `padding-inline`
-  15px, 20px from 768px up, `max-width` 1370px from 1200px and 1790px from
-  1441px. It is **not** 40/56px. Changing it moves every section.
-- `featured_collections_tabs` (`FeaturedTabs.tsx`) is four stacked layers in
-  one pinned stage: `.maya-ft-front` (abs-centred section head, fades on pin),
-  `.maya-ft-tabs` (centred chip deck, 106×86 → **475×86** active), the text
-  column, and the media column. Each collection owns **4 images** — one
-  full-bleed `mainmedia` plus 2 squares + 1 wide tile — and the engine's
-  `onUpdate` shrinks the hero to `scale 0` while scaling the tiles to `1`.
-- **The tabs pin is DESKTOP-ONLY.** `featured-collections-tabs.css` scopes both
-  the chip deck's `position: fixed` and the head's / hero's `position: absolute`
-  inside `@media(min-width: 768px)`; below 768 the wrapper is a plain three-row
-  grid (`collection-heading` / `collection-tab` / `collection-tabcontent`) with
-  every layer in flow. The port applied the sticky `100svh` panel at every
-  breakpoint and overflowed the mobile media column by 265px — the wide tile was
-  invisible and the caption half cut. `FeaturedTabs.tsx` now branches with
-  `gsap.matchMedia` (`>=768px` scrub + phase-4 `onUpdate`; `<768px` pins nothing
-  and scales nothing) and `.maya-ft-stage` carries the `250svh` height so the
-  mobile block can collapse it to `auto`. Mobile geometry must match the
-  reference: `main 360×300`, squares `175×175`, wide `360×216`, chips
-  `80×60`/`280×60`, caption pill `58px` (no mobile override for
-  `--text-box-height`). Clear the description rail's `width` on mobile rather
-  than setting `100%` — the engine only grows it on the pinned path.
-- A label inside a background-painted pill (`.maya-ft-pill::before { inset: 0 }`)
-  will "crash" if it wraps: the trailing glyphs land outside the painted box.
-  Always `white-space: nowrap` there, as the reference does.
-- To settle "is this element clipped?" on a sticky-panel section, measure each
-  child's rect against the panel's own box across the whole pin — see
-  `scripts/maya/probe-ft-mobile-clip.mjs`. The panel is the clipper, so a
-  `height: 100svh` panel is a real risk whenever its content is taller than the
-  viewport.
-- Probe scripts live in `scripts/maya/*.mjs`, run with
-  `NODE_PATH="C:/Users/aria/.workbuddy-ai/binaries/node/workspace/node_modules"`
-  and the managed node 22 binary against `http://localhost:3000/v16`.
+`public/v22/img/*.jpg` were HTML error pages, not images; replaced with real
+Unsplash photos (15 files).
