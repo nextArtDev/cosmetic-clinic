@@ -167,6 +167,28 @@ export function usePageMotion(ref: RefObject<HTMLElement | null>) {
             scrollTrigger: { trigger: '.technology-section', start: 'top 75%', end: 'top 15%', scrub: 1 },
           })
         }
+        // Results: the offset edge drifts against its frame while the card
+        // travels, the same trick .specialty-outline and .technology-outline
+        // use. The wipe itself is driven by the component (drag + reveal).
+        if (root.querySelector('.compare-grid')) {
+          gsap.utils.toArray<HTMLElement>('.compare-edge', root).forEach((edge) => {
+            gsap.fromTo(
+              edge,
+              { x: 12, y: 12 },
+              {
+                x: -8,
+                y: -8,
+                ease: 'none',
+                scrollTrigger: {
+                  trigger: edge.parentElement,
+                  start: 'top bottom',
+                  end: 'bottom top',
+                  scrub: 1,
+                },
+              },
+            )
+          })
+        }
         // Clinic page: hero video unfolds (source .clinica_hero_back_img)
         // and gallery photos settle from a slight tilt (source
         // .clinica-galeria-foto scale/rotation scrub).

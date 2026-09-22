@@ -3633,6 +3633,295 @@ html[data-v9-active] .lenis.lenis-stopped {
 }
 
 /* ------------------------------------------------------------------ */
+/* Results: before/after comparison of real treatment plates.          */
+/* The home page comparator's wipe wearing the treatment card's own    */
+/* clothes: the 20px 60px frame, the white hairline inset outline, the */
+/* bottom shade with the white display title over it, the hover arrow, */
+/* and the offset #cba4c4 edge that drifts. Chips and knob follow      */
+/* .video-toggle's on-photo language (white hairline, #34263930 glass, */
+/* backdrop blur).                                                     */
+/* ------------------------------------------------------------------ */
+
+.v9 .compare-section {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 72px;
+  padding: 130px 40px 80px;
+  isolation: isolate;
+}
+.v9 .compare-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.v9 .compare-head .section-paragraph {
+  max-width: 520px;
+  margin: 24px 0 0;
+}
+.v9 .compare-grid {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.v9 .compare-card {
+  position: relative;
+  isolation: isolate;
+}
+/* The offset coloured edge — a sibling of the frame, exactly as
+   .specialty-outline is. use-page-motion drifts it on scroll. */
+.v9 .compare-edge {
+  position: absolute;
+  inset: -16px;
+  border: 2px solid #cba4c4;
+  border-radius: 20px 60px;
+  opacity: 0.5;
+  z-index: -1;
+  pointer-events: none;
+}
+.v9 .compare-glow {
+  position: absolute;
+  inset: -60px -36px;
+  border-radius: 100%;
+  filter: blur(90px);
+  opacity: 0.24;
+  z-index: -2;
+  pointer-events: none;
+  background: linear-gradient(60deg, var(--pink), var(--yellow));
+}
+.v9 .compare-card:nth-child(even) .compare-glow {
+  background: linear-gradient(60deg, var(--purple), var(--mint));
+}
+/* Verbatim .treatment-card. */
+.v9 .compare-frame {
+  position: relative;
+  aspect-ratio: 5 / 4;
+  border-radius: 20px 60px;
+  overflow: hidden;
+  isolation: isolate;
+  background: #ece5ec;
+  cursor: ew-resize;
+  /* Vertical page scroll stays with the browser; only the horizontal drag
+     is claimed by the pointer handlers. */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  /* Live wipe position, written by comparison-section.tsx: the "after"
+     plate occupies this fraction of the frame measured from its physical
+     left edge, so the rtl reading order still opens on the before side. */
+  --compare-split: 0.58;
+}
+.v9 .compare-media {
+  position: absolute;
+  inset: 0;
+  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.v9 .compare-card:hover .compare-media {
+  transform: scale(1.055);
+}
+.v9 .compare-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.v9 .compare-layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.v9 .compare-after {
+  clip-path: inset(0 calc((1 - var(--compare-split)) * 100%) 0 0);
+}
+/* No transition while dragging — it would lag a finger behind the divider. */
+.v9 .compare-frame:not(.is-dragging) .compare-after {
+  transition: clip-path 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* .card-shade's gradient, a shade heavier so the white title keeps its
+   contrast over bright clinical photography. */
+.v9 .compare-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(0deg, #3025318f, transparent 56%);
+  pointer-events: none;
+}
+/* Verbatim .card-outline, asymmetry and all. */
+.v9 .compare-outline {
+  position: absolute;
+  inset: 18px;
+  border: 1px solid #ffffff80;
+  border-radius: 12px 44px;
+  pointer-events: none;
+  z-index: 3;
+  transition: border-color 0.4s;
+}
+.v9 .compare-card:hover .compare-outline {
+  border-color: #ffffffd0;
+}
+.v9 .compare-chip {
+  position: absolute;
+  top: 32px;
+  z-index: 4;
+  padding: 5px 15px;
+  border-radius: 40px;
+  border: 1px solid #ffffff70;
+  background: #34263930;
+  backdrop-filter: blur(8px);
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 20px;
+  font-weight: 300;
+  color: #fff;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.v9 .compare-chip.is-before {
+  right: 32px;
+}
+.v9 .compare-chip.is-after {
+  left: 32px;
+}
+.v9 .compare-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--compare-split) * 100%);
+  width: 1px;
+  margin-left: -0.5px;
+  background: #ffffffcc;
+  box-shadow: 0 0 0 1px #34263926;
+  z-index: 5;
+  pointer-events: none;
+}
+.v9 .compare-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 100%;
+  border: 1px solid #ffffff70;
+  background: #34263930;
+  backdrop-filter: blur(8px);
+  color: #fff;
+  pointer-events: auto;
+  cursor: ew-resize;
+  transition: background 0.3s;
+}
+.v9 .compare-frame:hover .compare-knob {
+  background: #34263965;
+}
+.v9 .compare-knob svg {
+  width: 14px;
+  height: 14px;
+}
+/* Verbatim .treatment-card h2 — the card names itself the same way. */
+.v9 .compare-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 9px;
+  z-index: 4;
+  margin: 0;
+  text-align: center;
+  font-family: var(--display);
+  font-size: 28px;
+  line-height: 64px;
+  font-weight: 400;
+  color: #fff;
+  pointer-events: none;
+}
+/* Verbatim .card-arrow — the only way through to the treatment page, which
+   is why it also stays put on touch, where hover never fires. */
+.v9 .compare-arrow {
+  position: absolute;
+  left: 36px;
+  bottom: 33px;
+  z-index: 4;
+  color: #fff;
+  opacity: 0;
+  transform: translate(7px, 7px);
+  transition: transform 0.4s, opacity 0.4s;
+}
+.v9 .compare-card:hover .compare-arrow,
+.v9 .compare-arrow:focus-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (hover: none) {
+  .v9 .compare-arrow {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 991px) {
+  .v9 .compare-section {
+    gap: 56px;
+    padding: 110px 24px 70px;
+  }
+  .v9 .compare-grid {
+    gap: 20px;
+  }
+  .v9 .compare-chip {
+    top: 28px;
+    padding: 4px 13px;
+    font-size: 11px;
+  }
+  .v9 .compare-chip.is-before {
+    right: 28px;
+  }
+  .v9 .compare-chip.is-after {
+    left: 28px;
+  }
+}
+@media (max-width: 767px) {
+  .v9 .compare-section {
+    gap: 44px;
+    padding: 88px 18px 56px;
+  }
+  .v9 .compare-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 44px;
+  }
+  .v9 .compare-title {
+    font-size: 24px;
+    line-height: 54px;
+  }
+  .v9 .compare-arrow {
+    left: 30px;
+    bottom: 27px;
+  }
+  .v9 .compare-chip {
+    top: 24px;
+  }
+  .v9 .compare-chip.is-before {
+    right: 24px;
+  }
+  .v9 .compare-chip.is-after {
+    left: 24px;
+  }
+  .v9 .compare-knob {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Reduced motion (gated to the /v9 mount)                            */
 /* ------------------------------------------------------------------ */
 

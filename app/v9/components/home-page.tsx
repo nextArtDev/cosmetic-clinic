@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { treatments } from '../lib/content'
 import { usePageMotion } from '../lib/use-page-motion'
 import { AmbientVideo, Arrow, GlowButton, SectionTitle, Words } from './visuals'
+import { ComparisonSection } from './comparison-section'
 import {
   ContactSection,
   DoctorSection,
@@ -279,6 +280,7 @@ export function HomePage() {
       <Introduction />
       <TreatmentCards />
       <SpecialtySections />
+      <ComparisonSection />
       <TechnologySection />
       <DoctorSection />
       <StatementSection />
