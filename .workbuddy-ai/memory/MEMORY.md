@@ -1,28 +1,29 @@
-# Project memory — cosmetic-clinic (Next 16 / App Router)
+# Project memory — cosmetic-clinic (Next 16.3 / App Router)
 
 ## The /vN demo-route convention
 
 Every `/vN` is a self-contained port of a reference site. Hard rules:
 
-- All UI lives in `app/vN/**`; assets in `public/vN/**`.
+- All UI in `app/vN/**`; assets in `public/vN/**`.
 - Styles are a CSS Module scoped under one wrapper class (`.experience`,
-  `.iranfit-root`, …). **Nothing** targets bare `html`/`body`/`:root`.
-- The only global hook allowed is an attribute the route shell sets while
-  mounted and strips on unmount: `html[data-vN-active]`. Gate any unavoidable
-  global rule on it.
+  `.jc-root`, …). **Nothing** targets bare `html`/`body`/`:root`.
+- The only global hook is `html[data-vN-active]`, set by the route shell on
+  mount and stripped on unmount. Gate any unavoidable global rule on it.
 - Data comes from `app/vN/data.ts` behind a `*Repository` seam so Prisma can
-  replace it later. Copy is original mock content, never the reference's.
+  replace it. Copy is original mock content, never the reference's.
 - Route-local Tailwind (if used) must be `prefix()`ed and preflight-free.
+- Scratch goes to `.tmp-<name>/` (gitignored — add an entry per route).
 
 ## General pitfalls (verified)
 
 - Playwright: `page.evaluate(fn, a, b)` takes ONE arg — wrap in an object.
 - Next dev 403s on chunks when Origin is `127.0.0.1:3000`; use `localhost:3000`.
-- Lenis ignores `scrollIntoView` / `window.scrollTo`; drive probes with
+  `npx next dev` refuses a second instance — **read its output for the port**;
+  this machine has served on :3001 as often as :3000.
+- Lenis ignores `scrollIntoView`/`window.scrollTo`; drive probes with
   `page.mouse.wheel` toward an absolute target.
-- Framer `whileInView` + `clipPath` is unreliable in Chromium — use GSAP
-  `fromTo`.
-- `next/image` lazy-load deadlocks under a fully-clipped reveal ancestor; use
+- Framer `whileInView` + `clipPath` is unreliable in Chromium — use GSAP `fromTo`.
+- `next/image` lazy-load deadlocks under a fully-clipped reveal ancestor; use a
   plain `<img>` inside masks/parallax wrappers.
 - Late layout growth (fonts, images) invalidates every ScrollTrigger below it —
   refresh on `load`, `document.fonts.ready` and a debounced resize.
@@ -30,158 +31,137 @@ Every `/vN` is a self-contained port of a reference site. Hard rules:
   elsewhere). Don't gate it on `prefers-reduced-motion` — Chrome reports
   `reduce` whenever Windows "Show animations" is off.
 - Don't nest `<a>` inside `<a>` — React hydration error.
-- **CSS Modules gotcha:** a class added from JS (`el.classList.add('x')`) does
-  NOT match `.x` in a `.module.css`. Import the name or write `:global(.x)`.
-- gsap writes `matrix3d(...)` when `preserve-3d` is set — regex "at rest?"
-  checks must handle both.
+- **CSS Modules:** a class added from JS (`el.classList.add('x')`) does NOT match
+  `.x` in a `.module.css`. Import the name or write `:global(.x)`.
+- gsap writes `matrix3d(...)` when `preserve-3d` is set — "at rest?" regex checks
+  must handle both.
 - `grid-area` is the shorthand for `grid-column` + `grid-row`; a stray
   `[grid-area:unset]` silently clobbers `col-span-*`/`row-span-*`.
-- **`npx next build` never completes here** (3 attempts, incl. 40 min). It
-  wipes `.next`, takes `.next/lock`, then idles at 0% CPU before compiling
-  anything. Not the safe-delete guard; not a concurrent `next start`.
-  Recovery: kill the build pids, `rm -rf .next/lock`, `npx next dev`, wait
-  ~3 min. Gate changes on `tsc --noEmit` + `eslint` + dev-mode smoke instead.
-- Windows tooling: `wmic` is gone and the PowerShell tool returns no stdout —
-  write output to a file and Read it, or shell out from node
-  (`child_process.execSync('tasklist ...')`). `taskkill //PID` breaks under
-  Git Bash path munging; use `node -e "process.kill(pid)"`.
+- **`npx next build` never completes here** (3 attempts, incl. 40 min). It wipes
+  `.next`, takes `.next/lock`, then idles at 0% CPU before compiling anything.
+  Recovery: kill the build pids, `rm -rf .next/lock`, `npx next dev`, wait ~3 min.
+  Gate changes on `tsc --noEmit` + `eslint` + a dev-mode smoke test instead.
+- Windows tooling: `wmic` is gone, the PowerShell tool returns no stdout, and
+  `file` is not on PATH — write output to a file and Read it, or shell out from
+  node. `taskkill //PID` breaks under Git Bash path munging; use
+  `node -e "process.kill(pid)"`.
 
 ## Playwright in this repo
 
 - `playwright-core` is a devDep but **no browsers are downloaded**. Launch with
   `executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe'`.
-- Screenshots go to `.screenshots/<route>/` (gitignored); scratch to
-  `.tmp-<name>/` (gitignored, add a `.gitignore` entry per route).
+- Screenshots → `.screenshots/<route>/` (gitignored); scratch → `.tmp-<name>/`.
+- Node's `fetch` sometimes connect-times-out against origins `curl` reaches fine;
+  shell out to `curl` via `execFileSync` when a script must fetch.
+- `sharp` IS installed — use it to crop/compare screenshots (`crop-region.mjs`,
+  `compare.mjs` in `.tmp-jacques/`).
 
 ## Route notes
 
-- **/v10** NERVANA port (Persian OB/GYN). GSAP+ScrollTrigger for the whole
+- **/v10** NERVANA (Persian OB/GYN). GSAP+ScrollTrigger for the whole
   `Experience`; Framer only for light reveals. Breakpoints 900/700.
-- **/v16** Maya Shopify theme port (RTL/Persian). Ports the theme's real
-  `engine.js` values. **Palette is monochrome, never beige**: `#fff` / `#000` /
-  `#f4f4f4` / `#dddddd` / `#f1f1f1`. `.maya-wrap` = 15px→20px@768, max
-  1370px@1200 / 1790px@1441. Pinning = tall stage + sticky panel, never gsap
-  `pin:true`. RTL marquees need `direction: ltr` on the track. Spec in
-  `app/v16/README.md`; probes in `scripts/maya/*.mjs`.
-- **/v22** Elitestone port (آریاسنگ, RTL/Persian). See below.
+- **/v16** Maya Shopify theme (RTL/Persian). Ports the theme's real `engine.js`
+  values. **Palette is monochrome, never beige**: `#fff`/`#000`/`#f4f4f4`/
+  `#dddddd`/`#f1f1f1`. `.maya-wrap` = 15px→20px@768, max 1370px@1200 /
+  1790px@1441. Pinning = tall stage + sticky panel, never gsap `pin:true`. RTL
+  marquees need `direction: ltr` on the track. Spec in `app/v16/README.md`;
+  probes in `scripts/maya/*.mjs`.
+- **/v22** Elitestone (آریاسنگ, RTL/Persian). `elitone.module.css` scopes under
+  `.experience`; `elitone.global.css` emits only `html[data-v22-active]` rules
+  (`font-size:10px`, `0.6944vw` from 1200px, 10px from 1900px — the reference's
+  whole rem scale). Motion from `dist/js/main.min.js`: title
+  `fromTo(lines,{autoAlpha:0,y:'100%',rotateX:-80,rotateZ:10},{delay:.025*i,
+  duration:1.5,ease:'expo.out',clearProps:'all'})`; reel
+  `to('.swiper-wrapper',{y:innerHeight/1.5})` with `scrub:true`; cursor
+  `quickSetter` + lerp `1-Math.pow(.9,.06*deltaMs)`; preloader clipPath wipe.
+  Tokens gold `#e0b16b`, cream `#ffeccf`, body `#495057`, ease
+  `cubic-bezier(0.83,0,0.17,1)`. Reveals are declarative (`data-es-anim` /
+  `data-es-reveal`) and `Experience` runs one `querySelectorAll` pass.
+  `splitLines()` in `lib/engine.ts` reimplements SplitText: hard `\n` first, then
+  words grouped by `offsetTop`; elements with child elements fall back to one
+  masked row — keep animated elements plain text.
+- **/v23** jacques-cie.com (دکتر پارسا و همکاران, RTL/Persian). See below.
 
-## /v22 — Elitestone (elitestone.it) port
+## /v23 — jacques-cie.com port
 
-Shape: `app/v22/{data,fonts}.ts`, `app/v22/lib/engine.ts`,
-`app/v22/components/{Experience,Navigation,Hero,Sections,Footer,Lightbox,
-Cursor,Preloader,bits}.tsx`, `elitone.module.css` + `elitone.global.css`
-(only `html[data-v22-active]` rules: `font-size: 10px`, `0.6944vw` from
-1200px, 10px from 1900px — the reference's whole rem scale depends on it).
+Reference is a **Vue 3 + Vite SPA on headless Craft CMS** (not static). Harvest
+its own artefacts, not its HTML: `dist/assets/app-*.css` + 8 per-component lazy
+sheets; the *lazy JS chunks* hold the site's motion (the entry bundle only has
+the GSAP/Lenis libraries); content via `POST /api/arepa/graphql` needing
+`Authorization: Bearer <gqlToken>` + `Arepa-Csrf-Token: <csrf>` from
+`GET /api/arepa/{get_gql_token,get_csrf_token}`. Without them it returns a
+misleading `403 … doesn't have access to the "Français" site`.
 
-Motion values lifted from the reference's `dist/js/main.min.js`:
+`app/v23/`: `{layout,page}.tsx`, `{data,types,fonts}.ts`, `lib/engine.ts`,
+`components/{Experience,Header,Hero,Blocks,Footer,Bits,Contact}.tsx`,
+`styles/jacques.{module,global}.css`. Wrapper class `.jc-root`.
 
-- title: `fromTo(lines, {autoAlpha:0,y:'100%',rotateX:-80,rotateZ:10},
-  {delay:.025*i, duration:1.5, ease:'expo.out', ..., clearProps:'all'})`
-- excerpt: parent `clipPath: polygon(0 0,100% 0,100% 110%,0 110%)`, then lines
-  `y:'100%'→0`, `delay:.015*i`, `clearProps`, `clipPath:'none'` onComplete
-- reel: `timeline({scrollTrigger:{trigger:header,start:'top top',scrub:true}})
-  .to('.swiper-wrapper',{y: innerHeight/1.5})`
-- preloader: counter out → viewport `fromTo({autoAlpha:.25,y:innerHeight/1.25},
-  {duration:1.5,ease:'expo.out'})` → panel `clipPath` wipe down
-- cursor: `gsap.quickSetter` + lerp `c = 1 - Math.pow(.9, .06 * deltaMs)`
-- product tile hover: `translateY(tile/7) rotate(135deg) scale(0.75)` + long
-  shadow. Post cover hover: `img scale(0.6)` + marquee reveal.
+**`styles/jacques.module.css` is GENERATED** by `.tmp-jacques/port-css.mjs` from
+the reference sheets. Hand edits go in `.tmp-jacques/overrides.css`, which the
+script appends. Three traps it handles — all three caused real bugs:
 
-Tokens: gold `#e0b16b`, soft `#f0cf9d`, cream `#ffeccf`, body `#495057`,
-dark `#1a1a1a`, dim `#adb5bd`; ease `cubic-bezier(0.83,0,0.17,1)`.
+1. **Stripping `[data-v-*]` also strips a unit of specificity.** Vue scoped CSS
+   gets +1 class from the attribute, which is how `.c-footer__grid[data-v-x]
+   {display:grid}` beats the *later* utility `.l-container{display:block}`. Drop
+   it and the utility wins → the footer collapsed 4 cols → 1 (1577px → 792px
+   once fixed). Fix: scoped-origin selectors get the wrapper doubled
+   (`.jc-root.jc-root :global(...)`), tier included in the dedupe key.
+2. **Never regroup rules by media query.** `.col-2-md` (768) then `.col-5-xl`
+   (1200) override the same selector; bucketing into `Map<media, rules[]>`
+   reorders by first-encounter so the narrower breakpoint wins. Walk the source
+   in order and emit as you go.
+3. **The wrapper needs `isolation: isolate`.** The reference paints its background
+   on `<body>`, which propagates to the canvas (painted first) — so the hero photo
+   at `z-index:-2` shows. On the wrapper, an ordinary in-flow box, it paints after
+   negative-z descendants and vanishes.
 
-Reveals are declarative: components carry `data-es-anim="title|excerpt|
-separator"` or `data-es-reveal` (+ `-children`/`-y`/`-delay`), and `Experience`
-runs one `querySelectorAll` pass over them inside `gsap.context`.
+Motion (from the bundle, exact): Lenis `duration:1.2, lerp:.6,
+easing: min(1,1.001-2^(-8t))`; hero blur `blur(10rem)/scale(1.1)` → `blur(0)/
+scale(1)` 200ms after mount, 1.6s, `CustomEase("0.66,0,0.34,1")`; hero overlay by
+scroll **delta** ±0.004 clamped [0.1,0.4]; image parallax 130% wrapper / 30-130
+travel / `scrub:.8`; banner `maxX` 60|50|40 and `maxY` -10|-30|-40 at xl|lg|below.
+Header self-measures and publishes `--header-height` / `--header-with-logo-height`
+(logo + 80) — upstream onto `document.body`, **here onto the wrapper**.
+Measured parity: header 130px exact, with-logo 194.984375px exact, footer 792 vs
+804, page height 7019 vs 7247.
 
-`splitLines()` in `lib/engine.ts` reimplements SplitText (paid): honours hard
-`\n` first, then groups words by `offsetTop`. Elements with child elements fall
-back to one masked row — keep animated elements plain text.
+Also: `.c-icon svg * { fill: currentColor }` turns stroked icons into solid
+blobs — the port's outline icons need an explicit `fill: none`.
 
-`public/v22/img/*.jpg` were HTML error pages, not images; replaced with real
-Unsplash photos (15 files).
-
-## /v9 — Rafaela Salvato port (dental clinic, RTL/Persian)
-
-`app/v9/{fonts.ts,globals.css}`, `app/v9/lib/{content,use-page-motion}.ts`,
-`app/v9/components/{home-page,sections,visuals,site-shell,comparison-section,…}`.
-Salvato is a *dermatology* template re-authored for کلینیک دکتر سپیده نادری;
-every `/v9/images/*` asset is dental stock, not the source's.
-
-**The design language** (what makes a new component belong here):
-- Tokens: `--cream #f7f5f1`, `--plum #58476d`, `--ink #3d3d3d`, `--pink`,
-  `--yellow`, `--mint`, `--purple`. `--sans` = Shabnam, `--display` =
-  FarsiAdad. Never `:root`; everything hangs off `.v9` / `html[data-v9-active]`.
-- Signature frames are **asymmetric radii**: `20px 60px` (treatment cards,
-  contact backdrop), `120px 20px` (technology video), `20px 216px 216px 216px`
-  (specialty/contact photo).
-- Every band is **one viewport** (`height: 100svh` / `85svh` / fixed px) and
-  either a 50/50 copy+art split or a centred stack — not a plain
-  "head + grid + padding" block.
-- On-photo elements are **white**: `.card-outline` (inset 18px, `1px solid
-  #ffffff80`, radius `12px 44px`, hover `#ffffffd0`), `.card-shade`
-  (`linear-gradient(0deg, #30253177, transparent 55%)`), `.treatment-card h2`
-  (display 28px/64px, `bottom: 9px`), `.card-arrow` (white, opacity 0 →
-  translate(7px,7px) on hover). Controls use `.video-toggle`'s glass:
-  `1px solid #ffffff70` + `#34263930` + `backdrop-filter: blur(8px)`.
-- Hover on a photo card = the **image** scales 1.055 under a static frame
-  (`transition: transform 1s cubic-bezier(0.22,1,0.36,1)`).
-- Reveals are declarative: `data-word-reveal` / `data-reveal` /
-  `.organic-backdrop`, all handled by `usePageMotion`. Drifting offset outlines
-  (`.specialty-outline`, `.technology-outline`) are a signature — a new section
-  with a frame should add one.
-
-**`/v9` results section** (`components/comparison-section.tsx` + the
-`.compare-*` block in `globals.css`, placed after `SpecialtySections`):
-- The card IS a treatment-card clone; the comparator wipe lives inside it.
-- Plates: `public/v9/images/results/{orthodontics,implant,scaling,prosthesis}-{before,after}.webp`,
-  regenerated by `scripts/v9/build-results.mjs [srcDir]` — sharp crops every
-  plate of a pair to the **same 5:4 window** as `.compare-frame`, otherwise the
-  two layers misalign through the wipe.
-- The wipe is a CSS var (`--compare-split`, fraction from the frame's physical
-  left; "after" occupies the left so RTL still opens on the before side) written
-  **imperatively** on pointermove — no React state, or the drag goes sticky.
-- The divider must live **inside** `.compare-media` (the element that scales on
-  hover); outside it, the clip edge drifts away from the line as the plate grows.
-- `scripts/v9/results-probe.mjs [baseUrl]` — 17 assertions (plates decode, drag,
-  knob travel, hover scale/arrow/outline, keyboard, mobile column count).
+Not ported (deliberate): sub-routes (nav/cards use in-page anchors) and the
+reference's `.c-overlay` (empty, full-screen, `pointer-events:auto` — it would
+swallow clicks).
 
 ## Non-/vN routes: /demo and /outreach
 
-- **`/demo`** — public outreach landing page (`app/demo/`), the single short
-  link the sales campaign sends. `noindex`. Samples grouped by specialty,
-  `/v1` booking funnel featured. Set `WHATSAPP_NUMBER` in `app/demo/data.ts`
-  (placeholder renders a setup banner on purpose).
+- **`/demo`** — public outreach landing page (`app/demo/`), the single short link
+  the sales campaign sends. `noindex`. Samples grouped by specialty, `/v1`
+  booking funnel featured. `WHATSAPP_NUMBER` lives in `app/demo/data.ts`
+  (the placeholder renders a setup banner on purpose).
 - **`/outreach`** — internal console (`app/outreach/`, `app/api/outreach/`).
   Gated on `OUTREACH_ENABLED="true"`; 404 otherwise. Data:
-  `data/outreach/contacts.json` (built by
-  `scripts/build-outreach-contacts.mjs`) + `state.json`; **`/data/outreach/`
-  is gitignored** (real phone numbers). Sending is click-to-chat `wa.me`
-  links, never automation — bulk-sending from a personal number gets it
-  banned.
+  `data/outreach/contacts.json` (built by `scripts/build-outreach-contacts.mjs`)
+  + `state.json`; **`/data/outreach/` is gitignored** (real phone numbers).
+  Sending is click-to-chat `wa.me` links, never automation — bulk-sending from a
+  personal number gets it banned.
 
 ### Pitfalls hit while building those
 
 - `server-only` is **not** a dependency here — don't import it.
 - eslint has `react-hooks/set-state-in-effect` as an **error**: hydrate from
   localStorage with `useSyncExternalStore`, not `useState` + `useEffect`.
-- Keep node-importing modules out of client components (split shared types
-  into their own file) or `node:fs` lands in the browser bundle.
-- `npx next dev` refuses to start a second instance — it prints the port/PID
-  of the running one. **Read that output instead of assuming a port**: the
-  repo's server has been seen on :3001 *and* on :3000 (whichever the machine
-  happens to own at the time).
+- Keep node-importing modules out of client components (split shared types into
+  their own file) or `node:fs` lands in the browser bundle.
 
 ### Outreach copy rules (operator-set, do not drift)
 
-- Templates live in `app/outreach/lib/templates.ts`, mirrored in
+- Templates in `app/outreach/lib/templates.ts`, mirrored in
   `marketing/whatsapp-outreach-fa.md`. **Colloquial (شکسته) only** — no formal
   register. **No sender name, no doctor name in the message text** (the name is
-  shown in the console UI for identification only). No link in the first
-  message. Always an opt-out line.
-- Priority tiers are stamped on the data, not computed in the UI:
-  tier 1 = `+98913`, tier 2 = rest of Iran, tier 3 = abroad. Console defaults
-  to tier 1.
-- `scripts/probe-outreach.mjs` browser-verifies the console + /demo and cleans
-  up `state.json` afterwards. It asserts colloquial-present AND
-  formal-absent — when editing copy, run it.
+  shown in the console UI for identification only). No link in the first message.
+  Always an opt-out line.
+- Priority tiers are stamped on the data, not computed in the UI: tier 1 =
+  `+98913`, tier 2 = rest of Iran, tier 3 = abroad. Console defaults to tier 1.
+- `scripts/probe-outreach.mjs` browser-verifies the console + /demo and cleans up
+  `state.json` afterwards. It asserts colloquial-present AND formal-absent — run
+  it when editing copy.
