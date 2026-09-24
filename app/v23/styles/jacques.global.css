@@ -1,0 +1,20 @@
+/* ============================================================================
+   /v23 — the ONLY global rules this route emits.
+
+   The reference sets `html { font-size: 10px }` and switches to
+   `clamp(10px, .532vw, 12px)` from 1440px up; its entire layout and type scale
+   is expressed in `rem`, so these two numbers are what make the design work.
+   Both are gated on `html[data-v23-active]`, an attribute the route shell sets
+   while it is mounted and strips on unmount — so on the home page and on every
+   other route this sheet is inert.
+   ========================================================================== */
+
+html[data-v23-active] {
+  font-size: 10px;
+}
+
+@media (min-width: 1440px) {
+  html[data-v23-active] {
+    font-size: clamp(10px, 0.532vw, 12px);
+  }
+}
