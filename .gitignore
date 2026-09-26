@@ -79,3 +79,6 @@ release.tar*
 
 # outreach console data — real phone numbers, NEVER commit
 /data/outreach/
+
+# scratch: downloaded reference HTML/assets for the /v24 numa.uprock.pro parity work
+/.tmp-numa/

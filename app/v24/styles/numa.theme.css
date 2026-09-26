@@ -1,0 +1,529 @@
+/* /v24 — hand-written corrections layered on top of the generated vendor sheet.
+ *
+ * numa.vendor.css is the reference's own CSS, verbatim except that every
+ * selector is prefixed with #v24-root. This file holds only the things a Latin
+ * reference cannot give a Persian, RTL port for free.
+ *
+ * Every rule is written as `#v24-root.v24-root …` (specificity 2,0,0) rather
+ * than `#v24-root …` (1,0,0). The wrapper carries both the id and the class, so
+ * the doubled selector matches the same element twice and simply outranks the
+ * vendored rules whatever order the two sheets end up in. That matters because
+ * the vendor sheet's own per-element classes reach (1,3,0).
+ */
+
+/* ------------------------------------------------------------------ scope --
+ * `isolation: isolate` makes the wrapper a stacking context. The reference
+ * paints its page colour on <body>, which propagates to the canvas and is
+ * therefore painted *before* everything; re-homed onto an ordinary in-flow
+ * element it would paint after negative-z descendants and hide them. The
+ * reference relies on that for the hero photo and several overlays.
+ */
+#v24-root.v24-root {
+  isolation: isolate;
+  /* a word-split reveal bleeds past its mask; `clip` (never `hidden`) keeps the
+   * bleed from creating page-level horizontal scroll without turning the
+   * wrapper into a scrollport, so `position: sticky`/`fixed` keep working. */
+  overflow-x: clip;
+  /* The host document is <html dir="rtl"> — this app is a Persian site — so
+   * `direction` is inherited as rtl from outside the route. The reference's
+   * layout is strictly physical LTR (wide flex strips translated leftward by
+   * scroll, absolute `left:`/`right:` offsets), so the route pins its own
+   * direction rather than inheriting one. `isolate` also stops the surrounding
+   * RTL context from participating in bidi resolution inside the route. */
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* The mock sub-routes under /v24/services are this port's own layout, authored
+ * for RTL, and use only the vendored sheet's typography. They opt back in. */
+#v24-root.v24-root--rtl {
+  direction: rtl;
+}
+
+/* ------------------------------------------------------------------- type --
+ * The reference typesets the entire page in one family — `.root-main` sets
+ * `font-family: 'Figtree'; font-weight: 600` and nothing else overrides it.
+ * The Persian role equivalent is a single geometric sans, so the mapping is
+ * one-to-one and no display/body pairing is invented.
+ */
+#v24-root.v24-root,
+#v24-root.v24-root .root-main,
+#v24-root.v24-root .form .form__field {
+  font-family: var(--v24-font), Figtree, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* Latin tracking breaks Persian joins: at 5.24vw a -0.04em tracking pulls
+ * cursive letterforms into each other. The reference tracks every display
+ * class, so the correction is applied to the display scale as a whole rather
+ * than to the strings that happen to look wrong. */
+#v24-root.v24-root :is(.h1, .h1__seo-tag, .h2, .h2-copy, .h3, .h4, .h5, .text-button, .menu-item-text, .submenu-item-text, .button-text) {
+  letter-spacing: 0;
+}
+
+/* Persian needs more leading than Figtree's 90%: the reference's display sizes
+ * are calibrated for a Latin lowercase x-height, and the deeper ascenders and
+ * descenders of the Persian alphabet collide at that ratio. */
+#v24-root.v24-root :is(.h1, .h2, .h3) {
+  line-height: 112%;
+}
+
+/* Figtree is a 400/500/600 family; Vazirmatn's light end fades at display
+ * scale, so the reference's 600 stays and nothing is allowed below 400. */
+#v24-root.v24-root .text-block-wrap-div {
+  font-weight: inherit;
+}
+
+/* -------------------------------------------------------------------- RTL --
+ * The reference is a strictly *physical* LTR design: wide flex strips that
+ * start at the left edge and are translated leftward by scroll (the numbers
+ * row, the route marquee, the metrics timeline, the reviews cards), plus a lot
+ * of absolute `left:`/`right:` offsets.
+ *
+ * So the wrapper must NOT be flipped. `direction: rtl` on the wrapper re-anchors
+ * every one of those strips to the right edge, which parks them off-screen: the
+ * numbers row measured x = -6341px instead of -137px, and the whole section
+ * rendered as an empty grey band.
+ *
+ * Instead, direction is set on the elements that actually hold copy. Inline
+ * bidi would order a Persian run correctly either way; what this fixes is the
+ * block direction (line order in a wrapped heading, list markers, punctuation
+ * at the line ends) and the default `text-align: start`.
+ */
+#v24-root.v24-root :is(
+  .h1, .h1__seo-tag, .h2, .h2-copy, .h3, .h4, .h5,
+  .text, .text-block-wrap-div, .text-button, .button-text,
+  .menu-item-text, .submenu-item-text,
+  p, li, h1, h2, h3, h4, h5, h6, blockquote, figcaption, label, span.text
+) {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+/* `text-align: left` in the reference is a physical value, not a logical one.
+ * On the display headings it reads as a bug in Persian, so the start edge
+ * follows the writing direction there. Everything the reference centres stays
+ * centred. */
+#v24-root.v24-root :is(.h1, .h2, .h3, .h4, .h5, .h1__seo-tag, .h2-copy) {
+  text-align: start;
+}
+
+/* Copy inside the physical-order widgets keeps LTR ordering even though the
+ * surrounding copy is RTL: times, counters and digits are read left-to-right
+ * regardless of the sentence they sit in. */
+#v24-root.v24-root :is(.timeline__time, .metrics-adaptive__time, .numbers-big-text, .numbers-small-text, .metrics__lottie-block, .lottie-camera) {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Numbers, times and counters keep Persian digits but LTR ordering. */
+#v24-root.v24-root :is(.timeline__time, .metrics-adaptive__time, .numbers-big-text, .numbers-small-text) {
+  font-variant-numeric: normal;
+}
+
+/* ---------------------------------------------------------------- accents --
+ * `.c-icon`-style blanket fills do not exist here, but the reference's icon
+ * spans inherit `fill` from the logo logic in the header runtime. Outline
+ * icons in this port are stroked, so they must not be filled solid.
+ */
+#v24-root.v24-root .svg-icon svg[fill='none'] *:not([fill]) {
+  fill: none;
+}
+
+/* The reference hides its scrollbar-less overlay while a pop-up is open by
+ * setting `position: fixed` on <body>. A route cannot do that to the shared
+ * document, so the port marks the wrapper instead. */
+#v24-root.v24-root[data-v24-locked='true'] {
+  overflow: hidden;
+}
+
+/* The port adds no Tailwind to this route: the vendored sheet already contains
+ * the reference's own compiled utilities. The few layout hooks the mock
+ * sub-routes need are declared here rather than pulled from a framework. */
+#v24-root.v24-root .v24-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.56vw;
+}
+
+@media (max-width: 991px) {
+  #v24-root.v24-root .v24-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3vw;
+  }
+}
+
+@media (max-width: 767px) {
+  #v24-root.v24-root .v24-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5vw;
+  }
+}
+
+#v24-root.v24-root .v24-card {
+  background-color: #fffefc;
+  border-radius: 2.02vw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#v24-root.v24-root .v24-card__media {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+#v24-root.v24-root .v24-card__body {
+  padding: 2.08vw 1.98vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.83vw;
+}
+
+@media (max-width: 991px) {
+  #v24-root.v24-root .v24-card__body {
+    padding: 4.5vw 4vw;
+    gap: 2vw;
+  }
+  #v24-root.v24-root .v24-card {
+    border-radius: 4vw;
+  }
+}
+
+#v24-root.v24-root .v24-prose {
+  max-width: 62ch;
+}
+
+#v24-root.v24-root .v24-section-pad {
+  padding-top: 9.9vw;
+  padding-bottom: 9.9vw;
+}
+
+@media (max-width: 991px) {
+  #v24-root.v24-root .v24-section-pad {
+    padding-top: 18vw;
+    padding-bottom: 18vw;
+  }
+}
+
+/* ------------------------------------------------------- mock sub-routes --
+ * The ported home page is a stack of hand-placed absolute blocks, so its
+ * stylesheet has no generic page furniture. The mock sub-routes need a small
+ * amount of it: a bar, a page header, a detail column and a spec list. These
+ * are declared here, under the same doubled wrapper, so they cannot leak and
+ * cannot be overridden by the vendored sheet's per-element classes.
+ *
+ * Sizes are in vw to match the reference's own scale (it sets `font-size: 10px`
+ * on <html> and then expresses everything in vw), with the same breakpoints the
+ * reference uses: 991px and 767px.
+ */
+
+#v24-root.v24-root .v24-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2vw;
+  padding: 2.4vw 3vw;
+  background-color: #fffefc;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+#v24-root.v24-root .v24-bar__brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.6vw;
+  color: #010f2b;
+  text-decoration: none;
+  font-size: 1.56vw;
+  font-weight: 600;
+}
+
+#v24-root.v24-root .v24-bar__nav {
+  display: flex;
+  align-items: center;
+  gap: 2.2vw;
+  flex-wrap: wrap;
+}
+
+#v24-root.v24-root .v24-bar__link {
+  color: #010f2b;
+  text-decoration: none;
+  font-size: 1.25vw;
+  opacity: 0.72;
+  transition: opacity 0.25s ease;
+}
+
+#v24-root.v24-root .v24-bar__link:hover {
+  opacity: 1;
+}
+
+#v24-root.v24-root .v24-hero {
+  background-color: #010f2b;
+  color: #fffefc;
+  padding: 7vw 3vw 8vw;
+}
+
+#v24-root.v24-root .v24-eyebrow {
+  font-size: 1.15vw;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin: 0 0 1.6vw;
+}
+
+#v24-root.v24-root .v24-hero .v24-lead {
+  font-size: 1.56vw;
+  line-height: 150%;
+  max-width: 58ch;
+  opacity: 0.72;
+  margin: 2.2vw 0 0;
+}
+
+#v24-root.v24-root .v24-wrap {
+  /* px, not rem: the reference declares `font-size: 10px` on <html> and this
+   * sheet re-homes that onto the wrapper, so a rem here would be a tenth of
+   * what it reads as. */
+  max-width: 1720px;
+  margin: 0 auto;
+  padding: 0 3vw;
+  width: 100%;
+}
+
+#v24-root.v24-root .v24-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.04vw;
+}
+
+#v24-root.v24-root .v24-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.2vw;
+}
+
+#v24-root.v24-root .v24-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5vw;
+  border: 1px solid rgba(1, 15, 43, 0.16);
+  border-radius: 100px;
+  padding: 0.62vw 1.25vw;
+  font-size: 1.04vw;
+  color: #010f2b;
+}
+
+#v24-root.v24-root .v24-chip b {
+  font-weight: 600;
+}
+
+#v24-root.v24-root .v24-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.62vw;
+  background-color: #010f2b;
+  color: #fffefc;
+  border-radius: 100px;
+  padding: 1.15vw 2.1vw;
+  font-size: 1.15vw;
+  text-decoration: none;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+
+#v24-root.v24-root .v24-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+#v24-root.v24-root .v24-btn--ghost {
+  background-color: transparent;
+  color: #010f2b;
+  border: 1px solid rgba(1, 15, 43, 0.2);
+}
+
+#v24-root.v24-root .v24-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.83vw;
+}
+
+#v24-root.v24-root .v24-list li {
+  position: relative;
+  padding-inline-start: 1.7vw;
+  font-size: 1.25vw;
+  line-height: 165%;
+  color: rgba(1, 15, 43, 0.78);
+}
+
+#v24-root.v24-root .v24-list li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.62em;
+  width: 0.62vw;
+  height: 0.62vw;
+  border-radius: 50%;
+  background-color: #010f2b;
+}
+
+#v24-root.v24-root .v24-detail {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 5vw;
+  align-items: start;
+}
+
+#v24-root.v24-root .v24-figure {
+  width: 100%;
+  border-radius: 2.02vw;
+  display: block;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+#v24-root.v24-root .v24-aside {
+  background-color: #fffefc;
+  border-radius: 2.02vw;
+  padding: 2.5vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6vw;
+  position: sticky;
+  top: 8vw;
+}
+
+#v24-root.v24-root .v24-card__link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+#v24-root.v24-root .v24-card__title {
+  font-size: 1.56vw;
+  font-weight: 600;
+  margin: 0;
+}
+
+#v24-root.v24-root .v24-card__summary {
+  font-size: 1.15vw;
+  line-height: 160%;
+  color: rgba(1, 15, 43, 0.68);
+  margin: 0;
+}
+
+#v24-root.v24-root .v24-card__meta {
+  margin-top: auto;
+  padding-top: 0.83vw;
+  font-size: 1.04vw;
+  color: rgba(1, 15, 43, 0.55);
+  display: flex;
+  justify-content: space-between;
+  gap: 1vw;
+}
+
+#v24-root.v24-root .v24-foot {
+  background-color: #010f2b;
+  color: #fffefc;
+  padding: 4.5vw 3vw;
+}
+
+#v24-root.v24-root .v24-foot__grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2.5vw;
+}
+
+#v24-root.v24-root .v24-foot a {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.72;
+}
+
+#v24-root.v24-root .v24-foot a:hover {
+  opacity: 1;
+}
+
+#v24-root.v24-root .v24-muted {
+  opacity: 0.6;
+  font-size: 1.04vw;
+  line-height: 170%;
+  margin: 0;
+}
+
+@media (max-width: 991px) {
+  #v24-root.v24-root .v24-bar {
+    padding: 4.5vw 4vw;
+  }
+  #v24-root.v24-root .v24-bar__brand {
+    font-size: 4vw;
+  }
+  #v24-root.v24-root .v24-bar__link {
+    font-size: 3.4vw;
+  }
+  #v24-root.v24-root .v24-bar__nav {
+    gap: 5vw;
+  }
+  #v24-root.v24-root .v24-hero {
+    padding: 14vw 4vw 16vw;
+  }
+  #v24-root.v24-root .v24-wrap {
+    padding: 0 4vw;
+  }
+  #v24-root.v24-root .v24-eyebrow,
+  #v24-root.v24-root .v24-muted {
+    font-size: 3vw;
+  }
+  #v24-root.v24-root .v24-hero .v24-lead {
+    font-size: 4vw;
+  }
+  #v24-root.v24-root .v24-chip,
+  #v24-root.v24-root .v24-btn,
+  #v24-root.v24-root .v24-card__meta {
+    font-size: 3.2vw;
+  }
+  #v24-root.v24-root .v24-chip {
+    padding: 2vw 3.5vw;
+  }
+  #v24-root.v24-root .v24-btn {
+    padding: 3.4vw 6vw;
+  }
+  #v24-root.v24-root .v24-list li {
+    font-size: 3.7vw;
+    padding-inline-start: 5vw;
+  }
+  #v24-root.v24-root .v24-list li::before {
+    width: 1.8vw;
+    height: 1.8vw;
+  }
+  #v24-root.v24-root .v24-detail {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9vw;
+  }
+  #v24-root.v24-root .v24-figure {
+    border-radius: 4vw;
+  }
+  #v24-root.v24-root .v24-aside {
+    border-radius: 4vw;
+    padding: 6vw;
+    position: static;
+  }
+  #v24-root.v24-root .v24-card__title {
+    font-size: 4.6vw;
+  }
+  #v24-root.v24-root .v24-card__summary {
+    font-size: 3.5vw;
+  }
+  #v24-root.v24-root .v24-foot {
+    padding: 10vw 4vw;
+  }
+}
+
